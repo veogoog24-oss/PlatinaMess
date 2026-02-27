@@ -1,0 +1,12 @@
+{
+  "background_color": "#190d0d",
+  "display": "standalone",
+  "name": "PlatinaMessenger",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "PlatinaMessenger",
+  "start_url": "/platina",
+  "theme_color": "#362626",
+  "id": "PlatinaMessenger",
+  "description": "good"
+}

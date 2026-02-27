@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/icon-512.png" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <meta name="theme-color" content="#f59e0b" />
+    <title>Platina Messenger</title>
+    <!-- Ссылка на манифест для Айфона и Android -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- 🥷 ХАК 3.0: АБСОЛЮТНОЕ УНИЧТОЖЕНИЕ КНОПКИ (МУТАЦИИ) 🥷 -->
+    <style>
+      /* Базовая защита стилями */
+      #csb-open-in-editor,
+      .csb-open-in-editor,
+      div[id^="csb-"],
+      div[class*="codesandbox"],
+      a[href*="codesandbox.io"] {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        position: fixed !important;
+        top: -9999px !important;
+        left: -9999px !important;
+        z-index: -99999 !important;
+        width: 0 !important;
+        height: 0 !important;
+      }
+    </style>
+    <script>
+      // Продвинутый скрипт-киллер с использованием MutationObserver
+      document.addEventListener("DOMContentLoaded", () => {
+        // Функция проверки и убийства вредного элемента
+        const killNode = (node) => {
+          if (node.nodeType === 1) {
+            // Проверяем, что это HTML-элемент
+            const text = node.textContent || "";
+            const html = node.innerHTML || "";
+            const id = node.id || "";
+            const className =
+              typeof node.className === "string" ? node.className : "";
+
+            // Если в элементе есть следы CodeSandbox - вырезаем его с корнем
+            if (
+              id.includes("csb") ||
+              className.includes("codesandbox") ||
+              text.includes("Open Sandbox") ||
+              text.includes("Open in CodeSandbox") ||
+              html.includes("codesandbox.io")
+            ) {
+              node.remove();
+            } else {
+              // Ищем запрятанные элементы внутри
+              const badLinks = node.querySelectorAll(
+                'a[href*="codesandbox.io"], [id^="csb-"], [class*="codesandbox"]'
+              );
+              badLinks.forEach((el) => el.remove());
+            }
+          }
+        };
+
+        // 1. Убиваем то, что уже загрузилось
+        document.querySelectorAll("a, div, button").forEach(killNode);
+
+        // 2. Включаем ОКО САУРОНА (MutationObserver)
+        // Оно будет моментально удалять кнопку, если CodeSandbox попытается вставить её позже
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+              killNode(node);
+            });
+          });
+        });
+
+        // Начинаем слежку за всем документом
+        observer.observe(document.documentElement, {
+          childList: true,
+          subtree: true,
+        });
+
+        // 3. Контрольный выстрел каждые 500мс (на случай iframe)
+        setInterval(() => {
+          document
+            .querySelectorAll('a[href*="codesandbox.io"], [id^="csb-"]')
+            .forEach((el) => el.remove());
+        }, 500);
+      });
+    </script>
+  </head>
+  <body style="background-color: #09090b; color: white; margin: 0; padding: 0">
+    <noscript>Для работы Platina Web нужен JavaScript.</noscript>
+    <div id="root"></div>
+  </body>
+</html>
