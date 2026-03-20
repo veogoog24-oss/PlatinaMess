@@ -398,6 +398,18 @@ const themesMap = {
     panel: "bg-[#0f0f11]",
     border: "border-zinc-800",
     litePanel: "bg-zinc-900",
+    text: "text-zinc-100",
+    subText: "text-zinc-500",
+  },
+  light: {
+    id: "light",
+    name: "Светлая",
+    base: "bg-zinc-50",
+    panel: "bg-white",
+    border: "border-zinc-200",
+    litePanel: "bg-zinc-100",
+    text: "text-zinc-900",
+    subText: "text-zinc-400",
   },
   oled: {
     id: "oled",
@@ -406,6 +418,8 @@ const themesMap = {
     panel: "bg-[#050505]",
     border: "border-zinc-900",
     litePanel: "bg-black",
+    text: "text-zinc-100",
+    subText: "text-zinc-600",
   },
   dracula: {
     id: "dracula",
@@ -414,6 +428,8 @@ const themesMap = {
     panel: "bg-[#11111b]",
     border: "border-[#313244]",
     litePanel: "bg-[#181825]",
+    text: "text-zinc-100",
+    subText: "text-[#6272a4]",
   },
   midnight: {
     id: "midnight",
@@ -422,6 +438,8 @@ const themesMap = {
     panel: "bg-[#020617]",
     border: "border-slate-800/60",
     litePanel: "bg-slate-900",
+    text: "text-slate-100",
+    subText: "text-slate-500",
   },
   forest: {
     id: "forest",
@@ -430,6 +448,8 @@ const themesMap = {
     panel: "bg-[#064e3b]",
     border: "border-emerald-900/50",
     litePanel: "bg-emerald-900",
+    text: "text-emerald-50",
+    subText: "text-emerald-500",
   },
   nord: {
     id: "nord",
@@ -438,6 +458,8 @@ const themesMap = {
     panel: "bg-[#242933]",
     border: "border-[#3b4252]",
     litePanel: "bg-[#2e3440]",
+    text: "text-[#eceff4]",
+    subText: "text-[#4c566a]",
   },
   cyberpunk: {
     id: "cyberpunk",
@@ -446,6 +468,8 @@ const themesMap = {
     panel: "bg-[#1a1a1a]",
     border: "border-yellow-500/30",
     litePanel: "bg-[#121212]",
+    text: "text-yellow-400",
+    subText: "text-yellow-900",
   },
   "rose-pine": {
     id: "rose-pine",
@@ -454,6 +478,8 @@ const themesMap = {
     panel: "bg-[#1f1d2e]",
     border: "border-[#26233a]",
     litePanel: "bg-[#191724]",
+    text: "text-[#e0def4]",
+    subText: "text-[#6e6a86]",
   },
 };
 
@@ -2493,7 +2519,7 @@ export default function App() {
             isLite
               ? currentTheme.litePanel
               : currentTheme.glass || "bg-zinc-800"
-          } text-zinc-100 border ${
+          } ${currentTheme.text || "text-zinc-100"} border ${
             currentTheme.border || "border-zinc-700/50"
           }`;
     return `${currentAccent.bg} ${currentAccent.text} shadow-md`;
@@ -2548,7 +2574,9 @@ export default function App() {
   // ==========================================
   return (
     <div
-      className={`flex h-[100dvh] w-full ${currentTheme.base} text-zinc-100 font-sans overflow-hidden selection:bg-amber-500/20 relative`}
+      className={`flex h-[100dvh] w-full ${currentTheme.base} ${
+        currentTheme.text || "text-zinc-100"
+      } font-sans overflow-hidden selection:bg-amber-500/20 relative`}
     >
       <input
         type="file"
@@ -5265,155 +5293,151 @@ export default function App() {
                 )}
 
                 {activeSettingsTab === "admin" && isAdmin && (
-                  <div className="space-y-6 sm:space-y-8 animate-fade-in">
-                    <h3 className="text-xl sm:text-2xl font-black text-rose-500 mb-4 tracking-tighter uppercase border-b border-rose-500/20 pb-3 flex items-center gap-3">
-                      <ShieldAlert
-                        size={28}
-                        className="animate-pulse drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]"
-                      />{" "}
-                      ПАНЕЛЬ БОГА
-                    </h3>
-
-                    <div className="bg-rose-500/10 border border-rose-500/20 p-5 rounded-[2rem] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_0_20px_rgba(244,63,94,0.1)]">
+                  <div className="space-y-8 animate-fade-in relative">
+                    <div className="flex items-center justify-between border-b border-rose-500/20 pb-6 mb-6">
                       <div className="flex items-center gap-4">
-                        <div className="bg-rose-500/20 p-4 rounded-2xl border border-rose-500/30 text-rose-400">
-                          <Users size={28} />
+                        <div className="relative">
+                          <div className="absolute inset-0 bg-rose-500 rounded-full animate-ping opacity-20"></div>
+                          <div className="relative w-16 h-16 bg-gradient-to-br from-rose-400 to-rose-600 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(244,63,94,0.4)]">
+                            <ShieldAlert size={32} className="text-white" />
+                          </div>
                         </div>
                         <div>
-                          <p className="text-[10px] text-rose-500 font-black uppercase tracking-widest">
-                            В базе данных
-                          </p>
-                          <p className="text-3xl font-black text-white leading-none mt-1">
-                            {adminUsersList.length}{" "}
-                            <span className="text-sm text-zinc-500">
-                              юзеров
-                            </span>
+                          <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tighter leading-none">
+                            GOD <span className="text-rose-500 text-shadow-glow">PANEL</span>
+                          </h3>
+                          <p className="text-[10px] text-rose-500 font-black uppercase tracking-[0.3em] mt-1 opacity-60">
+                            SYSTEM CONTROL UNLOCKED
                           </p>
                         </div>
                       </div>
                       <button
                         onClick={fetchAdminUsers}
-                        className="px-5 py-3.5 bg-black/50 hover:bg-rose-950/50 text-rose-500 rounded-xl transition-all border border-rose-500/20 font-black uppercase text-[10px] tracking-widest flex items-center gap-2 justify-center shadow-lg active:scale-95"
+                        className="group p-4 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-2xl transition-all border border-rose-500/20 shadow-lg active:scale-90"
                       >
                         <RefreshCw
-                          size={16}
-                          className={isLoadingAdmin ? "animate-spin" : ""}
-                        />{" "}
-                        Обновить
+                          size={24}
+                          className={isLoadingAdmin ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"}
+                        />
                       </button>
                     </div>
 
-                    <div className="space-y-3 sm:space-y-4">
-                      {adminUsersList.map((u) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                      <div className="bg-gradient-to-br from-zinc-900 to-black border border-white/5 p-6 rounded-[2rem] shadow-xl relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-700">
+                          <Users size={80} className="text-rose-500" />
+                        </div>
+                        <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-1">TOTAL USERS</p>
+                        <p className="text-5xl font-black text-white tracking-tighter">{adminUsersList.length}</p>
+                        <div className="mt-4 h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
+                          <div className="h-full bg-rose-500 w-[70%] animate-pulse"></div>
+                        </div>
+                      </div>
+                      <div className="bg-gradient-to-br from-zinc-900 to-black border border-white/5 p-6 rounded-[2rem] shadow-xl relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-700">
+                          <Crown size={80} className="text-amber-500" />
+                        </div>
+                        <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-1">VIP ACTIVE</p>
+                        <p className="text-5xl font-black text-amber-500 tracking-tighter">
+                          {adminUsersList.filter(u => u.settings?.isPremium).length}
+                        </p>
+                        <div className="mt-4 h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
+                          <div className="h-full bg-amber-500 w-[40%] animate-pulse"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4">
+                      {adminUsersList.map((u, i) => (
                         <div
                           key={u.id}
-                          className="bg-black/40 border border-white/5 hover:border-rose-500/30 transition-colors p-4 sm:p-5 rounded-[1.5rem] flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-lg group"
+                          className={`bg-zinc-900/50 border border-white/5 hover:border-rose-500/30 transition-all p-4 sm:p-6 rounded-[2.5rem] flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-xl relative overflow-hidden group animate-spring-up`}
+                          style={{ animationDelay: `${i * 0.1}s` }}
                         >
-                          <div className="flex items-center gap-4 w-full lg:w-auto">
-                            <div
-                              className="relative flex-shrink-0 cursor-pointer"
-                              onClick={() => loadProfile(u.id)}
-                            >
+                          <div className="flex items-center gap-5 relative z-10">
+                            <div className="relative flex-shrink-0 group-hover:scale-110 transition-transform duration-500">
                               <img
-                                src={
-                                  u.settings?.avatar ||
-                                  `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.id}`
-                                }
-                                className={`w-14 h-14 rounded-full border-2 border-black object-cover ${
-                                  u.settings?.isPremium
-                                    ? "ring-2 ring-amber-400"
-                                    : "ring-1 ring-white/10"
+                                src={u.settings?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.id}`}
+                                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-[2rem] border-2 border-black object-cover ${
+                                  u.settings?.isPremium ? "ring-4 ring-amber-400 ring-offset-4 ring-offset-zinc-900" : "ring-2 ring-white/10"
                                 }`}
                               />
                               {u.settings?.isPremium && (
-                                <div className="absolute -bottom-1 -right-1 bg-zinc-900 rounded-full p-0.5">
-                                  <Crown
-                                    size={12}
-                                    className="text-amber-400 fill-amber-400"
-                                  />
+                                <div className="absolute -top-2 -right-2 bg-amber-500 rounded-xl p-1.5 shadow-xl animate-bounce-slow">
+                                  <Crown size={16} className="text-amber-950 fill-amber-950" />
                                 </div>
                               )}
                             </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-black text-white uppercase tracking-tight truncate flex items-center gap-2">
-                                {u.settings?.username || "Без имени"}
-                                <BadgeDisplay
-                                  type={u.settings?.officialBadge}
-                                  className="text-base"
-                                />
-                              </p>
-                              <p className="text-[10px] text-zinc-500 font-mono tracking-widest truncate mt-0.5">
-                                ID: {u.id}
-                              </p>
-                              <p className="text-[10px] text-amber-500 font-black mt-1.5 bg-amber-500/10 w-fit px-2 py-0.5 rounded-md border border-amber-500/20 shadow-inner flex items-center gap-1">
-                                <Gem size={10} /> {u.settings?.balance || 0}
-                              </p>
+                            <div className="min-w-0">
+                              <h4 className="text-lg sm:text-xl font-black text-white uppercase tracking-tight truncate flex items-center gap-2">
+                                {u.settings?.username || "ANONYMOUS"}
+                                <BadgeDisplay type={u.settings?.officialBadge} className="text-xl" />
+                              </h4>
+                              <p className="text-[11px] text-zinc-500 font-mono tracking-widest mt-1">ID: <span className="text-rose-500/80">{u.id}</span></p>
+                              <div className="flex items-center gap-3 mt-3">
+                                <span className="px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-[10px] font-black border border-amber-500/20 flex items-center gap-1.5 shadow-inner">
+                                  <Gem size={12} /> {u.settings?.balance || 0}
+                                </span>
+                                {u.settings?.isPremium && (
+                                  <span className="px-3 py-1 bg-amber-500 text-amber-950 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+                                    VIP MEMBER
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2 w-full lg:w-auto flex-wrap sm:flex-nowrap">
-                            {/* ВЫБОР ЗНАЧКА */}
-                            <select
-                              value={u.settings?.officialBadge || ""}
-                              onChange={(e) =>
-                                adminAction(u.id, "set_badge", e.target.value)
-                              }
-                              className="flex-1 sm:flex-none px-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-black/60 text-white border border-white/10 outline-none cursor-pointer"
-                            >
-                              <option value="">БЕЗ ЗНАЧКА</option>
-                              {Object.entries(OFFICIAL_BADGES)
-                                .filter(([k]) => k !== "ai")
-                                .map(([k, v]) => (
-                                  <option key={k} value={k}>
-                                    {v.icon} {v.label}
-                                  </option>
-                                ))}
-                            </select>
 
-                            <button
-                              onClick={() =>
-                                adminAction(
-                                  u.id,
-                                  "give_premium",
-                                  !u.settings?.isPremium
-                                )
-                              }
-                              className={`flex-1 sm:flex-none px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95 ${
-                                u.settings?.isPremium
-                                  ? "bg-zinc-800 text-zinc-400 hover:text-white"
-                                  : "bg-amber-500/20 text-amber-500 hover:bg-amber-500 hover:text-black border border-amber-500/30"
-                              }`}
-                            >
-                              {u.settings?.isPremium
-                                ? "- Убрать VIP"
-                                : "+ Дать VIP"}
-                            </button>
-                            <button
-                              onClick={() =>
-                                adminAction(u.id, "add_balance", 1000)
-                              }
-                              className="flex-1 sm:flex-none px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-black border border-cyan-500/30 transition-all shadow-md active:scale-95 flex items-center justify-center gap-1"
-                            >
-                              <Gem size={12} /> +1000
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (
-                                  window.confirm(
-                                    `Полностью стереть ${u.id} из базы данных? Это нельзя отменить!`
-                                  )
-                                )
-                                  adminAction(u.id, "delete");
-                              }}
-                              className="px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-500/20 transition-all flex justify-center shadow-md active:scale-95 group-hover:border-rose-500/50"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                          <div className="flex items-center gap-3 w-full lg:w-auto flex-wrap sm:flex-nowrap relative z-10">
+                            <div className="flex-1 sm:flex-none flex flex-col gap-1.5">
+                              <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest ml-1">SET BADGE</label>
+                              <select
+                                value={u.settings?.officialBadge || ""}
+                                onChange={(e) => adminAction(u.id, "set_badge", e.target.value)}
+                                className="w-full sm:w-40 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest bg-black text-white border border-white/10 outline-none cursor-pointer focus:border-rose-500/50 transition-colors appearance-none shadow-xl"
+                              >
+                                <option value="">NO BADGE</option>
+                                {Object.entries(OFFICIAL_BADGES).filter(([k]) => k !== "ai").map(([k, v]) => (
+                                  <option key={k} value={k}>{v.icon} {v.label}</option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div className="flex items-end gap-2 flex-1 sm:flex-none h-full pt-4">
+                              <button
+                                onClick={() => adminAction(u.id, "give_premium", !u.settings?.isPremium)}
+                                className={`flex-1 sm:w-14 h-14 rounded-2xl transition-all shadow-xl active:scale-90 flex items-center justify-center group/btn relative overflow-hidden ${
+                                  u.settings?.isPremium ? "bg-zinc-800 text-zinc-500" : "bg-amber-500 text-amber-950"
+                                }`}
+                                title="Toggle VIP"
+                              >
+                                <Crown size={24} className="relative z-10" />
+                                {!u.settings?.isPremium && <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>}
+                              </button>
+
+                              <button
+                                onClick={() => adminAction(u.id, "add_balance", 1000)}
+                                className="w-14 h-14 rounded-2xl bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white border border-cyan-500/30 transition-all shadow-xl active:scale-90 flex items-center justify-center"
+                                title="+1000 Crystals"
+                              >
+                                <Gem size={24} />
+                              </button>
+
+                              <button
+                                onClick={() => { if(window.confirm(`Slay ${u.id}? No undo.`)) adminAction(u.id, "delete"); }}
+                                className="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-500/20 transition-all active:scale-90 flex items-center justify-center shadow-xl"
+                                title="Delete User"
+                              >
+                                <Trash2 size={24} />
+                              </button>
+                            </div>
                           </div>
+
+                          <div className="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                         </div>
                       ))}
                       {adminUsersList.length === 0 && !isLoadingAdmin && (
-                        <div className="text-center text-zinc-500 py-10 font-black uppercase tracking-widest">
-                          База пуста
+                        <div className="text-center text-zinc-700 py-20 font-black uppercase tracking-[0.5em] animate-pulse">
+                          DATABASE EMPTY
                         </div>
                       )}
                     </div>
@@ -5573,6 +5597,7 @@ export default function App() {
         .animate-shake { animation: shake 0.4s ease-in-out; }
         .ease-spring { transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes bgMove { 0% { background-position: 0 0; } 100% { background-position: 1000px 1000px; } }
+        .text-shadow-glow { text-shadow: 0 0 15px rgba(244, 63, 94, 0.5); }
       `,
         }}
       />
