@@ -245,6 +245,12 @@ const DICT = {
     sell_gift: "ПРОДАТЬ",
     pin_badge: "В СТАТУС",
     unpin_badge: "СНЯТЬ СТАТУС",
+    bubble_style: "СТИЛЬ ПУЗЫРЕЙ",
+    rounded_style: "ОКРУГЛЫЕ",
+    sharp_style: "ОСТРЫЕ",
+    density: "ПЛОТНОСТЬ ЧАТА",
+    compact: "КОМПАКТНЫЙ",
+    normal_density: "ОБЫЧНЫЙ",
   },
   en: {
     login_title: "Welcome back.",
@@ -346,6 +352,12 @@ const DICT = {
     sell_gift: "SELL",
     pin_badge: "SET AS STATUS",
     unpin_badge: "REMOVE STATUS",
+    bubble_style: "BUBBLE STYLE",
+    rounded_style: "ROUNDED",
+    sharp_style: "SHARP",
+    density: "CHAT DENSITY",
+    compact: "COMPACT",
+    normal_density: "NORMAL",
   },
 };
 
@@ -369,6 +381,8 @@ const defaultSettings = {
   aiTone: "slang",
   avatar: null,
   lang: "ru",
+  bubbleStyle: "rounded",
+  messageDensity: "normal",
   lastSeen: "everyone",
   perfMode: "ultra",
   activeBadge: null,
@@ -417,13 +431,81 @@ const themesMap = {
     border: "border-emerald-900/50",
     litePanel: "bg-emerald-900",
   },
+  nord: {
+    id: "nord",
+    name: "Nord Frost",
+    base: "bg-[#2e3440]",
+    panel: "bg-[#242933]",
+    border: "border-[#3b4252]",
+    litePanel: "bg-[#2e3440]",
+  },
+  cyberpunk: {
+    id: "cyberpunk",
+    name: "Cyberpunk",
+    base: "bg-[#0a0a0a]",
+    panel: "bg-[#1a1a1a]",
+    border: "border-yellow-500/30",
+    litePanel: "bg-[#121212]",
+  },
+  "rose-pine": {
+    id: "rose-pine",
+    name: "Rosé Pine",
+    base: "bg-[#191724]",
+    panel: "bg-[#1f1d2e]",
+    border: "border-[#26233a]",
+    litePanel: "bg-[#191724]",
+  },
 };
 
 const accentMap = {
-  zinc: { bg: "bg-zinc-200", text: "text-zinc-900", toggle: "bg-zinc-200" },
-  amber: { bg: "bg-amber-500", text: "text-amber-950", toggle: "bg-amber-400" },
-  indigo: { bg: "bg-indigo-500", text: "text-white", toggle: "bg-indigo-500" },
-  rose: { bg: "bg-rose-500", text: "text-white", toggle: "bg-rose-500" },
+  zinc: {
+    bg: "bg-zinc-200",
+    text: "text-zinc-900",
+    toggleBg: "bg-zinc-200",
+    textActive: "text-white",
+  },
+  amber: {
+    bg: "bg-amber-500",
+    text: "text-amber-950",
+    toggleBg: "bg-amber-400",
+    textActive: "text-amber-500",
+  },
+  indigo: {
+    bg: "bg-indigo-500",
+    text: "text-white",
+    toggleBg: "bg-indigo-500",
+    textActive: "text-indigo-500",
+  },
+  rose: {
+    bg: "bg-rose-500",
+    text: "text-white",
+    toggleBg: "bg-rose-500",
+    textActive: "text-rose-500",
+  },
+  emerald: {
+    bg: "bg-emerald-500",
+    text: "text-white",
+    toggleBg: "bg-emerald-500",
+    textActive: "text-emerald-500",
+  },
+  violet: {
+    bg: "bg-violet-500",
+    text: "text-white",
+    toggleBg: "bg-violet-500",
+    textActive: "text-violet-500",
+  },
+  sky: {
+    bg: "bg-sky-500",
+    text: "text-white",
+    toggleBg: "bg-sky-500",
+    textActive: "text-sky-500",
+  },
+  orange: {
+    bg: "bg-orange-500",
+    text: "text-white",
+    toggleBg: "bg-orange-500",
+    textActive: "text-orange-500",
+  },
 };
 
 const premiumGifts = [
@@ -640,7 +722,7 @@ const initialMessages = {
 
 const callGemini = async (prompt, systemInstruction) => {
   const apiKey = myFirebaseConfig.apiKey;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
   const payload = {
     contents: [{ parts: [{ text: prompt }] }],
     systemInstruction: { parts: [{ text: systemInstruction }] },
@@ -663,7 +745,7 @@ const callGemini = async (prompt, systemInstruction) => {
 
 const callImagen = async (prompt) => {
   const apiKey = myFirebaseConfig.apiKey;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`;
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -1569,7 +1651,7 @@ export default function App() {
       durationText: basePayload.durationText || null,
       voiceEffect: basePayload.voiceEffect || null,
       expiresAt:
-        isBurnMode && !basePayload.isVoice && basePayload.type !== "gift"
+        isBurnMode && basePayload.type !== "gift"
           ? Date.now() + 10000
           : null,
       replyTo: replyingTo
@@ -3298,7 +3380,11 @@ export default function App() {
 
             {/* Область сообщений */}
             <div
-              className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 custom-scrollbar relative z-10"
+              className={`flex-1 overflow-y-auto ${
+                settings.messageDensity === "compact"
+                  ? "p-2 sm:p-3 lg:p-4 space-y-1 sm:space-y-1.5"
+                  : "p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6"
+              } custom-scrollbar relative z-10`}
               onClick={() => {
                 setActiveMessageMenu(null);
                 setShowChatMenu(false);
@@ -3389,7 +3475,11 @@ export default function App() {
                     key={msg.id}
                     className={`flex ${
                       isMe ? "justify-end" : "justify-start"
-                    } group mb-4 sm:mb-6 relative animate-message-pop origin-bottom`}
+                    } group ${
+                      settings.messageDensity === "compact"
+                        ? "mb-1 sm:mb-1.5"
+                        : "mb-4 sm:mb-6"
+                    } relative animate-message-pop origin-bottom`}
                     onMouseLeave={() => {
                       setActiveReactionMsg(null);
                     }}
@@ -3503,10 +3593,14 @@ export default function App() {
 
                         {/* Баббл сообщения */}
                         <div
-                          className={`relative px-4 py-3 sm:px-5 sm:py-4 ${
-                            settings.fontSize
-                          } ${
-                            isMe
+                          className={`relative ${
+                            settings.messageDensity === "compact"
+                              ? "px-3 py-1.5 sm:px-4 sm:py-2"
+                              : "px-4 py-3 sm:px-5 sm:py-4"
+                          } ${settings.fontSize} ${
+                            settings.bubbleStyle === "sharp"
+                              ? "rounded-sm sm:rounded-md"
+                              : isMe
                               ? "rounded-[1.5rem] sm:rounded-[2rem] rounded-br-sm sm:rounded-br-md"
                               : "rounded-[1.5rem] sm:rounded-[2rem] rounded-bl-sm sm:rounded-bl-md"
                           } ${getAccentClasses(
@@ -4639,6 +4733,7 @@ export default function App() {
                         ))}
                       </div>
                     </div>
+
                   </div>
                 )}
 
@@ -4965,6 +5060,60 @@ export default function App() {
                             }`}
                           >
                             {size.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 uppercase tracking-[0.3em] font-black text-center sm:text-left lg:ml-2">
+                        {getText("bubble_style")}
+                      </h4>
+                      <div className="flex flex-col sm:flex-row bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-[2rem] p-1 sm:p-1.5 lg:p-2 border border-white/5 shadow-inner gap-1 sm:gap-0">
+                        {[
+                          { id: "rounded", label: getText("rounded_style") },
+                          { id: "sharp", label: getText("sharp_style") },
+                        ].map((st) => (
+                          <button
+                            type="button"
+                            key={st.id}
+                            onClick={() =>
+                              updateSettingField("bubbleStyle", st.id)
+                            }
+                            className={`flex-1 py-2.5 sm:py-3 lg:py-4 rounded-lg sm:rounded-xl lg:rounded-3xl text-[8px] sm:text-[9px] lg:text-[10px] xl:text-xs tracking-widest uppercase transition-all duration-300 ${
+                              settings.bubbleStyle === st.id
+                                ? "bg-white text-zinc-950 font-black shadow-md lg:shadow-xl sm:scale-[1.02]"
+                                : "text-zinc-500 hover:text-white sm:hover:bg-white/5 font-bold"
+                            }`}
+                          >
+                            {st.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 uppercase tracking-[0.3em] font-black text-center sm:text-left lg:ml-2">
+                        {getText("density")}
+                      </h4>
+                      <div className="flex flex-col sm:flex-row bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-[2rem] p-1 sm:p-1.5 lg:p-2 border border-white/5 shadow-inner gap-1 sm:gap-0">
+                        {[
+                          { id: "normal", label: getText("normal_density") },
+                          { id: "compact", label: getText("compact") },
+                        ].map((d) => (
+                          <button
+                            type="button"
+                            key={d.id}
+                            onClick={() =>
+                              updateSettingField("messageDensity", d.id)
+                            }
+                            className={`flex-1 py-2.5 sm:py-3 lg:py-4 rounded-lg sm:rounded-xl lg:rounded-3xl text-[8px] sm:text-[9px] lg:text-[10px] xl:text-xs tracking-widest uppercase transition-all duration-300 ${
+                              settings.messageDensity === d.id
+                                ? "bg-white text-zinc-950 font-black shadow-md lg:shadow-xl sm:scale-[1.02]"
+                                : "text-zinc-500 hover:text-white sm:hover:bg-white/5 font-bold"
+                            }`}
+                          >
+                            {d.label}
                           </button>
                         ))}
                       </div>
