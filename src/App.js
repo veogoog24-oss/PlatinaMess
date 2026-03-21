@@ -398,6 +398,18 @@ const themesMap = {
     panel: "bg-[#0f0f11]",
     border: "border-zinc-800",
     litePanel: "bg-zinc-900",
+    text: "text-zinc-100",
+    subText: "text-zinc-500",
+  },
+  light: {
+    id: "light",
+    name: "Светлая",
+    base: "bg-zinc-50",
+    panel: "bg-white",
+    border: "border-zinc-200",
+    litePanel: "bg-zinc-100",
+    text: "text-zinc-900",
+    subText: "text-zinc-400",
   },
   oled: {
     id: "oled",
@@ -406,6 +418,8 @@ const themesMap = {
     panel: "bg-[#050505]",
     border: "border-zinc-900",
     litePanel: "bg-black",
+    text: "text-zinc-100",
+    subText: "text-zinc-600",
   },
   dracula: {
     id: "dracula",
@@ -414,6 +428,8 @@ const themesMap = {
     panel: "bg-[#11111b]",
     border: "border-[#313244]",
     litePanel: "bg-[#181825]",
+    text: "text-zinc-100",
+    subText: "text-[#6272a4]",
   },
   midnight: {
     id: "midnight",
@@ -422,6 +438,8 @@ const themesMap = {
     panel: "bg-[#020617]",
     border: "border-slate-800/60",
     litePanel: "bg-slate-900",
+    text: "text-slate-100",
+    subText: "text-slate-500",
   },
   forest: {
     id: "forest",
@@ -430,6 +448,8 @@ const themesMap = {
     panel: "bg-[#064e3b]",
     border: "border-emerald-900/50",
     litePanel: "bg-emerald-900",
+    text: "text-emerald-50",
+    subText: "text-emerald-500",
   },
   nord: {
     id: "nord",
@@ -438,6 +458,8 @@ const themesMap = {
     panel: "bg-[#242933]",
     border: "border-[#3b4252]",
     litePanel: "bg-[#2e3440]",
+    text: "text-[#eceff4]",
+    subText: "text-[#4c566a]",
   },
   cyberpunk: {
     id: "cyberpunk",
@@ -446,6 +468,8 @@ const themesMap = {
     panel: "bg-[#1a1a1a]",
     border: "border-yellow-500/30",
     litePanel: "bg-[#121212]",
+    text: "text-yellow-400",
+    subText: "text-yellow-900",
   },
   "rose-pine": {
     id: "rose-pine",
@@ -454,6 +478,8 @@ const themesMap = {
     panel: "bg-[#1f1d2e]",
     border: "border-[#26233a]",
     litePanel: "bg-[#191724]",
+    text: "text-[#e0def4]",
+    subText: "text-[#6e6a86]",
   },
   light: {
     id: "light",
@@ -2520,7 +2546,7 @@ export default function App() {
             isLite
               ? currentTheme.litePanel
               : currentTheme.glass || "bg-zinc-800"
-          } text-zinc-100 border ${
+          } ${currentTheme.text || "text-zinc-100"} border ${
             currentTheme.border || "border-zinc-700/50"
           }`;
     return `${currentAccent.bg} ${currentAccent.text} shadow-md`;
@@ -5342,11 +5368,8 @@ export default function App() {
                           key={u.id}
                           className={`${settings.theme === 'light' ? 'bg-white border-zinc-200 shadow-md' : 'bg-zinc-900/40 border-white/5 hover:border-rose-500/30'} border transition-all p-5 rounded-3xl flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-sm group`}
                         >
-                          <div className="flex items-center gap-4 w-full lg:w-auto">
-                            <div
-                              className="relative flex-shrink-0 cursor-pointer"
-                              onClick={() => loadProfile(u.id)}
-                            >
+                          <div className="flex items-center gap-5 relative z-10">
+                            <div className="relative flex-shrink-0 group-hover:scale-110 transition-transform duration-500">
                               <img
                                 src={
                                   u.settings?.avatar ||
@@ -5484,12 +5507,14 @@ export default function App() {
                               <Trash2 size={16} />
                             </button>
                           </div>
+
+                          <div className="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                         </div>
                       </div>
                     ))}
                       {adminUsersList.length === 0 && !isLoadingAdmin && (
-                        <div className="text-center text-zinc-500 py-10 font-black uppercase tracking-widest">
-                          База пуста
+                        <div className="text-center text-zinc-700 py-20 font-black uppercase tracking-[0.5em] animate-pulse">
+                          DATABASE EMPTY
                         </div>
                       )}
                     </div>
@@ -5649,6 +5674,7 @@ export default function App() {
         .animate-shake { animation: shake 0.4s ease-in-out; }
         .ease-spring { transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes bgMove { 0% { background-position: 0 0; } 100% { background-position: 1000px 1000px; } }
+        .text-shadow-glow { text-shadow: 0 0 15px rgba(244, 63, 94, 0.5); }
       `,
         }}
       />
