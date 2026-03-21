@@ -481,6 +481,14 @@ const themesMap = {
     text: "text-[#e0def4]",
     subText: "text-[#6e6a86]",
   },
+  light: {
+    id: "light",
+    name: "Белая",
+    base: "bg-zinc-50",
+    panel: "bg-white",
+    border: "border-zinc-200",
+    litePanel: "bg-zinc-100",
+  },
 };
 
 const accentMap = {
@@ -1060,6 +1068,11 @@ function AuthScreen({ onLogin, isDeviceReady }) {
 
       if (mode === "login") {
         if (snap.exists() && snap.data().password === password) {
+          if (snap.data().settings?.isBanned) {
+            setError("Твой аккаунт заблокирован! 🚫");
+            setLoading(false);
+            return;
+          }
           onLogin(login);
         } else {
           setError("Неверный логин или пароль ❌");
@@ -1371,6 +1384,15 @@ export default function App() {
       } else if (action === "set_badge") {
         await updateDoc(ref, { "settings.officialBadge": value || null });
         triggerToast("АДМИН", `Значок обновлен для ${targetId}`);
+      } else if (action === "clear_history") {
+        await updateDoc(ref, { messages: {} });
+        triggerToast("АДМИН", `История сообщений ${targetId} очищена.`);
+      } else if (action === "toggle_ban") {
+        await updateDoc(ref, { "settings.isBanned": value });
+        triggerToast(
+          "АДМИН",
+          `Юзер ${targetId} ${value ? "ЗАБАНЕН 🚫" : "РАЗБАНЕН ✅"}`
+        );
       }
       fetchAdminUsers();
     } catch (e) {
@@ -1465,6 +1487,11 @@ export default function App() {
         if (data.contacts) setContacts(data.contacts);
         if (data.settings) {
           setSettings((prev) => ({ ...defaultSettings, ...data.settings }));
+          if (data.settings?.isBanned) {
+            handleLogout();
+            triggerToast("ОЙ", "Твой аккаунт заблокирован! 🚫");
+            return;
+          }
           if (data.settings.incomingCall && !callState) {
             if (
               !incomingCallData ||
@@ -2575,7 +2602,7 @@ export default function App() {
   return (
     <div
       className={`flex h-[100dvh] w-full ${currentTheme.base} ${
-        currentTheme.text || "text-zinc-100"
+        settings.theme === "light" ? "text-zinc-900" : "text-zinc-100"
       } font-sans overflow-hidden selection:bg-amber-500/20 relative`}
     >
       <input
@@ -5293,148 +5320,198 @@ export default function App() {
                 )}
 
                 {activeSettingsTab === "admin" && isAdmin && (
-                  <div className="space-y-8 animate-fade-in relative">
-                    <div className="flex items-center justify-between border-b border-rose-500/20 pb-6 mb-6">
-                      <div className="flex items-center gap-4">
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-rose-500 rounded-full animate-ping opacity-20"></div>
-                          <div className="relative w-16 h-16 bg-gradient-to-br from-rose-400 to-rose-600 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(244,63,94,0.4)]">
-                            <ShieldAlert size={32} className="text-white" />
-                          </div>
-                        </div>
-                        <div>
-                          <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tighter leading-none">
-                            GOD <span className="text-rose-500 text-shadow-glow">PANEL</span>
-                          </h3>
-                          <p className="text-[10px] text-rose-500 font-black uppercase tracking-[0.3em] mt-1 opacity-60">
-                            SYSTEM CONTROL UNLOCKED
-                          </p>
-                        </div>
+                  <div className="space-y-6 sm:space-y-8 animate-fade-in">
+                    <h3 className={`text-xl sm:text-2xl font-black ${settings.theme === 'light' ? 'text-indigo-600' : 'text-rose-500'} mb-4 tracking-tighter uppercase border-b ${settings.theme === 'light' ? 'border-indigo-100' : 'border-rose-500/20'} pb-3 flex items-center gap-3`}>
+                      <ShieldAlert
+                        size={28}
+                        className="animate-pulse drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]"
+                      />{" "}
+                      АДМИН ПАНЕЛЬ
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+                      <div className={`${settings.theme === 'light' ? 'bg-indigo-50 border-indigo-100' : 'bg-rose-500/10 border-rose-500/20'} border p-5 rounded-3xl shadow-sm`}>
+                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-indigo-600' : 'text-rose-500'} font-black uppercase tracking-widest mb-1`}>Пользователи</p>
+                        <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>{adminUsersList.length}</p>
                       </div>
-                      <button
+                      <div className={`${settings.theme === 'light' ? 'bg-amber-50 border-amber-100' : 'bg-amber-500/10 border-amber-500/20'} border p-5 rounded-3xl shadow-sm`}>
+                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-amber-600' : 'text-amber-500'} font-black uppercase tracking-widest mb-1`}>Всего Кристаллов</p>
+                        <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
+                          {adminUsersList.reduce((acc, u) => acc + (u.settings?.balance || 0), 0).toLocaleString()} 💎
+                        </p>
+                      </div>
+                      <div className={`${settings.theme === 'light' ? 'bg-cyan-50 border-cyan-100' : 'bg-cyan-500/10 border-cyan-500/20'} border p-5 rounded-3xl shadow-sm`}>
+                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-cyan-600' : 'text-cyan-500'} font-black uppercase tracking-widest mb-1`}>Всего Сообщений</p>
+                        <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
+                          {adminUsersList.reduce((acc, u) => acc + Object.values(u.messages || {}).reduce((mAcc, mArr) => mAcc + mArr.length, 0), 0).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between mb-4">
+                       <p className="text-[10px] font-black uppercase tracking-widest opacity-50">Управление пользователями</p>
+                       <button
                         onClick={fetchAdminUsers}
-                        className="group p-4 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-2xl transition-all border border-rose-500/20 shadow-lg active:scale-90"
+                        className={`px-4 py-2 ${settings.theme === 'light' ? 'bg-zinc-100 hover:bg-zinc-200 text-zinc-600' : 'bg-black/50 hover:bg-zinc-800 text-zinc-400'} rounded-xl transition-all border border-transparent font-black uppercase text-[9px] tracking-widest flex items-center gap-2`}
                       >
                         <RefreshCw
-                          size={24}
-                          className={isLoadingAdmin ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"}
-                        />
+                          size={14}
+                          className={isLoadingAdmin ? "animate-spin" : ""}
+                        />{" "}
+                        Обновить базу
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                      <div className="bg-gradient-to-br from-zinc-900 to-black border border-white/5 p-6 rounded-[2rem] shadow-xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-700">
-                          <Users size={80} className="text-rose-500" />
-                        </div>
-                        <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-1">TOTAL USERS</p>
-                        <p className="text-5xl font-black text-white tracking-tighter">{adminUsersList.length}</p>
-                        <div className="mt-4 h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
-                          <div className="h-full bg-rose-500 w-[70%] animate-pulse"></div>
-                        </div>
-                      </div>
-                      <div className="bg-gradient-to-br from-zinc-900 to-black border border-white/5 p-6 rounded-[2rem] shadow-xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-700">
-                          <Crown size={80} className="text-amber-500" />
-                        </div>
-                        <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-1">VIP ACTIVE</p>
-                        <p className="text-5xl font-black text-amber-500 tracking-tighter">
-                          {adminUsersList.filter(u => u.settings?.isPremium).length}
-                        </p>
-                        <div className="mt-4 h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
-                          <div className="h-full bg-amber-500 w-[40%] animate-pulse"></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4">
-                      {adminUsersList.map((u, i) => (
+                    <div className="space-y-4">
+                      {adminUsersList.map((u) => (
                         <div
                           key={u.id}
-                          className={`bg-zinc-900/50 border border-white/5 hover:border-rose-500/30 transition-all p-4 sm:p-6 rounded-[2.5rem] flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-xl relative overflow-hidden group animate-spring-up`}
-                          style={{ animationDelay: `${i * 0.1}s` }}
+                          className={`${settings.theme === 'light' ? 'bg-white border-zinc-200 shadow-md' : 'bg-zinc-900/40 border-white/5 hover:border-rose-500/30'} border transition-all p-5 rounded-3xl flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-sm group`}
                         >
                           <div className="flex items-center gap-5 relative z-10">
                             <div className="relative flex-shrink-0 group-hover:scale-110 transition-transform duration-500">
                               <img
-                                src={u.settings?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.id}`}
-                                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-[2rem] border-2 border-black object-cover ${
-                                  u.settings?.isPremium ? "ring-4 ring-amber-400 ring-offset-4 ring-offset-zinc-900" : "ring-2 ring-white/10"
+                                src={
+                                  u.settings?.avatar ||
+                                  `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.id}`
+                                }
+                                className={`w-16 h-16 rounded-full border-2 ${settings.theme === 'light' ? 'border-zinc-100' : 'border-black'} object-cover ${
+                                  u.settings?.isPremium
+                                    ? "ring-2 ring-amber-400 shadow-lg shadow-amber-500/20"
+                                    : ""
                                 }`}
                               />
                               {u.settings?.isPremium && (
-                                <div className="absolute -top-2 -right-2 bg-amber-500 rounded-xl p-1.5 shadow-xl animate-bounce-slow">
-                                  <Crown size={16} className="text-amber-950 fill-amber-950" />
+                                <div className="absolute -bottom-1 -right-1 bg-zinc-900 rounded-full p-1 border border-amber-500/30">
+                                  <Crown
+                                    size={14}
+                                    className="text-amber-400 fill-amber-400"
+                                  />
                                 </div>
                               )}
                             </div>
-                            <div className="min-w-0">
-                              <h4 className="text-lg sm:text-xl font-black text-white uppercase tracking-tight truncate flex items-center gap-2">
-                                {u.settings?.username || "ANONYMOUS"}
-                                <BadgeDisplay type={u.settings?.officialBadge} className="text-xl" />
-                              </h4>
-                              <p className="text-[11px] text-zinc-500 font-mono tracking-widest mt-1">ID: <span className="text-rose-500/80">{u.id}</span></p>
-                              <div className="flex items-center gap-3 mt-3">
-                                <span className="px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-[10px] font-black border border-amber-500/20 flex items-center gap-1.5 shadow-inner">
-                                  <Gem size={12} /> {u.settings?.balance || 0}
-                                </span>
-                                {u.settings?.isPremium && (
-                                  <span className="px-3 py-1 bg-amber-500 text-amber-950 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
-                                    VIP MEMBER
-                                  </span>
+                            <div className="min-w-0 flex-1">
+                              <p className={`text-base font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'} uppercase tracking-tight truncate flex items-center gap-2`}>
+                                {u.settings?.username || "Без имени"}
+                                <BadgeDisplay
+                                  type={u.settings?.officialBadge}
+                                  className="text-lg"
+                                />
+                              </p>
+                              <p className="text-[11px] text-zinc-500 font-mono tracking-widest truncate mt-0.5">
+                                ID: {u.id}
+                              </p>
+                              <div className="flex items-center gap-3 mt-2">
+                                <p className="text-[10px] text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 flex items-center gap-1">
+                                  <Gem size={10} /> {u.settings?.balance || 0}
+                                </p>
+                                {u.settings?.isBanned && (
+                                  <p className="text-[10px] text-rose-500 font-black bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20 uppercase tracking-widest animate-pulse">
+                                    ЗАБАНЕН
+                                  </p>
                                 )}
                               </div>
                             </div>
                           </div>
-
-                          <div className="flex items-center gap-3 w-full lg:w-auto flex-wrap sm:flex-nowrap relative z-10">
-                            <div className="flex-1 sm:flex-none flex flex-col gap-1.5">
-                              <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest ml-1">SET BADGE</label>
-                              <select
-                                value={u.settings?.officialBadge || ""}
-                                onChange={(e) => adminAction(u.id, "set_badge", e.target.value)}
-                                className="w-full sm:w-40 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest bg-black text-white border border-white/10 outline-none cursor-pointer focus:border-rose-500/50 transition-colors appearance-none shadow-xl"
-                              >
-                                <option value="">NO BADGE</option>
-                                {Object.entries(OFFICIAL_BADGES).filter(([k]) => k !== "ai").map(([k, v]) => (
-                                  <option key={k} value={k}>{v.icon} {v.label}</option>
-                                ))}
-                              </select>
-                            </div>
-
-                            <div className="flex items-end gap-2 flex-1 sm:flex-none h-full pt-4">
+                          <div className="flex flex-col gap-3 w-full lg:w-auto">
+                            {/* ВЫБОР ЗНАЧКА (КРАСИВАЯ СЕТКА) */}
+                            <div className="flex flex-wrap gap-1.5 p-2 bg-black/20 rounded-2xl border border-white/5">
                               <button
-                                onClick={() => adminAction(u.id, "give_premium", !u.settings?.isPremium)}
-                                className={`flex-1 sm:w-14 h-14 rounded-2xl transition-all shadow-xl active:scale-90 flex items-center justify-center group/btn relative overflow-hidden ${
-                                  u.settings?.isPremium ? "bg-zinc-800 text-zinc-500" : "bg-amber-500 text-amber-950"
+                                onClick={() => adminAction(u.id, "set_badge", null)}
+                                className={`p-2 rounded-xl text-[10px] font-black uppercase transition-all ${
+                                  !u.settings?.officialBadge
+                                    ? 'bg-zinc-500 text-white shadow-lg'
+                                    : 'text-zinc-600 hover:text-zinc-400'
                                 }`}
-                                title="Toggle VIP"
+                                title="Без значка"
                               >
-                                <Crown size={24} className="relative z-10" />
-                                {!u.settings?.isPremium && <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>}
+                                <X size={14} />
                               </button>
-
-                              <button
-                                onClick={() => adminAction(u.id, "add_balance", 1000)}
-                                className="w-14 h-14 rounded-2xl bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white border border-cyan-500/30 transition-all shadow-xl active:scale-90 flex items-center justify-center"
-                                title="+1000 Crystals"
-                              >
-                                <Gem size={24} />
-                              </button>
-
-                              <button
-                                onClick={() => { if(window.confirm(`Slay ${u.id}? No undo.`)) adminAction(u.id, "delete"); }}
-                                className="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-500/20 transition-all active:scale-90 flex items-center justify-center shadow-xl"
-                                title="Delete User"
-                              >
-                                <Trash2 size={24} />
-                              </button>
+                              {Object.entries(OFFICIAL_BADGES)
+                                .filter(([k]) => k !== "ai")
+                                .map(([k, v]) => (
+                                  <button
+                                    key={k}
+                                    onClick={() => adminAction(u.id, "set_badge", k)}
+                                    className={`p-2 rounded-xl text-lg transition-all hover:scale-110 active:scale-90 ${
+                                      u.settings?.officialBadge === k
+                                        ? 'bg-indigo-500 shadow-lg shadow-indigo-500/40'
+                                        : 'bg-black/40 hover:bg-black/60 opacity-60 hover:opacity-100'
+                                    }`}
+                                    title={v.label}
+                                  >
+                                    {v.icon}
+                                  </button>
+                                ))}
                             </div>
+
+                            <div className="flex items-center gap-2 w-full lg:w-auto flex-wrap sm:flex-nowrap">
+                            <button
+                              onClick={() =>
+                                adminAction(
+                                  u.id,
+                                  "give_premium",
+                                  !u.settings?.isPremium
+                                )
+                              }
+                              className={`flex-1 sm:flex-none px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95 ${
+                                u.settings?.isPremium
+                                  ? "bg-zinc-800 text-zinc-400 hover:text-white"
+                                  : "bg-amber-500/20 text-amber-500 hover:bg-amber-500 hover:text-black border border-amber-500/30"
+                              }`}
+                            >
+                              {u.settings?.isPremium
+                                ? "- Убрать VIP"
+                                : "+ Дать VIP"}
+                            </button>
+                            <button
+                              onClick={() =>
+                                adminAction(u.id, "add_balance", 1000)
+                              }
+                              className="flex-1 sm:flex-none px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500 hover:text-white border border-cyan-500/20 transition-all active:scale-95 flex items-center justify-center gap-1"
+                            >
+                              <Gem size={12} /> +1000
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (window.confirm(`Очистить всю историю сообщений для ${u.id}?`))
+                                  adminAction(u.id, "clear_history");
+                              }}
+                              className="px-3 py-3 rounded-xl bg-zinc-500/10 text-zinc-500 hover:bg-zinc-500 hover:text-white border border-zinc-500/20 transition-all active:scale-95 flex items-center justify-center"
+                              title="Очистить историю"
+                            >
+                              <Trash size={16} />
+                            </button>
+                            <button
+                              onClick={() => adminAction(u.id, "toggle_ban", !u.settings?.isBanned)}
+                              className={`px-3 py-3 rounded-xl border transition-all active:scale-95 flex items-center justify-center ${
+                                u.settings?.isBanned
+                                  ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500 hover:text-white'
+                                  : 'bg-rose-500/10 text-rose-500 border-rose-500/20 hover:bg-rose-500 hover:text-white'
+                              }`}
+                              title={u.settings?.isBanned ? "Разбанить" : "Забанить"}
+                            >
+                              {u.settings?.isBanned ? <Check size={16} /> : <ShieldAlert size={16} />}
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (
+                                  window.confirm(
+                                    `Полностью стереть ${u.id} из базы данных? Это нельзя отменить!`
+                                  )
+                                )
+                                  adminAction(u.id, "delete");
+                              }}
+                              className="px-3 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-500/20 transition-all flex justify-center active:scale-95 group-hover:border-rose-500/50"
+                            >
+                              <Trash2 size={16} />
+                            </button>
                           </div>
 
                           <div className="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                         </div>
-                      ))}
+                      </div>
+                    ))}
                       {adminUsersList.length === 0 && !isLoadingAdmin && (
                         <div className="text-center text-zinc-700 py-20 font-black uppercase tracking-[0.5em] animate-pulse">
                           DATABASE EMPTY
