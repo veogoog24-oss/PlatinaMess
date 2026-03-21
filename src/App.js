@@ -455,6 +455,14 @@ const themesMap = {
     border: "border-[#26233a]",
     litePanel: "bg-[#191724]",
   },
+  light: {
+    id: "light",
+    name: "Белая",
+    base: "bg-zinc-50",
+    panel: "bg-white",
+    border: "border-zinc-200",
+    litePanel: "bg-zinc-100",
+  },
 };
 
 const accentMap = {
@@ -1034,6 +1042,11 @@ function AuthScreen({ onLogin, isDeviceReady }) {
 
       if (mode === "login") {
         if (snap.exists() && snap.data().password === password) {
+          if (snap.data().settings?.isBanned) {
+            setError("Твой аккаунт заблокирован! 🚫");
+            setLoading(false);
+            return;
+          }
           onLogin(login);
         } else {
           setError("Неверный логин или пароль ❌");
@@ -1345,6 +1358,15 @@ export default function App() {
       } else if (action === "set_badge") {
         await updateDoc(ref, { "settings.officialBadge": value || null });
         triggerToast("АДМИН", `Значок обновлен для ${targetId}`);
+      } else if (action === "clear_history") {
+        await updateDoc(ref, { messages: {} });
+        triggerToast("АДМИН", `История сообщений ${targetId} очищена.`);
+      } else if (action === "toggle_ban") {
+        await updateDoc(ref, { "settings.isBanned": value });
+        triggerToast(
+          "АДМИН",
+          `Юзер ${targetId} ${value ? "ЗАБАНЕН 🚫" : "РАЗБАНЕН ✅"}`
+        );
       }
       fetchAdminUsers();
     } catch (e) {
@@ -1439,6 +1461,11 @@ export default function App() {
         if (data.contacts) setContacts(data.contacts);
         if (data.settings) {
           setSettings((prev) => ({ ...defaultSettings, ...data.settings }));
+          if (data.settings?.isBanned) {
+            handleLogout();
+            triggerToast("ОЙ", "Твой аккаунт заблокирован! 🚫");
+            return;
+          }
           if (data.settings.incomingCall && !callState) {
             if (
               !incomingCallData ||
@@ -2548,7 +2575,9 @@ export default function App() {
   // ==========================================
   return (
     <div
-      className={`flex h-[100dvh] w-full ${currentTheme.base} text-zinc-100 font-sans overflow-hidden selection:bg-amber-500/20 relative`}
+      className={`flex h-[100dvh] w-full ${currentTheme.base} ${
+        settings.theme === "light" ? "text-zinc-900" : "text-zinc-100"
+      } font-sans overflow-hidden selection:bg-amber-500/20 relative`}
     >
       <input
         type="file"
@@ -5266,48 +5295,52 @@ export default function App() {
 
                 {activeSettingsTab === "admin" && isAdmin && (
                   <div className="space-y-6 sm:space-y-8 animate-fade-in">
-                    <h3 className="text-xl sm:text-2xl font-black text-rose-500 mb-4 tracking-tighter uppercase border-b border-rose-500/20 pb-3 flex items-center gap-3">
+                    <h3 className={`text-xl sm:text-2xl font-black ${settings.theme === 'light' ? 'text-indigo-600' : 'text-rose-500'} mb-4 tracking-tighter uppercase border-b ${settings.theme === 'light' ? 'border-indigo-100' : 'border-rose-500/20'} pb-3 flex items-center gap-3`}>
                       <ShieldAlert
                         size={28}
                         className="animate-pulse drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]"
                       />{" "}
-                      ПАНЕЛЬ БОГА
+                      АДМИН ПАНЕЛЬ
                     </h3>
 
-                    <div className="bg-rose-500/10 border border-rose-500/20 p-5 rounded-[2rem] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_0_20px_rgba(244,63,94,0.1)]">
-                      <div className="flex items-center gap-4">
-                        <div className="bg-rose-500/20 p-4 rounded-2xl border border-rose-500/30 text-rose-400">
-                          <Users size={28} />
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-rose-500 font-black uppercase tracking-widest">
-                            В базе данных
-                          </p>
-                          <p className="text-3xl font-black text-white leading-none mt-1">
-                            {adminUsersList.length}{" "}
-                            <span className="text-sm text-zinc-500">
-                              юзеров
-                            </span>
-                          </p>
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+                      <div className={`${settings.theme === 'light' ? 'bg-indigo-50 border-indigo-100' : 'bg-rose-500/10 border-rose-500/20'} border p-5 rounded-3xl shadow-sm`}>
+                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-indigo-600' : 'text-rose-500'} font-black uppercase tracking-widest mb-1`}>Пользователи</p>
+                        <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>{adminUsersList.length}</p>
                       </div>
-                      <button
+                      <div className={`${settings.theme === 'light' ? 'bg-amber-50 border-amber-100' : 'bg-amber-500/10 border-amber-500/20'} border p-5 rounded-3xl shadow-sm`}>
+                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-amber-600' : 'text-amber-500'} font-black uppercase tracking-widest mb-1`}>Всего Кристаллов</p>
+                        <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
+                          {adminUsersList.reduce((acc, u) => acc + (u.settings?.balance || 0), 0).toLocaleString()} 💎
+                        </p>
+                      </div>
+                      <div className={`${settings.theme === 'light' ? 'bg-cyan-50 border-cyan-100' : 'bg-cyan-500/10 border-cyan-500/20'} border p-5 rounded-3xl shadow-sm`}>
+                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-cyan-600' : 'text-cyan-500'} font-black uppercase tracking-widest mb-1`}>Всего Сообщений</p>
+                        <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
+                          {adminUsersList.reduce((acc, u) => acc + Object.values(u.messages || {}).reduce((mAcc, mArr) => mAcc + mArr.length, 0), 0).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between mb-4">
+                       <p className="text-[10px] font-black uppercase tracking-widest opacity-50">Управление пользователями</p>
+                       <button
                         onClick={fetchAdminUsers}
-                        className="px-5 py-3.5 bg-black/50 hover:bg-rose-950/50 text-rose-500 rounded-xl transition-all border border-rose-500/20 font-black uppercase text-[10px] tracking-widest flex items-center gap-2 justify-center shadow-lg active:scale-95"
+                        className={`px-4 py-2 ${settings.theme === 'light' ? 'bg-zinc-100 hover:bg-zinc-200 text-zinc-600' : 'bg-black/50 hover:bg-zinc-800 text-zinc-400'} rounded-xl transition-all border border-transparent font-black uppercase text-[9px] tracking-widest flex items-center gap-2`}
                       >
                         <RefreshCw
-                          size={16}
+                          size={14}
                           className={isLoadingAdmin ? "animate-spin" : ""}
                         />{" "}
-                        Обновить
+                        Обновить базу
                       </button>
                     </div>
 
-                    <div className="space-y-3 sm:space-y-4">
+                    <div className="space-y-4">
                       {adminUsersList.map((u) => (
                         <div
                           key={u.id}
-                          className="bg-black/40 border border-white/5 hover:border-rose-500/30 transition-colors p-4 sm:p-5 rounded-[1.5rem] flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-lg group"
+                          className={`${settings.theme === 'light' ? 'bg-white border-zinc-200 shadow-md' : 'bg-zinc-900/40 border-white/5 hover:border-rose-500/30'} border transition-all p-5 rounded-3xl flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-sm group`}
                         >
                           <div className="flex items-center gap-4 w-full lg:w-auto">
                             <div
@@ -5319,56 +5352,77 @@ export default function App() {
                                   u.settings?.avatar ||
                                   `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.id}`
                                 }
-                                className={`w-14 h-14 rounded-full border-2 border-black object-cover ${
+                                className={`w-16 h-16 rounded-full border-2 ${settings.theme === 'light' ? 'border-zinc-100' : 'border-black'} object-cover ${
                                   u.settings?.isPremium
-                                    ? "ring-2 ring-amber-400"
-                                    : "ring-1 ring-white/10"
+                                    ? "ring-2 ring-amber-400 shadow-lg shadow-amber-500/20"
+                                    : ""
                                 }`}
                               />
                               {u.settings?.isPremium && (
-                                <div className="absolute -bottom-1 -right-1 bg-zinc-900 rounded-full p-0.5">
+                                <div className="absolute -bottom-1 -right-1 bg-zinc-900 rounded-full p-1 border border-amber-500/30">
                                   <Crown
-                                    size={12}
+                                    size={14}
                                     className="text-amber-400 fill-amber-400"
                                   />
                                 </div>
                               )}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="text-sm font-black text-white uppercase tracking-tight truncate flex items-center gap-2">
+                              <p className={`text-base font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'} uppercase tracking-tight truncate flex items-center gap-2`}>
                                 {u.settings?.username || "Без имени"}
                                 <BadgeDisplay
                                   type={u.settings?.officialBadge}
-                                  className="text-base"
+                                  className="text-lg"
                                 />
                               </p>
-                              <p className="text-[10px] text-zinc-500 font-mono tracking-widest truncate mt-0.5">
+                              <p className="text-[11px] text-zinc-500 font-mono tracking-widest truncate mt-0.5">
                                 ID: {u.id}
                               </p>
-                              <p className="text-[10px] text-amber-500 font-black mt-1.5 bg-amber-500/10 w-fit px-2 py-0.5 rounded-md border border-amber-500/20 shadow-inner flex items-center gap-1">
-                                <Gem size={10} /> {u.settings?.balance || 0}
-                              </p>
+                              <div className="flex items-center gap-3 mt-2">
+                                <p className="text-[10px] text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 flex items-center gap-1">
+                                  <Gem size={10} /> {u.settings?.balance || 0}
+                                </p>
+                                {u.settings?.isBanned && (
+                                  <p className="text-[10px] text-rose-500 font-black bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20 uppercase tracking-widest animate-pulse">
+                                    ЗАБАНЕН
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2 w-full lg:w-auto flex-wrap sm:flex-nowrap">
-                            {/* ВЫБОР ЗНАЧКА */}
-                            <select
-                              value={u.settings?.officialBadge || ""}
-                              onChange={(e) =>
-                                adminAction(u.id, "set_badge", e.target.value)
-                              }
-                              className="flex-1 sm:flex-none px-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-black/60 text-white border border-white/10 outline-none cursor-pointer"
-                            >
-                              <option value="">БЕЗ ЗНАЧКА</option>
+                          <div className="flex flex-col gap-3 w-full lg:w-auto">
+                            {/* ВЫБОР ЗНАЧКА (КРАСИВАЯ СЕТКА) */}
+                            <div className="flex flex-wrap gap-1.5 p-2 bg-black/20 rounded-2xl border border-white/5">
+                              <button
+                                onClick={() => adminAction(u.id, "set_badge", null)}
+                                className={`p-2 rounded-xl text-[10px] font-black uppercase transition-all ${
+                                  !u.settings?.officialBadge
+                                    ? 'bg-zinc-500 text-white shadow-lg'
+                                    : 'text-zinc-600 hover:text-zinc-400'
+                                }`}
+                                title="Без значка"
+                              >
+                                <X size={14} />
+                              </button>
                               {Object.entries(OFFICIAL_BADGES)
                                 .filter(([k]) => k !== "ai")
                                 .map(([k, v]) => (
-                                  <option key={k} value={k}>
-                                    {v.icon} {v.label}
-                                  </option>
+                                  <button
+                                    key={k}
+                                    onClick={() => adminAction(u.id, "set_badge", k)}
+                                    className={`p-2 rounded-xl text-lg transition-all hover:scale-110 active:scale-90 ${
+                                      u.settings?.officialBadge === k
+                                        ? 'bg-indigo-500 shadow-lg shadow-indigo-500/40'
+                                        : 'bg-black/40 hover:bg-black/60 opacity-60 hover:opacity-100'
+                                    }`}
+                                    title={v.label}
+                                  >
+                                    {v.icon}
+                                  </button>
                                 ))}
-                            </select>
+                            </div>
 
+                            <div className="flex items-center gap-2 w-full lg:w-auto flex-wrap sm:flex-nowrap">
                             <button
                               onClick={() =>
                                 adminAction(
@@ -5391,9 +5445,30 @@ export default function App() {
                               onClick={() =>
                                 adminAction(u.id, "add_balance", 1000)
                               }
-                              className="flex-1 sm:flex-none px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-black border border-cyan-500/30 transition-all shadow-md active:scale-95 flex items-center justify-center gap-1"
+                              className="flex-1 sm:flex-none px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500 hover:text-white border border-cyan-500/20 transition-all active:scale-95 flex items-center justify-center gap-1"
                             >
                               <Gem size={12} /> +1000
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (window.confirm(`Очистить всю историю сообщений для ${u.id}?`))
+                                  adminAction(u.id, "clear_history");
+                              }}
+                              className="px-3 py-3 rounded-xl bg-zinc-500/10 text-zinc-500 hover:bg-zinc-500 hover:text-white border border-zinc-500/20 transition-all active:scale-95 flex items-center justify-center"
+                              title="Очистить историю"
+                            >
+                              <Trash size={16} />
+                            </button>
+                            <button
+                              onClick={() => adminAction(u.id, "toggle_ban", !u.settings?.isBanned)}
+                              className={`px-3 py-3 rounded-xl border transition-all active:scale-95 flex items-center justify-center ${
+                                u.settings?.isBanned
+                                  ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500 hover:text-white'
+                                  : 'bg-rose-500/10 text-rose-500 border-rose-500/20 hover:bg-rose-500 hover:text-white'
+                              }`}
+                              title={u.settings?.isBanned ? "Разбанить" : "Забанить"}
+                            >
+                              {u.settings?.isBanned ? <Check size={16} /> : <ShieldAlert size={16} />}
                             </button>
                             <button
                               onClick={() => {
@@ -5404,13 +5479,14 @@ export default function App() {
                                 )
                                   adminAction(u.id, "delete");
                               }}
-                              className="px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-500/20 transition-all flex justify-center shadow-md active:scale-95 group-hover:border-rose-500/50"
+                              className="px-3 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-500/20 transition-all flex justify-center active:scale-95 group-hover:border-rose-500/50"
                             >
                               <Trash2 size={16} />
                             </button>
                           </div>
                         </div>
-                      ))}
+                      </div>
+                    ))}
                       {adminUsersList.length === 0 && !isLoadingAdmin && (
                         <div className="text-center text-zinc-500 py-10 font-black uppercase tracking-widest">
                           База пуста
