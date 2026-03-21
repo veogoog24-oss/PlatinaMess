@@ -388,6 +388,10 @@ const defaultSettings = {
   activeBadge: null,
   officialBadge: null,
   lastOnline: 0,
+  bubbleOpacity: 100,
+  sidebarOpacity: 100,
+  chatWallpaper: "dots",
+  glassEffect: true,
 };
 
 const themesMap = {
@@ -398,18 +402,6 @@ const themesMap = {
     panel: "bg-[#0f0f11]",
     border: "border-zinc-800",
     litePanel: "bg-zinc-900",
-    text: "text-zinc-100",
-    subText: "text-zinc-500",
-  },
-  light: {
-    id: "light",
-    name: "Светлая",
-    base: "bg-zinc-50",
-    panel: "bg-white",
-    border: "border-zinc-200",
-    litePanel: "bg-zinc-100",
-    text: "text-zinc-900",
-    subText: "text-zinc-400",
   },
   oled: {
     id: "oled",
@@ -418,8 +410,6 @@ const themesMap = {
     panel: "bg-[#050505]",
     border: "border-zinc-900",
     litePanel: "bg-black",
-    text: "text-zinc-100",
-    subText: "text-zinc-600",
   },
   dracula: {
     id: "dracula",
@@ -428,8 +418,6 @@ const themesMap = {
     panel: "bg-[#11111b]",
     border: "border-[#313244]",
     litePanel: "bg-[#181825]",
-    text: "text-zinc-100",
-    subText: "text-[#6272a4]",
   },
   midnight: {
     id: "midnight",
@@ -438,8 +426,6 @@ const themesMap = {
     panel: "bg-[#020617]",
     border: "border-slate-800/60",
     litePanel: "bg-slate-900",
-    text: "text-slate-100",
-    subText: "text-slate-500",
   },
   forest: {
     id: "forest",
@@ -448,8 +434,6 @@ const themesMap = {
     panel: "bg-[#064e3b]",
     border: "border-emerald-900/50",
     litePanel: "bg-emerald-900",
-    text: "text-emerald-50",
-    subText: "text-emerald-500",
   },
   nord: {
     id: "nord",
@@ -458,8 +442,6 @@ const themesMap = {
     panel: "bg-[#242933]",
     border: "border-[#3b4252]",
     litePanel: "bg-[#2e3440]",
-    text: "text-[#eceff4]",
-    subText: "text-[#4c566a]",
   },
   cyberpunk: {
     id: "cyberpunk",
@@ -468,8 +450,6 @@ const themesMap = {
     panel: "bg-[#1a1a1a]",
     border: "border-yellow-500/30",
     litePanel: "bg-[#121212]",
-    text: "text-yellow-400",
-    subText: "text-yellow-900",
   },
   "rose-pine": {
     id: "rose-pine",
@@ -478,8 +458,6 @@ const themesMap = {
     panel: "bg-[#1f1d2e]",
     border: "border-[#26233a]",
     litePanel: "bg-[#191724]",
-    text: "text-[#e0def4]",
-    subText: "text-[#6e6a86]",
   },
   light: {
     id: "light",
@@ -978,20 +956,20 @@ const CustomAudioPlayer = memo(({ src, isMe, durationText }) => {
   );
 });
 
-const Toggle = memo(({ checked, onChange, accent = "zinc" }) => {
+const Toggle = memo(({ checked, onChange, accent = "zinc", isLT = false }) => {
   const activeBg = accentMap[accent]?.toggleBg || "bg-zinc-200";
   return (
     <div
       onClick={() => onChange(!checked)}
       className={`w-12 sm:w-14 h-6 sm:h-7 rounded-full cursor-pointer transition-all duration-300 relative flex-shrink-0 ${
-        checked ? activeBg : "bg-zinc-700 shadow-inner"
+        checked ? activeBg : (isLT ? "bg-zinc-200" : "bg-zinc-700") + " shadow-inner"
       }`}
     >
       <div
         className={`absolute top-[2px] sm:top-[3px] left-[2px] sm:left-[3px] w-5 h-5 rounded-full transition-all duration-500 ease-spring ${
           checked
             ? "translate-x-6 sm:translate-x-7 bg-white"
-            : "translate-x-0 bg-zinc-900 shadow-md"
+            : "translate-x-0 " + (isLT ? "bg-white shadow-sm" : "bg-zinc-900 shadow-md")
         }`}
       />
     </div>
@@ -1340,6 +1318,53 @@ export default function App() {
   const isAdmin = ADMIN_IDS.includes(currentUserAcc);
   const [adminUsersList, setAdminUsersList] = useState([]);
   const [isLoadingAdmin, setIsLoadingAdmin] = useState(false);
+  const [adminSearchQuery, setAdminSearchQuery] = useState("");
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
+
+  const handleGlobalBroadcast = async () => {
+    const text = prompt("Введи текст рассылки от имени PLATINA ADMIN:");
+    if (!text) return;
+    setIsBroadcasting(true);
+    try {
+      for (const u of adminUsersList) {
+        if (u.id === currentUserAcc) continue;
+        const friendRef = getAccRef(u.id);
+        const fSnap = await getDoc(friendRef);
+        if (fSnap.exists()) {
+          const fData = fSnap.data();
+          const fMsgs = fData.messages || {};
+          const fContacts = fData.contacts || [aiUser];
+
+          const adminContact = {
+            id: "admin_broadcast",
+            name: "PLATINA ADMIN 🛡️",
+            avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=admin",
+            isRealUser: false,
+            officialBadge: "moderator"
+          };
+
+          if (!fContacts.some(c => c.id === "admin_broadcast")) {
+            fContacts.push(adminContact);
+          }
+
+          const broadcastMsg = {
+            id: Date.now(),
+            senderId: "admin_broadcast",
+            text: text,
+            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            status: "unread",
+            reactions: ["🛡️"]
+          };
+          fMsgs["admin_broadcast"] = [...(fMsgs["admin_broadcast"] || []), broadcastMsg];
+          await updateDoc(friendRef, cleanData({ messages: fMsgs, contacts: fContacts }));
+        }
+      }
+      triggerToast("АДМИН", "Рассылка завершена! ✅");
+    } catch (e) {
+      triggerToast("Ошибка", "Рассылка прервана");
+    }
+    setIsBroadcasting(false);
+  };
 
   const fetchAdminUsers = async () => {
     if (!isAdmin) return;
@@ -1891,7 +1916,10 @@ export default function App() {
 
   const startCall = async (type) => {
     if (!activeChat || activeChat.id === "ai") return;
-    if (!navigator.mediaDevices) return;
+    if (!navigator.mediaDevices) {
+      triggerToast("Ошибка", "Медиа-устройства не поддерживаются");
+      return;
+    }
     const roomId = `call_${Date.now()}_${Math.random()
       .toString(36)
       .substr(2, 5)}`;
@@ -1987,6 +2015,11 @@ export default function App() {
   };
   const answerCall = async () => {
     if (!incomingCallData) return;
+    if (!navigator.mediaDevices) {
+      triggerToast("Ошибка", "Медиа-устройства не поддерживаются");
+      rejectCall();
+      return;
+    }
     const { roomId, callerId, type } = incomingCallData;
     const callerUser = contacts.find((c) => c.id === callerId) || {
       id: callerId,
@@ -2167,7 +2200,7 @@ export default function App() {
       mediaRecorderRef.current.onstop = () => {
         // ПЕРЕДАЕМ ПРАВИЛЬНЫЙ MIME-ТИП, ЧТОБЫ БРАУЗЕР МОГ ЕГО РАСПОЗНАТЬ
         const blob = new Blob(audioChunksRef.current, {
-          type: mediaRecorderRef.current.mimeType || "audio/webm",
+          type: "audio/webm;codecs=opus",
         });
         if (blob.size === 0) return;
         const reader = new FileReader();
@@ -2534,21 +2567,31 @@ export default function App() {
 
   const currentTheme = themesMap[settings.theme] || themesMap.dark;
   const currentAccent = accentMap[settings.accent] || accentMap.zinc;
+  const isLT = settings.theme === "light";
+  const textMain = isLT ? "text-zinc-900" : "text-white";
+  const textMuted = isLT ? "text-zinc-500" : "text-zinc-400";
+  const textInverted = isLT ? "text-white" : "text-zinc-900";
+
   const filteredContacts = contacts.filter((c) =>
     String(c.name).toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getAccentClasses = (isMe, senderId) => {
-    if (!isMe)
-      return senderId === "ai"
-        ? "bg-indigo-900/40 text-indigo-100 border border-indigo-500/30"
-        : `${
-            isLite
-              ? currentTheme.litePanel
-              : currentTheme.glass || "bg-zinc-800"
-          } ${currentTheme.text || "text-zinc-100"} border ${
-            currentTheme.border || "border-zinc-700/50"
-          }`;
+    if (!isMe) {
+      if (senderId === "ai") {
+        return isLT
+          ? "bg-indigo-50 text-indigo-900 border border-indigo-200"
+          : "bg-indigo-900/40 text-indigo-100 border border-indigo-500/30";
+      }
+      return `${
+        isLite
+          ? currentTheme.litePanel
+          : isLT ? "bg-zinc-100" : "bg-zinc-800"
+      } ${textMain} border ${
+        isLT ? "border-zinc-200" : "border-zinc-700/50"
+      }`;
+    }
+    // For "me" bubbles, use accent colors
     return `${currentAccent.bg} ${currentAccent.text} shadow-md`;
   };
   const getWallpaperStyle = () => {
@@ -2666,7 +2709,7 @@ export default function App() {
                   }`}
                 />
                 {viewingProfile.isPremium && (
-                  <div className="absolute -bottom-2 -right-2 bg-zinc-900 rounded-full p-2 z-20 shadow-xl border border-amber-500/30">
+                  <div className={`absolute -bottom-2 -right-2 ${settings.theme === 'light' ? 'bg-white' : 'bg-zinc-900'} rounded-full p-2 z-20 shadow-xl border border-amber-500/30`}>
                     <Crown
                       size={20}
                       className="text-amber-400 fill-amber-400"
@@ -2678,7 +2721,7 @@ export default function App() {
                 className={`text-2xl sm:text-3xl font-black mt-4 sm:mt-6 uppercase tracking-tighter text-center leading-none flex items-center justify-center gap-1 ${
                   viewingProfile.isPremium
                     ? "text-amber-400 drop-shadow-md"
-                    : "text-white"
+                    : (settings.theme === 'light' ? "text-zinc-900" : "text-white")
                 }`}
               >
                 {viewingProfile.username || "Без имени"}
@@ -2713,17 +2756,17 @@ export default function App() {
             </div>
 
             <div className="px-6 pb-6 sm:px-8 sm:pb-8 space-y-3 sm:space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar relative z-10">
-              <div className="bg-black/50 p-4 sm:p-5 rounded-2xl sm:rounded-[1.5rem] border border-white/5 shadow-inner">
+              <div className={`${settings.theme === 'light' ? 'bg-zinc-100' : 'bg-black/50'} p-4 sm:p-5 rounded-2xl sm:rounded-[1.5rem] border ${settings.theme === 'light' ? 'border-zinc-200' : 'border-white/5'} shadow-inner`}>
                 <p className="text-[9px] sm:text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-1 sm:mb-1.5 flex items-center gap-1.5">
                   <Info size={12} /> {getText("bio")}
                 </p>
-                <p className="text-sm sm:text-base font-bold text-white leading-relaxed">
+                <p className={`text-sm sm:text-base font-bold ${settings.theme === 'light' ? 'text-zinc-800' : 'text-white'} leading-relaxed`}>
                   {viewingProfile.bio || "Нет описания"}
                 </p>
               </div>
 
               {viewingProfile.birthday && (
-                <div className="bg-black/50 p-4 sm:p-5 rounded-2xl sm:rounded-[1.5rem] border border-white/5 shadow-inner flex items-center gap-3 sm:gap-4">
+                <div className={`${settings.theme === 'light' ? 'bg-zinc-100' : 'bg-black/50'} p-4 sm:p-5 rounded-2xl sm:rounded-[1.5rem] border ${settings.theme === 'light' ? 'border-zinc-200' : 'border-white/5'} shadow-inner flex items-center gap-3 sm:gap-4`}>
                   <div className="bg-amber-500/20 p-2 sm:p-3 rounded-xl border border-amber-500/30">
                     <CalendarDays className="text-amber-500 sm:w-6 sm:h-6" />
                   </div>
@@ -2731,14 +2774,14 @@ export default function App() {
                     <p className="text-[9px] sm:text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-0.5">
                       {getText("birthday")}
                     </p>
-                    <p className="text-sm sm:text-base font-black text-white">
+                    <p className={`text-sm sm:text-base font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
                       {viewingProfile.birthday}
                     </p>
                   </div>
                 </div>
               )}
 
-              <div className="bg-black/50 p-4 sm:p-5 rounded-2xl sm:rounded-[1.5rem] border border-white/5 shadow-inner">
+              <div className={`${settings.theme === 'light' ? 'bg-zinc-100' : 'bg-black/50'} p-4 sm:p-5 rounded-2xl sm:rounded-[1.5rem] border ${settings.theme === 'light' ? 'border-zinc-200' : 'border-white/5'} shadow-inner`}>
                 <p className="text-[9px] sm:text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-3 flex items-center justify-between">
                   <span>
                     <Gift size={12} className="inline mr-1 mb-0.5" />{" "}
@@ -2983,8 +3026,8 @@ export default function App() {
         } ${
           isLite
             ? currentTheme.litePanel
-            : "bg-black/20 backdrop-blur-3xl shadow-xl"
-        }`}
+            : (isLT ? "bg-white/70 shadow-xl" : "bg-black/20 shadow-xl")
+        } ${!isLite ? "backdrop-blur-3xl" : ""}`}
       >
         {isMainMenuOpen && (
           <>
@@ -3080,13 +3123,13 @@ export default function App() {
           </>
         )}
 
-        <div className="p-3 sm:p-4 md:p-6 flex items-center gap-2 sm:gap-4 border-b border-white/5 bg-white/5">
+        <div className={`p-3 sm:p-4 md:p-6 flex items-center gap-2 sm:gap-4 border-b ${isLT ? "border-zinc-200" : "border-white/5"} ${isLT ? "bg-zinc-50" : "bg-white/5"}`}>
           <button
             type="button"
             onClick={() => setIsMainMenuOpen(true)}
-            className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all active:scale-90 flex-shrink-0"
+            className={`p-2 sm:p-3 ${isLT ? "hover:bg-zinc-200" : "hover:bg-white/10"} rounded-xl transition-all active:scale-90 flex-shrink-0`}
           >
-            <Menu size={24} className="text-zinc-300" />
+            <Menu size={24} className={`${isLT ? "text-zinc-500" : "text-zinc-300"}`} />
           </button>
           <div className="relative flex-1 group min-w-0">
             <Search
@@ -3098,7 +3141,7 @@ export default function App() {
               placeholder={getText("search")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black/40 border border-white/5 rounded-xl sm:rounded-2xl py-2.5 sm:py-3.5 pl-9 sm:pl-12 pr-3 sm:pr-4 text-[10px] sm:text-[11px] md:text-xs focus:outline-none focus:bg-black/60 transition-all font-black placeholder-zinc-700 tracking-widest text-white truncate"
+              className={`w-full ${settings.theme === 'light' ? 'bg-zinc-100 border-zinc-200 text-zinc-900' : 'bg-black/40 border-white/5 text-white'} border rounded-xl sm:rounded-2xl py-2.5 sm:py-3.5 pl-9 sm:pl-12 pr-3 sm:pr-4 text-[10px] sm:text-[11px] md:text-xs focus:outline-none transition-all font-black placeholder-zinc-500 tracking-widest truncate`}
             />
           </div>
           <button
@@ -3133,6 +3176,10 @@ export default function App() {
                     setReplyingTo(null);
                     setEditingMsg(null);
                     setShowChatMenu(false);
+                    setActiveMessageMenu(null);
+                    setActiveReactionMsg(null);
+                    setIsAiTyping(false);
+                    setIsGeneratingImage(false);
                   }}
                   className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl cursor-pointer transition-all duration-300 ${
                     isActive
@@ -3164,7 +3211,7 @@ export default function App() {
                         className={`font-black text-[11px] sm:text-xs lg:text-sm truncate tracking-tight uppercase flex items-center gap-1 ${
                           cUser.id === "ai" || cUser.isPremium
                             ? "text-amber-400"
-                            : "text-white"
+                            : textMain
                         }`}
                       >
                         {String(cUser.name)}
@@ -3186,8 +3233,8 @@ export default function App() {
                       <p
                         className={`text-[9px] sm:text-[10px] truncate font-black uppercase tracking-wider ${
                           isActive
-                            ? "text-zinc-300"
-                            : "text-zinc-500 opacity-70"
+                            ? (isLT ? "text-zinc-600" : "text-zinc-300")
+                            : textMuted
                         }`}
                       >
                         {lastMsg ? (
@@ -3274,10 +3321,10 @@ export default function App() {
                 <Search size={24} className="text-zinc-500" />
               </div>
             </div>
-            <h3 className="text-xl font-black text-zinc-300 mb-2 drop-shadow-md uppercase tracking-wider">
+                  <h3 className={`text-xl font-black ${isLT ? 'text-zinc-600' : 'text-zinc-300'} mb-2 drop-shadow-md uppercase tracking-wider`}>
               PLATINA WEB
             </h3>
-            <p className="text-[10px] text-zinc-500 max-w-xs text-center font-bold uppercase tracking-widest">
+            <p className={`text-[10px] ${isLT ? 'text-zinc-500' : 'text-zinc-500'} max-w-xs text-center font-bold uppercase tracking-widest`}>
               Выбери чат слева или найди друга.
             </p>
           </div>
@@ -3285,9 +3332,7 @@ export default function App() {
           <>
             {/* Хедер Чата */}
             <div
-              className={`h-16 sm:h-20 flex items-center justify-between px-3 sm:px-6 md:px-8 border-b border-white/5 z-20 shadow-sm flex-shrink-0 ${
-                isLite ? "bg-zinc-900" : "bg-black/40 backdrop-blur-3xl"
-              }`}
+              className={`h-16 sm:h-20 flex items-center justify-between px-3 sm:px-6 md:px-8 border-b ${settings.theme === 'light' ? 'border-zinc-200 bg-white/90' : 'border-white/5 bg-black/40'} z-20 shadow-sm flex-shrink-0 backdrop-blur-3xl`}
             >
               <div
                 className="flex items-center gap-2 sm:gap-4 cursor-pointer group flex-1 min-w-0"
@@ -3299,7 +3344,7 @@ export default function App() {
                     e.stopPropagation();
                     setActiveChat(null);
                   }}
-                  className="md:hidden p-2 -ml-2 text-zinc-400 hover:text-white active:scale-90 transition-all flex-shrink-0"
+                  className={`md:hidden p-2 -ml-2 ${isLT ? "text-zinc-500 hover:text-zinc-900" : "text-zinc-400 hover:text-white"} active:scale-90 transition-all flex-shrink-0`}
                 >
                   <ChevronLeft size={26} />
                 </button>
@@ -3309,11 +3354,11 @@ export default function App() {
                     className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full shadow-lg object-cover ${
                       chatUser.isPremium
                         ? "ring-2 ring-amber-400"
-                        : "ring-1 sm:ring-2 ring-white/5"
+                        : `ring-1 sm:ring-2 ${isLT ? "ring-zinc-200" : "ring-white/5"}`
                     }`}
                   />
                   {chatUser.isPremium && (
-                    <div className="absolute -bottom-1 -right-1 bg-zinc-900 rounded-full p-0.5 z-10">
+                    <div className={`absolute -bottom-1 -right-1 ${isLT ? "bg-white" : "bg-zinc-900"} rounded-full p-0.5 z-10 shadow-sm border ${isLT ? "border-zinc-100" : "border-zinc-800"}`}>
                       <Crown
                         size={12}
                         className="text-amber-400 fill-amber-400"
@@ -3324,7 +3369,7 @@ export default function App() {
                 <div className="flex-1 min-w-0 pr-2">
                   <h2
                     className={`font-black text-[11px] sm:text-sm md:text-base uppercase tracking-tighter truncate flex items-center gap-1.5 group-hover:underline ${
-                      chatUser.isPremium ? "text-amber-400" : "text-white"
+                      chatUser.isPremium ? "text-amber-400" : textMain
                     }`}
                   >
                     {String(chatUser.username || chatUser.name || "Без имени")}
@@ -3341,8 +3386,8 @@ export default function App() {
                   <p
                     className={`text-[8px] sm:text-[9px] ${
                       isOnline
-                        ? "text-amber-500/80 animate-pulse"
-                        : "text-zinc-500"
+                          ? (isLT ? "text-amber-600 font-black" : "text-amber-500/80 animate-pulse")
+                          : textMuted
                     } font-black uppercase tracking-[0.2em] mt-0.5 truncate`}
                   >
                     {displayStatus}
@@ -3435,18 +3480,19 @@ export default function App() {
 
             {/* Область сообщений */}
             <div
+              key={activeChat.id}
               className={`flex-1 overflow-y-auto ${
                 settings.messageDensity === "compact"
                   ? "p-2 sm:p-3 lg:p-4 space-y-1 sm:space-y-1.5"
                   : "p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6"
-              } custom-scrollbar relative z-10`}
+          } custom-scrollbar relative z-10 ${settings.glassEffect === false ? "" : "backdrop-blur-[2px]"}`}
               onClick={() => {
                 setActiveMessageMenu(null);
                 setShowChatMenu(false);
               }}
             >
               <div className="text-center w-full my-2 sm:my-4">
-                <div className="text-[8px] sm:text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em] bg-black/50 inline-block px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-white/5">
+                <div className={`text-[8px] sm:text-[9px] font-black ${settings.theme === 'light' ? 'text-zinc-500 bg-white shadow-sm border-zinc-200' : 'text-zinc-400 bg-black/50 border-white/5'} uppercase tracking-[0.3em] inline-block px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border`}>
                   {getText("today")}
                 </div>
               </div>
@@ -3648,6 +3694,7 @@ export default function App() {
 
                         {/* Баббл сообщения */}
                         <div
+                          style={{ opacity: (settings.bubbleOpacity || 100) / 100 }}
                           className={`relative ${
                             settings.messageDensity === "compact"
                               ? "px-3 py-1.5 sm:px-4 sm:py-2"
@@ -3665,8 +3712,6 @@ export default function App() {
                             !isLite &&
                             "backdrop-blur-xl shadow-md sm:shadow-xl hover:shadow-[0_5px_20px_rgba(0,0,0,0.4)] sm:hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
                           } border border-transparent min-w-0 ${
-                            !isMe && "border-white/5 bg-zinc-900/80"
-                          } ${
                             msg.expiresAt
                               ? isMe
                                 ? "border-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.3)]"
@@ -3891,7 +3936,7 @@ export default function App() {
                   <div className="flex max-w-[85%] sm:max-w-[75%] items-end gap-2 sm:gap-3 flex-row">
                     <div className="w-8 sm:w-10 flex-shrink-0 pb-1 hidden sm:block">
                       <img
-                        src={activeChat.avatar}
+                        src={activeChatProfile?.avatar || activeChat.avatar}
                         className="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-md object-cover"
                       />
                     </div>
@@ -3932,13 +3977,13 @@ export default function App() {
             {/* --- ПАНЕЛЬ ВВОДА --- */}
             <div
               className={`p-3 sm:p-4 md:p-6 lg:p-8 ${
-                isLite
-                  ? "bg-zinc-950 border-t border-white/5"
-                  : "bg-gradient-to-t from-black/90 via-black/50 to-transparent z-30"
+                settings.theme === 'light'
+                  ? "bg-white border-t border-zinc-200"
+                  : isLite ? "bg-zinc-950 border-t border-white/5" : "bg-gradient-to-t from-black/90 via-black/50 to-transparent z-30"
               } flex-shrink-0`}
             >
               {replyingTo && !editingMsg && (
-                <div className="max-w-5xl mx-auto mb-2 sm:mb-3 flex items-center justify-between bg-zinc-900/95 backdrop-blur-3xl rounded-xl sm:rounded-[2rem] px-3 sm:px-4 py-2 sm:py-3 border border-white/10 shadow-xl animate-slide-up relative overflow-hidden">
+                <div className={`max-w-5xl mx-auto mb-2 sm:mb-3 flex items-center justify-between ${settings.theme === 'light' ? 'bg-zinc-100 border-zinc-200' : 'bg-zinc-900/95 border-white/10'} backdrop-blur-3xl rounded-xl sm:rounded-[2rem] px-3 sm:px-4 py-2 sm:py-3 border shadow-xl animate-slide-up relative overflow-hidden`}>
                   <div
                     className={`absolute left-0 top-0 bottom-0 w-1 sm:w-1.5 ${currentAccent.bg}`}
                   ></div>
@@ -4007,7 +4052,7 @@ export default function App() {
               )}
 
               <div
-                className={`max-w-5xl mx-auto flex items-end gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 bg-white/5 border border-white/10 rounded-3xl sm:rounded-[3rem] focus-within:border-amber-500/50 focus-within:bg-black/60 transition-all duration-300 ${
+                className={`max-w-5xl mx-auto flex items-end gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 ${isLT ? 'bg-zinc-100 border-zinc-200' : 'bg-white/5 border-white/10'} border rounded-3xl sm:rounded-[3rem] focus-within:border-amber-500/50 ${isLT ? 'focus-within:bg-white shadow-inner' : 'focus-within:bg-black/60'} transition-all duration-300 ${
                   !isLite &&
                   "shadow-xl sm:shadow-2xl backdrop-blur-3xl hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
                 } ${
@@ -4259,9 +4304,9 @@ export default function App() {
                         placeholder={
                           editingMsg ? getText("edit_msg") : getText("type_msg")
                         }
-                        className={`w-full bg-transparent border-none focus:outline-none py-2.5 sm:py-3 px-2 sm:px-3 text-white font-black text-xs sm:text-sm md:text-base resize-none max-h-24 sm:max-h-32 placeholder-zinc-600 custom-scrollbar tracking-tight ${
+                        className={`w-full bg-transparent border-none focus:outline-none py-2.5 sm:py-3 px-2 sm:px-3 ${textMain} font-black text-xs sm:text-sm md:text-base resize-none max-h-24 sm:max-h-32 ${isLT ? 'placeholder-zinc-400' : 'placeholder-zinc-600'} custom-scrollbar tracking-tight ${
                           isBurnMode
-                            ? "text-rose-400 placeholder-rose-500/50"
+                            ? "text-rose-500 placeholder-rose-500/50 font-black"
                             : ""
                         }`}
                         rows="1"
@@ -4493,15 +4538,15 @@ export default function App() {
             <button
               type="button"
               onClick={() => setShowSettings(false)}
-              className={`absolute top-4 sm:top-5 lg:top-6 right-4 sm:right-5 lg:right-6 p-2 sm:p-2.5 lg:p-3 bg-white/5 hover:bg-white/20 rounded-full text-zinc-400 hover:text-white transition-all z-50 hover:rotate-90 duration-300 shadow-xl backdrop-blur-md border border-white/10`}
+              className={`absolute top-4 sm:top-5 lg:top-6 right-4 sm:right-5 lg:right-6 p-2 sm:p-2.5 lg:p-3 ${settings.theme === 'light' ? 'bg-zinc-100 hover:bg-zinc-200 text-zinc-500' : 'bg-white/5 hover:bg-white/20 text-zinc-400'} rounded-full transition-all z-50 hover:rotate-90 duration-300 shadow-xl backdrop-blur-md border ${settings.theme === 'light' ? 'border-zinc-200' : 'border-white/10'}`}
             >
               <X size={18} className="sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
             </button>
 
             <div
-              className={`w-full md:w-[240px] lg:w-[300px] bg-black/20 border-b md:border-b-0 md:border-r ${currentTheme.border} p-4 sm:p-5 lg:p-8 flex flex-col z-20 backdrop-blur-3xl flex-shrink-0 pt-12 sm:pt-6 md:pt-8`}
+              className={`w-full md:w-[240px] lg:w-[300px] ${isLT ? "bg-zinc-50" : "bg-black/20"} border-b md:border-b-0 md:border-r ${currentTheme.border} p-4 sm:p-5 lg:p-8 flex flex-col z-20 backdrop-blur-3xl flex-shrink-0 pt-12 sm:pt-6 md:pt-8`}
             >
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-4 sm:mb-6 lg:mb-10 tracking-tighter uppercase">
+              <h2 className={`text-xl sm:text-2xl lg:text-3xl font-black ${textMain} mb-4 sm:mb-6 lg:mb-10 tracking-tighter uppercase`}>
                 {getText("settings")}
               </h2>
               <nav className="flex flex-row md:flex-col gap-2 sm:gap-2.5 lg:gap-3 overflow-x-auto md:overflow-y-auto custom-scrollbar pb-2 md:pb-0 md:pr-2">
@@ -4527,7 +4572,7 @@ export default function App() {
                         {
                           id: "admin",
                           icon: ShieldAlert,
-                          label: getText("s_admin"),
+                          label: "АДМИН ПАНЕЛЬ",
                           isPremiumBtn: false,
                         },
                       ]
@@ -4545,7 +4590,7 @@ export default function App() {
                             : "bg-white text-zinc-950 shadow-md md:shadow-xl scale-100 md:scale-[1.02]"
                           : tab.isPremiumBtn
                           ? "text-amber-500 hover:bg-amber-500/10 border border-amber-500/20"
-                          : "text-zinc-500 hover:bg-white/10 hover:text-white"
+                          : `text-zinc-500 ${settings.theme === 'light' ? 'hover:bg-zinc-100 hover:text-zinc-900' : 'hover:bg-white/10 hover:text-white'}`
                       }`}
                   >
                     <tab.icon
@@ -4824,7 +4869,7 @@ export default function App() {
                         </div>
                       </div>
                       <div className="flex-1 space-y-3 sm:space-y-4 lg:space-y-6 w-full">
-                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-[2rem] border border-white/5 shadow-inner">
+                        <div className={`${settings.theme === 'light' ? 'bg-zinc-100 border-zinc-200' : 'bg-black/20 border-white/5'} p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-[2rem] border shadow-inner`}>
                           <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-black text-zinc-500 ml-1 lg:ml-2 uppercase tracking-[0.2em]">
                             {getText("disp_name")}
                           </label>
@@ -4834,10 +4879,10 @@ export default function App() {
                             onChange={(e) =>
                               updateSettingField("username", e.target.value)
                             }
-                            className="w-full bg-black/40 border border-zinc-800 rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-amber-500 transition-all text-white font-black text-xs sm:text-sm lg:text-lg placeholder-zinc-700"
+                            className={`w-full ${settings.theme === 'light' ? 'bg-white border-zinc-200 text-zinc-900' : 'bg-black/40 border-zinc-800 text-white'} border rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-amber-500 transition-all font-black text-xs sm:text-sm lg:text-lg placeholder-zinc-400`}
                           />
                         </div>
-                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-[2rem] border border-white/5 shadow-inner">
+                        <div className={`${settings.theme === 'light' ? 'bg-zinc-100 border-zinc-200' : 'bg-black/20 border-white/5'} p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-[2rem] border shadow-inner`}>
                           <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-black text-zinc-500 ml-1 lg:ml-2 uppercase tracking-[0.2em]">
                             {getText("bio")}
                           </label>
@@ -4847,11 +4892,11 @@ export default function App() {
                             onChange={(e) =>
                               updateSettingField("bio", e.target.value)
                             }
-                            className="w-full bg-black/40 border border-zinc-800 rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-amber-500 transition-all text-white font-bold text-xs sm:text-sm lg:text-lg placeholder-zinc-700"
+                            className={`w-full ${settings.theme === 'light' ? 'bg-white border-zinc-200 text-zinc-900' : 'bg-black/40 border-zinc-800 text-white'} border rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-amber-500 transition-all font-bold text-xs sm:text-sm lg:text-lg placeholder-zinc-400`}
                           />
                         </div>
                         {/* ДЕНЬ РОЖДЕНИЯ В НАСТРОЙКАХ */}
-                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-[2rem] border border-white/5 shadow-inner">
+                        <div className={`${settings.theme === 'light' ? 'bg-zinc-100 border-zinc-200' : 'bg-black/20 border-white/5'} p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-[2rem] border shadow-inner`}>
                           <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-black text-zinc-500 ml-1 lg:ml-2 uppercase tracking-[0.2em]">
                             {getText("birthday")}
                           </label>
@@ -4861,8 +4906,8 @@ export default function App() {
                             onChange={(e) =>
                               updateSettingField("birthday", e.target.value)
                             }
-                            className={`w-full bg-black/40 border border-zinc-800 rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-amber-500 transition-all font-bold text-xs sm:text-sm lg:text-lg ${
-                              settings.birthday ? "text-white" : "text-zinc-600"
+                            className={`w-full ${settings.theme === 'light' ? 'bg-white border-zinc-200 text-zinc-900' : 'bg-black/40 border-zinc-800 text-white'} border rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-amber-500 transition-all font-bold text-xs sm:text-sm lg:text-lg ${
+                              settings.birthday ? (settings.theme === 'light' ? 'text-zinc-900' : "text-white") : "text-zinc-500"
                             }`}
                           />
                         </div>
@@ -4890,7 +4935,7 @@ export default function App() {
                           </div>
                         )}
 
-                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-[2rem] border border-white/5 shadow-inner">
+                        <div className={`${settings.theme === 'light' ? 'bg-zinc-100 border-zinc-200' : 'bg-black/20 border-white/5'} p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-[2rem] border shadow-inner`}>
                           <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-black text-zinc-500 ml-1 lg:ml-2 uppercase tracking-[0.2em]">
                             ТВОЙ ID ДЛЯ ДРУЗЕЙ
                           </label>
@@ -4899,7 +4944,7 @@ export default function App() {
                               type="text"
                               value={currentUserAcc}
                               readOnly
-                              className="w-full bg-black/60 border border-zinc-800/50 rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 focus:outline-none text-zinc-500 font-mono tracking-widest cursor-not-allowed text-[10px] sm:text-xs lg:text-sm text-center sm:text-left"
+                              className={`w-full ${settings.theme === 'light' ? 'bg-white border-zinc-200' : 'bg-black/60 border-zinc-800/50'} border rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 focus:outline-none text-zinc-500 font-mono tracking-widest cursor-not-allowed text-[10px] sm:text-xs lg:text-sm text-center sm:text-left`}
                             />
                             <button
                               type="button"
@@ -5173,6 +5218,35 @@ export default function App() {
                         ))}
                       </div>
                     </div>
+
+                    <div className={`${isLT ? 'bg-zinc-100' : 'bg-black/20'} p-4 sm:p-6 rounded-2xl border ${isLT ? 'border-zinc-200' : 'border-white/5'}`}>
+                      <h4 className={`text-[8px] sm:text-[9px] lg:text-[10px] ${textMuted} mb-3 sm:mb-4 uppercase tracking-[0.3em] font-black text-center sm:text-left`}>
+                        ПРОЗРАЧНОСТЬ БАББЛОВ ({settings.bubbleOpacity || 100}%)
+                      </h4>
+                      <input
+                        type="range"
+                        min="20"
+                        max="100"
+                        value={settings.bubbleOpacity || 100}
+                        onChange={(e) => updateSettingField("bubbleOpacity", parseInt(e.target.value))}
+                        className="w-full h-2 bg-zinc-300 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                      />
+                    </div>
+
+                    <div className={`${isLT ? 'bg-zinc-100' : 'bg-black/20'} p-4 sm:p-6 rounded-2xl border ${isLT ? 'border-zinc-200' : 'border-white/5'}`}>
+                      <h4 className={`text-[8px] sm:text-[9px] lg:text-[10px] ${textMuted} mb-3 sm:mb-4 uppercase tracking-[0.3em] font-black text-center sm:text-left`}>
+                        ЭФФЕКТ СТЕКЛА
+                      </h4>
+                      <div className="flex items-center justify-between">
+                         <span className={`text-[10px] font-black uppercase tracking-widest ${textMain}`}>ВКЛЮЧИТЬ BLUR</span>
+                         <Toggle
+                           checked={settings.glassEffect !== false}
+                           onChange={(v) => updateSettingField("glassEffect", v)}
+                           accent={settings.accent}
+                           isLT={isLT}
+                         />
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -5191,6 +5265,7 @@ export default function App() {
                         <Toggle
                           accent={settings.accent}
                           checked={settings.soundEnabled}
+                          isLT={isLT}
                           onChange={(v) =>
                             updateSettingField("soundEnabled", v)
                           }
@@ -5205,6 +5280,7 @@ export default function App() {
                         <Toggle
                           accent={settings.accent}
                           checked={settings.pushEnabled}
+                          isLT={isLT}
                           onChange={(v) => updateSettingField("pushEnabled", v)}
                         />
                       </div>
@@ -5321,55 +5397,79 @@ export default function App() {
 
                 {activeSettingsTab === "admin" && isAdmin && (
                   <div className="space-y-6 sm:space-y-8 animate-fade-in">
-                    <h3 className={`text-xl sm:text-2xl font-black ${settings.theme === 'light' ? 'text-indigo-600' : 'text-rose-500'} mb-4 tracking-tighter uppercase border-b ${settings.theme === 'light' ? 'border-indigo-100' : 'border-rose-500/20'} pb-3 flex items-center gap-3`}>
+                    <h3 className={`text-xl sm:text-2xl font-black ${isLT ? 'text-indigo-600' : 'text-rose-500'} mb-4 tracking-tighter uppercase border-b ${isLT ? 'border-indigo-100' : 'border-rose-500/20'} pb-3 flex items-center gap-3`}>
                       <ShieldAlert
                         size={28}
-                        className="animate-pulse drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]"
+                        className={`animate-pulse ${!isLT ? 'drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]' : ''}`}
                       />{" "}
                       АДМИН ПАНЕЛЬ
                     </h3>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-                      <div className={`${settings.theme === 'light' ? 'bg-indigo-50 border-indigo-100' : 'bg-rose-500/10 border-rose-500/20'} border p-5 rounded-3xl shadow-sm`}>
-                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-indigo-600' : 'text-rose-500'} font-black uppercase tracking-widest mb-1`}>Пользователи</p>
-                        <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>{adminUsersList.length}</p>
-                      </div>
-                      <div className={`${settings.theme === 'light' ? 'bg-amber-50 border-amber-100' : 'bg-amber-500/10 border-amber-500/20'} border p-5 rounded-3xl shadow-sm`}>
-                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-amber-600' : 'text-amber-500'} font-black uppercase tracking-widest mb-1`}>Всего Кристаллов</p>
-                        <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
-                          {adminUsersList.reduce((acc, u) => acc + (u.settings?.balance || 0), 0).toLocaleString()} 💎
-                        </p>
-                      </div>
-                      <div className={`${settings.theme === 'light' ? 'bg-cyan-50 border-cyan-100' : 'bg-cyan-500/10 border-cyan-500/20'} border p-5 rounded-3xl shadow-sm`}>
-                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-cyan-600' : 'text-cyan-500'} font-black uppercase tracking-widest mb-1`}>Всего Сообщений</p>
-                        <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
-                          {adminUsersList.reduce((acc, u) => acc + Object.values(u.messages || {}).reduce((mAcc, mArr) => mAcc + mArr.length, 0), 0).toLocaleString()}
-                        </p>
-                      </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                      {[
+                        { label: "Пользователи", val: adminUsersList.length, color: "indigo", bg: "bg-indigo-500/10", border: "border-indigo-500/20", text: "text-indigo-400", lightBg: "bg-indigo-50", lightBorder: "border-indigo-100", lightText: "text-indigo-600" },
+                        { label: "В сети (5м)", val: adminUsersList.filter(u => u.settings?.lastOnline && (Date.now() - u.settings.lastOnline < 300000)).length, color: "emerald", bg: "bg-emerald-500/10", border: "border-emerald-500/20", text: "text-emerald-400", lightBg: "bg-emerald-50", lightBorder: "border-emerald-100", lightText: "text-emerald-600" },
+                        { label: "Premium", val: adminUsersList.filter(u => u.settings?.isPremium).length, color: "amber", bg: "bg-amber-500/10", border: "border-amber-500/20", text: "text-amber-400", lightBg: "bg-amber-50", lightBorder: "border-amber-100", lightText: "text-amber-600" },
+                        { label: "Кристаллы", val: adminUsersList.reduce((acc, u) => acc + (u.settings?.balance || 0), 0).toLocaleString() + " 💎", color: "sky", bg: "bg-sky-500/10", border: "border-sky-500/20", text: "text-sky-400", lightBg: "bg-sky-50", lightBorder: "border-sky-100", lightText: "text-sky-600" },
+                        { label: "Сообщения", val: adminUsersList.reduce((acc, u) => acc + Object.values(u.messages || {}).reduce((mAcc, mArr) => mAcc + mArr.length, 0), 0).toLocaleString(), color: "violet", bg: "bg-violet-500/10", border: "border-violet-500/20", text: "text-violet-400", lightBg: "bg-violet-50", lightBorder: "border-violet-100", lightText: "text-violet-600" },
+                        { label: "Бан", val: adminUsersList.filter(u => u.settings?.isBanned).length, color: "rose", bg: "bg-rose-500/10", border: "border-rose-500/20", text: "text-rose-400", lightBg: "bg-rose-50", lightBorder: "border-rose-100", lightText: "text-rose-600" },
+                      ].map((stat, idx) => (
+                        <div key={idx} className={`${isLT ? `${stat.lightBg} ${stat.lightBorder}` : `${stat.bg} ${stat.border}`} border p-4 sm:p-5 rounded-3xl shadow-sm transition-transform hover:scale-[1.02]`}>
+                          <p className={`text-[9px] sm:text-[10px] ${isLT ? stat.lightText : stat.text} font-black uppercase tracking-widest mb-1`}>{stat.label}</p>
+                          <p className={`text-xl sm:text-2xl font-black ${isLT ? 'text-zinc-900' : 'text-white'}`}>{stat.val}</p>
+                        </div>
+                      ))}
                     </div>
 
-                    <div className="flex items-center justify-between mb-4">
-                       <p className="text-[10px] font-black uppercase tracking-widest opacity-50">Управление пользователями</p>
-                       <button
-                        onClick={fetchAdminUsers}
-                        className={`px-4 py-2 ${settings.theme === 'light' ? 'bg-zinc-100 hover:bg-zinc-200 text-zinc-600' : 'bg-black/50 hover:bg-zinc-800 text-zinc-400'} rounded-xl transition-all border border-transparent font-black uppercase text-[9px] tracking-widest flex items-center gap-2`}
-                      >
-                        <RefreshCw
-                          size={14}
-                          className={isLoadingAdmin ? "animate-spin" : ""}
-                        />{" "}
-                        Обновить базу
-                      </button>
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                       <div className="relative w-full sm:w-64 group">
+                          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-indigo-500 transition-colors" />
+                          <input
+                            type="text"
+                            placeholder="Поиск по ID или имени..."
+                            value={adminSearchQuery}
+                            onChange={(e) => setAdminSearchQuery(e.target.value)}
+                            className={`w-full py-2.5 pl-10 pr-4 rounded-xl text-[10px] font-black uppercase tracking-widest ${isLT ? 'bg-zinc-100 border-zinc-200' : 'bg-black/40 border-white/5'} border focus:outline-none focus:border-indigo-500 transition-all`}
+                          />
+                       </div>
+                       <div className="flex items-center gap-2 w-full sm:w-auto">
+                         <button
+                           onClick={handleGlobalBroadcast}
+                           disabled={isBroadcasting}
+                           className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-indigo-500 text-white shadow-lg hover:bg-indigo-400 transition-all active:scale-95 flex items-center justify-center gap-2`}
+                         >
+                           {isBroadcasting ? <Loader2 size={14} className="animate-spin" /> : <Megaphone size={14} />}
+                           Рассылка
+                         </button>
+                         <button
+                          onClick={fetchAdminUsers}
+                          className={`flex-1 sm:flex-none px-4 py-2.5 ${isLT ? 'bg-zinc-100 hover:bg-zinc-200 text-zinc-600' : 'bg-black/50 hover:bg-zinc-800 text-zinc-400'} rounded-xl transition-all border border-transparent font-black uppercase text-[9px] tracking-widest flex items-center justify-center gap-2`}
+                        >
+                          <RefreshCw
+                            size={14}
+                            className={isLoadingAdmin ? "animate-spin" : ""}
+                          />{" "}
+                          Обновить
+                        </button>
+                       </div>
                     </div>
 
                     <div className="space-y-4">
-                      {adminUsersList.map((u) => (
+                      {adminUsersList
+                        .filter(u =>
+                          u.id.toLowerCase().includes(adminSearchQuery.toLowerCase()) ||
+                          (u.settings?.username || "").toLowerCase().includes(adminSearchQuery.toLowerCase())
+                        )
+                        .map((u) => (
                         <div
                           key={u.id}
                           className={`${settings.theme === 'light' ? 'bg-white border-zinc-200 shadow-md' : 'bg-zinc-900/40 border-white/5 hover:border-rose-500/30'} border transition-all p-5 rounded-3xl flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-sm group`}
                         >
-                          <div className="flex items-center gap-5 relative z-10">
-                            <div className="relative flex-shrink-0 group-hover:scale-110 transition-transform duration-500">
+                          <div className="flex items-center gap-4 w-full lg:w-auto">
+                            <div
+                              className="relative flex-shrink-0 cursor-pointer"
+                              onClick={() => loadProfile(u.id)}
+                            >
                               <img
                                 src={
                                   u.settings?.avatar ||
@@ -5415,13 +5515,13 @@ export default function App() {
                           </div>
                           <div className="flex flex-col gap-3 w-full lg:w-auto">
                             {/* ВЫБОР ЗНАЧКА (КРАСИВАЯ СЕТКА) */}
-                            <div className="flex flex-wrap gap-1.5 p-2 bg-black/20 rounded-2xl border border-white/5">
+                            <div className={`flex flex-wrap gap-1.5 p-2 ${settings.theme === 'light' ? 'bg-zinc-100' : 'bg-black/20'} rounded-2xl border ${settings.theme === 'light' ? 'border-zinc-200' : 'border-white/5'}`}>
                               <button
                                 onClick={() => adminAction(u.id, "set_badge", null)}
                                 className={`p-2 rounded-xl text-[10px] font-black uppercase transition-all ${
                                   !u.settings?.officialBadge
-                                    ? 'bg-zinc-500 text-white shadow-lg'
-                                    : 'text-zinc-600 hover:text-zinc-400'
+                                    ? (settings.theme === 'light' ? 'bg-zinc-400 text-white shadow-md' : 'bg-zinc-500 text-white shadow-lg')
+                                    : (settings.theme === 'light' ? 'text-zinc-400 hover:text-zinc-600' : 'text-zinc-600 hover:text-zinc-400')
                                 }`}
                                 title="Без значка"
                               >
@@ -5436,7 +5536,7 @@ export default function App() {
                                     className={`p-2 rounded-xl text-lg transition-all hover:scale-110 active:scale-90 ${
                                       u.settings?.officialBadge === k
                                         ? 'bg-indigo-500 shadow-lg shadow-indigo-500/40'
-                                        : 'bg-black/40 hover:bg-black/60 opacity-60 hover:opacity-100'
+                                        : (settings.theme === 'light' ? 'bg-zinc-200 hover:bg-zinc-300 opacity-80 hover:opacity-100' : 'bg-black/40 hover:bg-black/60 opacity-60 hover:opacity-100')
                                     }`}
                                     title={v.label}
                                   >
@@ -5507,14 +5607,12 @@ export default function App() {
                               <Trash2 size={16} />
                             </button>
                           </div>
-
-                          <div className="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                         </div>
                       </div>
                     ))}
                       {adminUsersList.length === 0 && !isLoadingAdmin && (
-                        <div className="text-center text-zinc-700 py-20 font-black uppercase tracking-[0.5em] animate-pulse">
-                          DATABASE EMPTY
+                        <div className="text-center text-zinc-500 py-10 font-black uppercase tracking-widest">
+                          База пуста
                         </div>
                       )}
                     </div>
@@ -5617,7 +5715,7 @@ export default function App() {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="bg-zinc-900/95 backdrop-blur-3xl border border-white/10 p-3 sm:p-4 lg:p-6 rounded-xl sm:rounded-[1.5rem] lg:rounded-[2rem] shadow-[0_10px_30px_rgba(0,0,0,0.5)] lg:shadow-[0_15px_40px_rgba(0,0,0,0.5)] animate-spring-up pointer-events-auto flex items-center gap-3 sm:gap-4 lg:gap-5 border-l-[3px] sm:border-l-4 border-l-amber-500"
+            className={`${settings.theme === 'light' ? 'bg-white shadow-xl border-zinc-200' : 'bg-zinc-900/95 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border-white/10'} backdrop-blur-3xl border p-3 sm:p-4 lg:p-6 rounded-xl sm:rounded-[1.5rem] lg:rounded-[2rem] animate-spring-up pointer-events-auto flex items-center gap-3 sm:gap-4 lg:gap-5 border-l-[3px] sm:border-l-4 border-l-amber-500`}
           >
             <div
               className={`w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-full ${currentAccent.bg} ${currentAccent.text} flex items-center justify-center shadow-lg flex-shrink-0`}
@@ -5625,7 +5723,7 @@ export default function App() {
               <Bell size={14} className="sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="text-[9px] sm:text-[10px] lg:text-xs font-black uppercase tracking-widest truncate text-white">
+              <h4 className={`text-[9px] sm:text-[10px] lg:text-xs font-black uppercase tracking-widest truncate ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
                 {t.title}
               </h4>
               <p className="text-[9px] sm:text-[10px] lg:text-[12px] text-zinc-400 font-bold uppercase tracking-tight mt-0.5 truncate">
@@ -5674,7 +5772,6 @@ export default function App() {
         .animate-shake { animation: shake 0.4s ease-in-out; }
         .ease-spring { transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes bgMove { 0% { background-position: 0 0; } 100% { background-position: 1000px 1000px; } }
-        .text-shadow-glow { text-shadow: 0 0 15px rgba(244, 63, 94, 0.5); }
       `,
         }}
       />
