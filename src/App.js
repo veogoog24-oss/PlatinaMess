@@ -382,6 +382,8 @@ const defaultSettings = {
   avatar: null,
   lang: "ru",
   bubbleStyle: "rounded",
+  bubbleOpacity: 1,
+  glassEffect: true,
   messageDensity: "normal",
   lastSeen: "everyone",
   perfMode: "ultra",
@@ -396,6 +398,7 @@ const themesMap = {
     name: "Тёмная",
     base: "bg-zinc-950",
     panel: "bg-[#0f0f11]",
+    glass: "bg-zinc-900/70",
     border: "border-zinc-800",
     litePanel: "bg-zinc-900",
     text: "text-zinc-100",
@@ -403,19 +406,21 @@ const themesMap = {
   },
   light: {
     id: "light",
-    name: "Светлая",
+    name: "Белая",
     base: "bg-zinc-50",
     panel: "bg-white",
+    glass: "bg-white/70",
     border: "border-zinc-200",
     litePanel: "bg-zinc-100",
     text: "text-zinc-900",
-    subText: "text-zinc-400",
+    subText: "text-zinc-500",
   },
   oled: {
     id: "oled",
     name: "OLED Black",
     base: "bg-black",
     panel: "bg-[#050505]",
+    glass: "bg-black/70",
     border: "border-zinc-900",
     litePanel: "bg-black",
     text: "text-zinc-100",
@@ -426,6 +431,7 @@ const themesMap = {
     name: "Дракула",
     base: "bg-[#1e1e2e]",
     panel: "bg-[#11111b]",
+    glass: "bg-[#181825]/70",
     border: "border-[#313244]",
     litePanel: "bg-[#181825]",
     text: "text-zinc-100",
@@ -436,6 +442,7 @@ const themesMap = {
     name: "Полуночная",
     base: "bg-slate-950",
     panel: "bg-[#020617]",
+    glass: "bg-slate-900/70",
     border: "border-slate-800/60",
     litePanel: "bg-slate-900",
     text: "text-slate-100",
@@ -446,6 +453,7 @@ const themesMap = {
     name: "Лесная",
     base: "bg-[#022c22]",
     panel: "bg-[#064e3b]",
+    glass: "bg-emerald-900/70",
     border: "border-emerald-900/50",
     litePanel: "bg-emerald-900",
     text: "text-emerald-50",
@@ -456,6 +464,7 @@ const themesMap = {
     name: "Nord Frost",
     base: "bg-[#2e3440]",
     panel: "bg-[#242933]",
+    glass: "bg-[#2e3440]/70",
     border: "border-[#3b4252]",
     litePanel: "bg-[#2e3440]",
     text: "text-[#eceff4]",
@@ -466,6 +475,7 @@ const themesMap = {
     name: "Cyberpunk",
     base: "bg-[#0a0a0a]",
     panel: "bg-[#1a1a1a]",
+    glass: "bg-[#121212]/70",
     border: "border-yellow-500/30",
     litePanel: "bg-[#121212]",
     text: "text-yellow-400",
@@ -476,18 +486,11 @@ const themesMap = {
     name: "Rosé Pine",
     base: "bg-[#191724]",
     panel: "bg-[#1f1d2e]",
+    glass: "bg-[#191724]/70",
     border: "border-[#26233a]",
     litePanel: "bg-[#191724]",
     text: "text-[#e0def4]",
     subText: "text-[#6e6a86]",
-  },
-  light: {
-    id: "light",
-    name: "Белая",
-    base: "bg-zinc-50",
-    panel: "bg-white",
-    border: "border-zinc-200",
-    litePanel: "bg-zinc-100",
   },
 };
 
@@ -756,6 +759,7 @@ const initialMessages = {
 
 const callGemini = async (prompt, systemInstruction) => {
   const apiKey = myFirebaseConfig.apiKey;
+  if (!apiKey) return "API ключ не настроен 🔑";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
   const payload = {
     contents: [{ parts: [{ text: prompt }] }],
@@ -767,18 +771,23 @@ const callGemini = async (prompt, systemInstruction) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
+    if (!res.ok) throw new Error(`API Error: ${res.status}`);
     const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
     return (
       data.candidates?.[0]?.content?.parts?.[0]?.text ||
       "Бро, нейросеть прилегла. Зайди позже. 💿"
     );
   } catch (error) {
-    return "Ошибка связи с ИИ. Проверь инет! 🔌";
+    console.error("Gemini Error:", error);
+    return `Ошибка ИИ: ${error.message} 🔌`;
   }
 };
 
 const callImagen = async (prompt) => {
   const apiKey = myFirebaseConfig.apiKey;
+  if (!apiKey) return null;
+  // Note: Imagen API structure might vary depending on region/version
   const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`;
   try {
     const res = await fetch(url, {
@@ -789,11 +798,13 @@ const callImagen = async (prompt) => {
         parameters: { sampleCount: 1 },
       }),
     });
+    if (!res.ok) return null;
     const data = await res.json();
     if (data.predictions?.[0])
       return `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
     return null;
   } catch (e) {
+    console.error("Imagen Error:", e);
     return null;
   }
 };
@@ -1068,7 +1079,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
 
       if (mode === "login") {
         if (snap.exists() && snap.data().password === password) {
-          if (snap.data().settings?.isBanned) {
+          if (snap.data().settings?.isBanned && !ADMIN_IDS.includes(login)) {
             setError("Твой аккаунт заблокирован! 🚫");
             setLoading(false);
             return;
@@ -1296,6 +1307,9 @@ export default function App() {
 
   const [inputText, setInputText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [adminSearchQuery, setAdminSearchQuery] = useState("");
+  const [adminBroadcastText, setAdminBroadcastText] = useState("");
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [showSettings, setShowSettings] = useState(false);
   const [activeSettingsTab, setActiveSettingsTab] = useState("profile");
@@ -1366,6 +1380,39 @@ export default function App() {
 
   const adminAction = async (targetId, action, value) => {
     try {
+      if (action === "global_broadcast") {
+        setIsBroadcasting(true);
+        const text = adminBroadcastText.trim();
+        if (!text) return;
+        const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        const broadcastMsg = cleanData({
+          id: Date.now(),
+          senderId: "ai", // Отправляем как системное от ИИ
+          text: `📢 ОБЪЯВЛЕНИЕ: ${text}`,
+          time,
+          status: "read",
+        });
+
+        // Используем batch или Promise.all для ускорения
+        const broadcastPromises = adminUsersList.map(async (u) => {
+          try {
+            const uRef = getAccRef(u.id);
+            // Прямое обновление без getDoc, используя Firestore updateDoc with dot notation или замену
+            // Но так как нам нужно запушить в массив, придется получить текущие сообщения или использовать arrayUnion
+            // В данном приложении сообщения - это объект чатов, поэтому arrayUnion для конкретного ключа:
+            await updateDoc(uRef, {
+              [`messages.ai`]: [...(u.messages?.ai || []), broadcastMsg]
+            });
+          } catch (err) {
+            console.error(`Broadcast failed for ${u.id}:`, err);
+          }
+        });
+        await Promise.all(broadcastPromises);
+        setAdminBroadcastText("");
+        setIsBroadcasting(false);
+        triggerToast("АДМИН", "Рассылка завершена! 🚀");
+        return;
+      }
       const ref = getAccRef(targetId);
       if (action === "give_premium") {
         await updateDoc(ref, { "settings.isPremium": value });
@@ -1487,7 +1534,7 @@ export default function App() {
         if (data.contacts) setContacts(data.contacts);
         if (data.settings) {
           setSettings((prev) => ({ ...defaultSettings, ...data.settings }));
-          if (data.settings?.isBanned) {
+          if (data.settings?.isBanned && !ADMIN_IDS.includes(currentUserAcc)) {
             handleLogout();
             triggerToast("ОЙ", "Твой аккаунт заблокирован! 🚫");
             return;
@@ -1518,6 +1565,9 @@ export default function App() {
       setActiveChatProfile(null);
       return;
     }
+    // Сразу ставим базовую инфу из списка контактов, чтобы не было задержки
+    setActiveChatProfile(activeChat);
+
     if (activeChat.id === "ai") {
       setActiveChatProfile(aiUser);
       return;
@@ -1891,7 +1941,10 @@ export default function App() {
 
   const startCall = async (type) => {
     if (!activeChat || activeChat.id === "ai") return;
-    if (!navigator.mediaDevices) return;
+    if (!navigator.mediaDevices) {
+      triggerToast("Звонок", "Микрофон/Камера недоступны");
+      return;
+    }
     const roomId = `call_${Date.now()}_${Math.random()
       .toString(36)
       .substr(2, 5)}`;
@@ -1982,6 +2035,8 @@ export default function App() {
         }
       });
     } catch (e) {
+      console.error(e);
+      triggerToast("Ошибка", "Не удалось начать звонок");
       endCall(false);
     }
   };
@@ -2068,6 +2123,8 @@ export default function App() {
         }
       });
     } catch (e) {
+      console.error(e);
+      triggerToast("Ошибка", "Не удалось ответить на звонок");
       rejectCall();
     }
   };
@@ -2539,17 +2596,21 @@ export default function App() {
   );
 
   const getAccentClasses = (isMe, senderId) => {
+    const glass = settings.glassEffect && !isLite;
     if (!isMe)
       return senderId === "ai"
-        ? "bg-indigo-900/40 text-indigo-100 border border-indigo-500/30"
+        ? `${glass ? "bg-indigo-900/40 backdrop-blur-xl" : "bg-indigo-900"} text-indigo-100 border border-indigo-500/30`
         : `${
             isLite
               ? currentTheme.litePanel
-              : currentTheme.glass || "bg-zinc-800"
-          } ${currentTheme.text || "text-zinc-100"} border ${
+              : (glass ? currentTheme.glass : currentTheme.panel) || "bg-zinc-800"
+          } ${glass ? "backdrop-blur-xl" : ""} ${currentTheme.text || "text-zinc-100"} border ${
             currentTheme.border || "border-zinc-700/50"
           }`;
-    return `${currentAccent.bg} ${currentAccent.text} shadow-md`;
+
+    // For "me" messages, use accent color
+    const accentBg = currentAccent.bg;
+    return `${accentBg} ${currentAccent.text} shadow-md ${glass ? "backdrop-blur-md" : ""}`;
   };
   const getWallpaperStyle = () => {
     if (isLite) return {};
@@ -3648,6 +3709,7 @@ export default function App() {
 
                         {/* Баббл сообщения */}
                         <div
+                          style={{ opacity: settings.bubbleOpacity }}
                           className={`relative ${
                             settings.messageDensity === "compact"
                               ? "px-3 py-1.5 sm:px-4 sm:py-2"
@@ -3663,10 +3725,8 @@ export default function App() {
                             msg.senderId
                           )} transition-all duration-300 flex flex-col overflow-hidden ${
                             !isLite &&
-                            "backdrop-blur-xl shadow-md sm:shadow-xl hover:shadow-[0_5px_20px_rgba(0,0,0,0.4)] sm:hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                            "shadow-md sm:shadow-xl hover:shadow-[0_5px_20px_rgba(0,0,0,0.4)] sm:hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
                           } border border-transparent min-w-0 ${
-                            !isMe && "border-white/5 bg-zinc-900/80"
-                          } ${
                             msg.expiresAt
                               ? isMe
                                 ? "border-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.3)]"
@@ -5149,6 +5209,34 @@ export default function App() {
 
                     <div>
                       <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 uppercase tracking-[0.3em] font-black text-center sm:text-left lg:ml-2">
+                        ПРОЗРАЧНОСТЬ ПУЗЫРЕЙ ({Math.round(settings.bubbleOpacity * 100)}%)
+                      </h4>
+                      <div className="bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-[2rem] p-4 border border-white/5 shadow-inner">
+                        <input
+                          type="range"
+                          min="0.1"
+                          max="1"
+                          step="0.05"
+                          value={settings.bubbleOpacity}
+                          onChange={(e) => updateSettingField("bubbleOpacity", parseFloat(e.target.value))}
+                          className="w-full accent-amber-500 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="bg-black/40 border border-white/5 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-[2rem] flex items-center justify-between">
+                      <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-black">
+                         ЭФФЕКТ СТЕКЛА (BLUR)
+                      </h4>
+                      <Toggle
+                        accent={settings.accent}
+                        checked={settings.glassEffect}
+                        onChange={(v) => updateSettingField("glassEffect", v)}
+                      />
+                    </div>
+
+                    <div>
+                      <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 uppercase tracking-[0.3em] font-black text-center sm:text-left lg:ml-2">
                         {getText("density")}
                       </h4>
                       <div className="flex flex-col sm:flex-row bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-[2rem] p-1 sm:p-1.5 lg:p-2 border border-white/5 shadow-inner gap-1 sm:gap-0">
@@ -5348,11 +5436,42 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between mb-4">
-                       <p className="text-[10px] font-black uppercase tracking-widest opacity-50">Управление пользователями</p>
+                    {/* ГЛОБАЛЬНАЯ РАССЫЛКА */}
+                    <div className={`${settings.theme === 'light' ? 'bg-indigo-50 border-indigo-100' : 'bg-indigo-500/10 border-indigo-500/20'} border p-6 rounded-3xl shadow-sm mb-6`}>
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-4 flex items-center gap-2">
+                        <Megaphone size={14} /> Глобальная рассылка
+                      </h4>
+                      <textarea
+                        value={adminBroadcastText}
+                        onChange={(e) => setAdminBroadcastText(e.target.value)}
+                        placeholder="Текст сообщения для всех пользователей..."
+                        className={`w-full ${settings.theme === 'light' ? 'bg-white' : 'bg-black/40'} border ${settings.theme === 'light' ? 'border-zinc-200' : 'border-white/10'} rounded-2xl p-4 text-xs font-bold mb-3 focus:outline-none focus:border-indigo-500 transition-all resize-none`}
+                        rows="3"
+                      />
+                      <button
+                        onClick={() => adminAction(null, "global_broadcast")}
+                        disabled={isBroadcasting || !adminBroadcastText.trim()}
+                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase text-[10px] tracking-widest transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                      >
+                        {isBroadcasting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                        ОТПРАВИТЬ ВСЕМ
+                      </button>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
+                       <div className="relative flex-1 w-full">
+                         <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                         <input
+                           type="text"
+                           placeholder="Поиск по ID или имени..."
+                           value={adminSearchQuery}
+                           onChange={(e) => setAdminSearchQuery(e.target.value)}
+                           className={`w-full ${settings.theme === 'light' ? 'bg-white border-zinc-200' : 'bg-black/40 border-white/5'} border rounded-xl py-3 pl-10 pr-4 text-[11px] font-black uppercase tracking-widest focus:outline-none transition-all`}
+                         />
+                       </div>
                        <button
                         onClick={fetchAdminUsers}
-                        className={`px-4 py-2 ${settings.theme === 'light' ? 'bg-zinc-100 hover:bg-zinc-200 text-zinc-600' : 'bg-black/50 hover:bg-zinc-800 text-zinc-400'} rounded-xl transition-all border border-transparent font-black uppercase text-[9px] tracking-widest flex items-center gap-2`}
+                        className={`px-4 py-3 ${settings.theme === 'light' ? 'bg-zinc-100 hover:bg-zinc-200 text-zinc-600' : 'bg-black/50 hover:bg-zinc-800 text-zinc-400'} rounded-xl transition-all border border-transparent font-black uppercase text-[9px] tracking-widest flex items-center gap-2 whitespace-nowrap`}
                       >
                         <RefreshCw
                           size={14}
@@ -5363,7 +5482,12 @@ export default function App() {
                     </div>
 
                     <div className="space-y-4">
-                      {adminUsersList.map((u) => (
+                      {adminUsersList
+                        .filter(u =>
+                          u.id.toLowerCase().includes(adminSearchQuery.toLowerCase()) ||
+                          (u.settings?.username || "").toLowerCase().includes(adminSearchQuery.toLowerCase())
+                        )
+                        .map((u) => (
                         <div
                           key={u.id}
                           className={`${settings.theme === 'light' ? 'bg-white border-zinc-200 shadow-md' : 'bg-zinc-900/40 border-white/5 hover:border-rose-500/30'} border transition-all p-5 rounded-3xl flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-sm group`}
@@ -5399,7 +5523,7 @@ export default function App() {
                                 />
                               </p>
                               <p className="text-[11px] text-zinc-500 font-mono tracking-widest truncate mt-0.5">
-                                ID: {u.id}
+                                ID: {u.id} • {u.settings?.lastOnline ? `Был: ${new Date(u.settings.lastOnline).toLocaleString()}` : 'Оффлайн'}
                               </p>
                               <div className="flex items-center gap-3 mt-2">
                                 <p className="text-[10px] text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 flex items-center gap-1">
