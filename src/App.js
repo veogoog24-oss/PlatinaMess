@@ -1365,6 +1365,67 @@ export default function App() {
   const [adminUsersList, setAdminUsersList] = useState([]);
   const [isLoadingAdmin, setIsLoadingAdmin] = useState(false);
 
+  const adminStats = useMemo(() => {
+    if (!adminUsersList.length) return null;
+
+    const giftCounts = {};
+    const spenders = {};
+    const accents = {};
+    let totalMsgs = 0;
+    let ru = 0, en = 0;
+    let dark = 0, light = 0;
+    let totalGifts = 0;
+
+    adminUsersList.forEach(u => {
+      // Gifts
+      u.receivedGifts?.forEach(g => {
+        giftCounts[g.name] = (giftCounts[g.name] || 0) + 1;
+        totalGifts++;
+      });
+
+      // Messages & Spending
+      Object.values(u.messages || {}).forEach(mList => {
+        totalMsgs += mList.length;
+        mList.forEach(m => {
+          if (m.senderId === "me" && m.type === "gift") {
+            spenders[u.id] = (spenders[u.id] || 0) + (m.gift?.price || 0);
+          }
+        });
+      });
+
+      // Settings
+      if (u.settings?.accent) accents[u.settings.accent] = (accents[u.settings.accent] || 0) + 1;
+      if ((u.settings?.lang || 'ru') === 'ru') ru++; else en++;
+      if (u.settings?.theme === 'light') light++; else dark++;
+    });
+
+    const topGift = Object.entries(giftCounts).sort((a,b) => b[1]-a[1])[0];
+    const topSpender = Object.entries(spenders).sort((a,b) => b[1]-a[1])[0];
+    const topAccents = Object.entries(accents).sort((a,b) => b[1]-a[1]).slice(0, 3);
+    const msgLeaderboard = adminUsersList
+      .map(u => ({ id: u.id, name: u.name, count: Object.values(u.messages || {}).flat().length }))
+      .sort((a,b) => b.count - a.count)
+      .slice(0, 3);
+    const giftLeaderboard = adminUsersList
+      .map(u => ({ id: u.id, name: u.name, count: (u.receivedGifts || []).length }))
+      .sort((a,b) => b.count - a.count)
+      .slice(0, 3);
+
+    return {
+      topGift: topGift ? `${topGift[0]} (${topGift[1]})` : "—",
+      topSpender: topSpender ? `${topSpender[0]} (${topSpender[1]} 💎)` : "—",
+      avgMsgs: Math.round(totalMsgs / adminUsersList.length),
+      topAccents,
+      langRatio: `RU: ${ru} | EN: ${en}`,
+      themeRatio: `🌙 ${dark} | ☀️ ${light}`,
+      totalMsgs,
+      totalGifts,
+      premiumConv: Math.round((adminUsersList.filter(u => u.settings?.isPremium).length / adminUsersList.length) * 100),
+      msgLeaderboard,
+      giftLeaderboard
+    };
+  }, [adminUsersList]);
+
   const fetchAdminUsers = async () => {
     if (!isAdmin) return;
     setIsLoadingAdmin(true);
@@ -1421,9 +1482,9 @@ export default function App() {
             const uRef = getAccRef(u.id);
             // Прямое обновление без getDoc, используя Firestore updateDoc with dot notation или замену
             // Но так как нам нужно запушить в массив, придется получить текущие сообщения или использовать arrayUnion
-            // В данном приложении сообщения - это объект чатов, поэтому arrayUnion для конкретного ключа:
+            // В данном приложении сообщения - это объект чатов, используем arrayUnion для безопасного пуша
             await updateDoc(uRef, {
-              [`messages.ai`]: [...(u.messages?.ai || []), broadcastMsg]
+              [`messages.ai`]: arrayUnion(broadcastMsg)
             });
           } catch (err) {
             console.error(`Broadcast failed for ${u.id}:`, err);
@@ -1520,7 +1581,7 @@ export default function App() {
 
   const lang = settings.lang || "ru";
   const getText = (key) => t(key, lang);
-  const isLite = settings.perfMode === "lite";
+  const isLite = settings.perfMode === "lite" && settings.theme !== 'light';
 
   const handleLogin = (login) => {
     localStorage.setItem("platina_user", login);
@@ -1581,7 +1642,7 @@ export default function App() {
         if (data.messages) setMessages(data.messages);
         if (data.contacts) setContacts(data.contacts);
         if (data.settings) {
-          setSettings((prev) => ({ ...defaultSettings, ...data.settings }));
+          setSettings((prev) => ({ ...prev, ...data.settings }));
           if (data.settings?.isBanned && !ADMIN_IDS.includes(currentUserAcc)) {
             handleLogout();
             triggerToast("ОЙ", "Твой аккаунт заблокирован! 🚫");
@@ -5636,47 +5697,39 @@ export default function App() {
                     </div>
 
                     {/* РАСШИРЕННАЯ СТАТИСТИКА */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {adminStats && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
                        <div className={`${settings.theme === 'light' ? 'bg-zinc-50' : 'bg-black/20'} p-5 rounded-[2rem] border ${currentTheme.border}`}>
                           <h4 className="text-[10px] font-black uppercase text-zinc-500 mb-4 tracking-widest border-b border-white/5 pb-2">🏆 ТОП АКТИВНОСТЬ</h4>
                           <div className="space-y-3">
                              <div className="flex justify-between items-center">
                                 <span className="text-[10px] font-bold text-zinc-400">САМЫЙ ЖЕЛАННЫЙ ПОДАРОК</span>
-                                <span className="text-sm font-black text-white">
-                                   {(() => {
-                                      const giftCounts = {};
-                                      adminUsersList.forEach(u => {
-                                        u.receivedGifts?.forEach(g => giftCounts[g.name] = (giftCounts[g.name] || 0) + 1);
-                                      });
-                                      const top = Object.entries(giftCounts).sort((a,b) => b[1]-a[1])[0];
-                                      return top ? `${top[0]} (${top[1]})` : "—";
-                                   })()}
+                                <span className={`text-sm font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
+                                   {adminStats.topGift}
                                 </span>
                              </div>
                              <div className="flex justify-between items-center">
                                 <span className="text-[10px] font-bold text-zinc-400">ГЛАВНЫЙ МЕЦЕНАТ</span>
                                 <span className="text-sm font-black text-amber-400">
-                                   {(() => {
-                                      const spenders = {};
-                                      adminUsersList.forEach(u => {
-                                        // Ищем в сообщениях подарки, отправленные этим юзером
-                                        Object.values(u.messages || {}).forEach(mList => {
-                                          mList.forEach(m => {
-                                            if (m.senderId === "me" && m.type === "gift") {
-                                              spenders[u.id] = (spenders[u.id] || 0) + (m.gift?.price || 0);
-                                            }
-                                          });
-                                        });
-                                      });
-                                      const top = Object.entries(spenders).sort((a,b) => b[1]-a[1])[0];
-                                      return top ? `${top[0]} (${top[1]} 💎)` : "—";
-                                   })()}
+                                   {adminStats.topSpender}
                                 </span>
                              </div>
                              <div className="flex justify-between items-center">
                                 <span className="text-[10px] font-bold text-zinc-400">СРЕДНЕЕ КОЛ-ВО СООБЩЕНИЙ</span>
                                 <span className="text-sm font-black text-cyan-400">
-                                   {adminUsersList.length ? Math.round(adminUsersList.reduce((acc, u) => acc + Object.values(u.messages || {}).flat().length, 0) / adminUsersList.length) : 0}
+                                   {adminStats.avgMsgs}
+                                </span>
+                             </div>
+                             <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-bold text-zinc-400">ОБЪЕМ ПОДАРКОВ</span>
+                                <span className="text-sm font-black text-emerald-400">
+                                   {adminStats.totalGifts} 🎁
+                                </span>
+                             </div>
+                             <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-bold text-zinc-400">КОНВЕРСИЯ В PREMIUM</span>
+                                <span className="text-sm font-black text-purple-400">
+                                   {adminStats.premiumConv}%
                                 </span>
                              </div>
                           </div>
@@ -5688,38 +5741,57 @@ export default function App() {
                              <div className="flex justify-between items-center">
                                 <span className="text-[10px] font-bold text-zinc-400">ЛЮБИМЫЙ АКЦЕНТ</span>
                                 <div className="flex gap-1">
-                                   {(() => {
-                                      const counts = {};
-                                      adminUsersList.forEach(u => counts[u.settings?.accent] = (counts[u.settings?.accent] || 0) + 1);
-                                      return Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0,3).map(([k,v]) => (
-                                        <span key={k} className="text-[9px] font-black bg-white/5 px-2 py-0.5 rounded uppercase">{k}</span>
-                                      ));
-                                   })()}
+                                   {adminStats.topAccents.map(([k,v]) => (
+                                      <span key={k} className={`text-[9px] font-black ${settings.theme === 'light' ? 'bg-zinc-200 text-zinc-600' : 'bg-white/5 text-zinc-400'} px-2 py-0.5 rounded uppercase`}>{k}</span>
+                                   ))}
                                 </div>
                              </div>
                              <div className="flex justify-between items-center">
                                 <span className="text-[10px] font-bold text-zinc-400">ЯЗЫК ИНТЕРФЕЙСА</span>
                                 <span className="text-sm font-black text-indigo-400">
-                                   {(() => {
-                                      const counts = { ru: 0, en: 0 };
-                                      adminUsersList.forEach(u => counts[u.settings?.lang || 'ru']++);
-                                      return `RU: ${counts.ru} | EN: ${counts.en}`;
-                                   })()}
+                                   {adminStats.langRatio}
                                 </span>
                              </div>
                              <div className="flex justify-between items-center">
                                 <span className="text-[10px] font-bold text-zinc-400">ТЕМНЫЕ ТЕМЫ VS СВЕТЛЫЕ</span>
                                 <span className="text-sm font-black text-rose-400">
-                                   {(() => {
-                                      let dark = 0, light = 0;
-                                      adminUsersList.forEach(u => u.settings?.theme === 'light' ? light++ : dark++);
-                                      return `🌙 ${dark} | ☀️ ${light}`;
-                                   })()}
+                                   {adminStats.themeRatio}
                                 </span>
                              </div>
                           </div>
                        </div>
+
+                       <div className={`${settings.theme === 'light' ? 'bg-zinc-50' : 'bg-black/20'} p-5 rounded-[2rem] border ${currentTheme.border}`}>
+                          <h4 className="text-[10px] font-black uppercase text-zinc-500 mb-4 tracking-widest border-b border-white/5 pb-2">📊 ЛИДЕРБОРДЫ</h4>
+                          <div className="space-y-4">
+                             <div>
+                                <p className="text-[9px] font-black text-zinc-500 uppercase mb-2">ТОП-3 ПО СООБЩЕНИЯМ</p>
+                                <div className="space-y-1">
+                                   {adminStats.msgLeaderboard.map((u, i) => (
+                                       <div key={u.id} className="flex justify-between items-center text-[10px] font-bold">
+                                          <span className="text-zinc-400">{i+1}. {u.name || u.id}</span>
+                                          <span className={`${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>{u.count}</span>
+                                       </div>
+                                     ))
+                                   }
+                                </div>
+                             </div>
+                             <div>
+                                <p className="text-[9px] font-black text-zinc-500 uppercase mb-2">ТОП-3 ПО ПОДАРКАМ</p>
+                                <div className="space-y-1">
+                                   {adminStats.giftLeaderboard.map((u, i) => (
+                                       <div key={u.id} className="flex justify-between items-center text-[10px] font-bold">
+                                          <span className="text-zinc-400">{i+1}. {u.name || u.id}</span>
+                                          <span className="text-amber-400">{u.count} 🎁</span>
+                                       </div>
+                                     ))
+                                   }
+                                </div>
+                             </div>
+                          </div>
+                       </div>
                     </div>
+                    )}
 
                     {/* ГЛОБАЛЬНАЯ РАССЫЛКА */}
                     <div className={`${settings.theme === 'light' ? 'bg-indigo-50 border-indigo-100' : 'bg-indigo-500/10 border-indigo-500/20'} border p-6 rounded-3xl shadow-sm mb-6`}>
