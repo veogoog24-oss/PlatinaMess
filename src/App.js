@@ -841,8 +841,11 @@ const VideoRenderer = memo(({ localStream, remoteStream, facingMode }) => {
   useEffect(() => {
     if (localVideoRef.current && localStream)
       localVideoRef.current.srcObject = localStream;
-    if (remoteVideoRef.current && remoteStream)
+    if (remoteVideoRef.current && remoteStream) {
       remoteVideoRef.current.srcObject = remoteStream;
+      // Force play if needed
+      remoteVideoRef.current.play().catch(e => console.error("Video play failed", e));
+    }
   }, [localStream, remoteStream]);
   return (
     <>
@@ -1490,6 +1493,15 @@ export default function App() {
   const [isCallVideoOff, setIsCallVideoOff] = useState(false);
   const [facingMode, setFacingMode] = useState("user");
   const [remoteStream, setRemoteStream] = useState(null);
+
+  const remoteAudioRef = useRef(null); // 🔥 Фикс звука
+
+  useEffect(() => {
+    if (remoteAudioRef.current && remoteStream && callState?.type === "audio") {
+      remoteAudioRef.current.srcObject = remoteStream;
+      remoteAudioRef.current.play().catch(e => console.error("Audio play failed", e));
+    }
+  }, [remoteStream, callState]);
 
   const pcRef = useRef(null);
   const callStreamRef = useRef(null);
@@ -3049,6 +3061,9 @@ export default function App() {
               )}
             </div>
           </div>
+          {callState.type === "audio" && (
+            <audio ref={remoteAudioRef} autoPlay className="hidden" />
+          )}
           <div className="relative z-10 flex items-center justify-center gap-4 sm:gap-6 mb-10 sm:mb-16 bg-black/60 backdrop-blur-2xl p-4 sm:p-6 rounded-[2rem] sm:rounded-[3rem] border border-white/10 shadow-2xl">
             {callState.type === "video" && (
               <button
@@ -5597,27 +5612,113 @@ export default function App() {
                       АДМИН ПАНЕЛЬ
                     </h3>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
-                      <div className={`${settings.theme === 'light' ? 'bg-emerald-50 border-emerald-100' : 'bg-emerald-500/10 border-emerald-500/20'} border p-5 rounded-3xl shadow-sm`}>
-                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-emerald-600' : 'text-emerald-500'} font-black uppercase tracking-widest mb-1`}>В сети</p>
-                        <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>{onlineCount}</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                      <div className={`${settings.theme === 'light' ? 'bg-emerald-50 border-emerald-100' : 'bg-emerald-500/10 border-rose-500/20'} border p-4 rounded-3xl shadow-sm`}>
+                        <p className={`text-[9px] ${settings.theme === 'light' ? 'text-emerald-600' : 'text-emerald-500'} font-black uppercase mb-1`}>В СЕТИ</p>
+                        <p className={`text-xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>{onlineCount}</p>
                       </div>
-                      <div className={`${settings.theme === 'light' ? 'bg-indigo-50 border-indigo-100' : 'bg-rose-500/10 border-rose-500/20'} border p-5 rounded-3xl shadow-sm`}>
-                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-indigo-600' : 'text-rose-500'} font-black uppercase tracking-widest mb-1`}>Пользователи</p>
-                        <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>{adminUsersList.length}</p>
+                      <div className={`${settings.theme === 'light' ? 'bg-indigo-50 border-indigo-100' : 'bg-rose-500/10 border-rose-500/20'} border p-4 rounded-3xl shadow-sm`}>
+                        <p className={`text-[9px] ${settings.theme === 'light' ? 'text-indigo-600' : 'text-rose-500'} font-black uppercase mb-1`}>ЮЗЕРЫ</p>
+                        <p className={`text-xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>{adminUsersList.length}</p>
                       </div>
-                      <div className={`${settings.theme === 'light' ? 'bg-amber-50 border-amber-100' : 'bg-amber-500/10 border-amber-500/20'} border p-5 rounded-3xl shadow-sm`}>
-                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-amber-600' : 'text-amber-500'} font-black uppercase tracking-widest mb-1`}>Premium</p>
-                        <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
+                      <div className={`${settings.theme === 'light' ? 'bg-amber-50 border-amber-100' : 'bg-amber-500/10 border-amber-500/20'} border p-4 rounded-3xl shadow-sm`}>
+                        <p className={`text-[9px] ${settings.theme === 'light' ? 'text-amber-600' : 'text-amber-500'} font-black uppercase mb-1`}>PREMIUM</p>
+                        <p className={`text-xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
                           {adminUsersList.filter(u => u.settings?.isPremium).length}
                         </p>
                       </div>
-                      <div className={`${settings.theme === 'light' ? 'bg-cyan-50 border-cyan-100' : 'bg-cyan-500/10 border-cyan-500/20'} border p-5 rounded-3xl shadow-sm`}>
-                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-cyan-600' : 'text-cyan-500'} font-black uppercase tracking-widest mb-1`}>Сообщения</p>
-                        <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
+                      <div className={`${settings.theme === 'light' ? 'bg-cyan-50 border-cyan-100' : 'bg-cyan-500/10 border-cyan-500/20'} border p-4 rounded-3xl shadow-sm`}>
+                        <p className={`text-[9px] ${settings.theme === 'light' ? 'text-cyan-600' : 'text-cyan-500'} font-black uppercase mb-1`}>MSGS</p>
+                        <p className={`text-xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
                           {adminUsersList.reduce((acc, u) => acc + Object.values(u.messages || {}).reduce((mAcc, mArr) => mAcc + mArr.length, 0), 0).toLocaleString()}
                         </p>
                       </div>
+                    </div>
+
+                    {/* РАСШИРЕННАЯ СТАТИСТИКА */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                       <div className={`${settings.theme === 'light' ? 'bg-zinc-50' : 'bg-black/20'} p-5 rounded-[2rem] border ${currentTheme.border}`}>
+                          <h4 className="text-[10px] font-black uppercase text-zinc-500 mb-4 tracking-widest border-b border-white/5 pb-2">🏆 ТОП АКТИВНОСТЬ</h4>
+                          <div className="space-y-3">
+                             <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-bold text-zinc-400">САМЫЙ ЖЕЛАННЫЙ ПОДАРОК</span>
+                                <span className="text-sm font-black text-white">
+                                   {(() => {
+                                      const giftCounts = {};
+                                      adminUsersList.forEach(u => {
+                                        u.receivedGifts?.forEach(g => giftCounts[g.name] = (giftCounts[g.name] || 0) + 1);
+                                      });
+                                      const top = Object.entries(giftCounts).sort((a,b) => b[1]-a[1])[0];
+                                      return top ? `${top[0]} (${top[1]})` : "—";
+                                   })()}
+                                </span>
+                             </div>
+                             <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-bold text-zinc-400">ГЛАВНЫЙ МЕЦЕНАТ</span>
+                                <span className="text-sm font-black text-amber-400">
+                                   {(() => {
+                                      const spenders = {};
+                                      adminUsersList.forEach(u => {
+                                        // Ищем в сообщениях подарки, отправленные этим юзером
+                                        Object.values(u.messages || {}).forEach(mList => {
+                                          mList.forEach(m => {
+                                            if (m.senderId === "me" && m.type === "gift") {
+                                              spenders[u.id] = (spenders[u.id] || 0) + (m.gift?.price || 0);
+                                            }
+                                          });
+                                        });
+                                      });
+                                      const top = Object.entries(spenders).sort((a,b) => b[1]-a[1])[0];
+                                      return top ? `${top[0]} (${top[1]} 💎)` : "—";
+                                   })()}
+                                </span>
+                             </div>
+                             <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-bold text-zinc-400">СРЕДНЕЕ КОЛ-ВО СООБЩЕНИЙ</span>
+                                <span className="text-sm font-black text-cyan-400">
+                                   {adminUsersList.length ? Math.round(adminUsersList.reduce((acc, u) => acc + Object.values(u.messages || {}).flat().length, 0) / adminUsersList.length) : 0}
+                                </span>
+                             </div>
+                          </div>
+                       </div>
+
+                       <div className={`${settings.theme === 'light' ? 'bg-zinc-50' : 'bg-black/20'} p-5 rounded-[2rem] border ${currentTheme.border}`}>
+                          <h4 className="text-[10px] font-black uppercase text-zinc-500 mb-4 tracking-widest border-b border-white/5 pb-2">🎨 ПРЕДПОЧТЕНИЯ</h4>
+                          <div className="space-y-3">
+                             <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-bold text-zinc-400">ЛЮБИМЫЙ АКЦЕНТ</span>
+                                <div className="flex gap-1">
+                                   {(() => {
+                                      const counts = {};
+                                      adminUsersList.forEach(u => counts[u.settings?.accent] = (counts[u.settings?.accent] || 0) + 1);
+                                      return Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0,3).map(([k,v]) => (
+                                        <span key={k} className="text-[9px] font-black bg-white/5 px-2 py-0.5 rounded uppercase">{k}</span>
+                                      ));
+                                   })()}
+                                </div>
+                             </div>
+                             <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-bold text-zinc-400">ЯЗЫК ИНТЕРФЕЙСА</span>
+                                <span className="text-sm font-black text-indigo-400">
+                                   {(() => {
+                                      const counts = { ru: 0, en: 0 };
+                                      adminUsersList.forEach(u => counts[u.settings?.lang || 'ru']++);
+                                      return `RU: ${counts.ru} | EN: ${counts.en}`;
+                                   })()}
+                                </span>
+                             </div>
+                             <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-bold text-zinc-400">ТЕМНЫЕ ТЕМЫ VS СВЕТЛЫЕ</span>
+                                <span className="text-sm font-black text-rose-400">
+                                   {(() => {
+                                      let dark = 0, light = 0;
+                                      adminUsersList.forEach(u => u.settings?.theme === 'light' ? light++ : dark++);
+                                      return `🌙 ${dark} | ☀️ ${light}`;
+                                   })()}
+                                </span>
+                             </div>
+                          </div>
+                       </div>
                     </div>
 
                     {/* ГЛОБАЛЬНАЯ РАССЫЛКА */}
