@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, memo, useCallback } from "react";
+import React, { useState, useRef, useEffect, memo, useCallback, useMemo } from "react";
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
@@ -17,6 +17,7 @@ import {
   query,
   getDocs,
   deleteDoc,
+  arrayUnion,
 } from "firebase/firestore";
 
 // ==========================================
@@ -1569,6 +1570,7 @@ export default function App() {
   const callDocUnsubRef = useRef(null);
   const currentCallRoomIdRef = useRef(null);
   const addedCandsRef = useRef(new Set());
+  const iceCandidatesQueueRef = useRef([]);
   const mediaRecorderRef = useRef(null);
   const audioStreamRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -2057,24 +2059,19 @@ export default function App() {
     }
     if (!activeChat || activeChat.id === "ai") return;
 
-    // ПРОВЕРКА КРАЙНИХ СЛУЧАЕВ
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       triggerToast("Звонок", "Ваш браузер не поддерживает звонки или нет HTTPS");
       return;
     }
-    const roomId = `call_${Date.now()}_${Math.random()
-      .toString(36)
-      .substr(2, 5)}`;
+    const roomId = `call_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
     currentCallRoomIdRef.current = roomId;
-    setCallState({
-      type,
-      status: "calling",
-      peer: activeChatProfile || activeChat,
-    });
+    setCallState({ type, status: "calling", peer: activeChatProfile || activeChat });
     setIsCallMuted(false);
     setIsCallVideoOff(false);
     setRemoteStream(null);
     addedCandsRef.current.clear();
+    iceCandidatesQueueRef.current = [];
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: type === "video" ? { facingMode } : false,
@@ -2082,22 +2079,29 @@ export default function App() {
       });
       callStreamRef.current = stream;
       pcRef.current = new RTCPeerConnection(STUN_SERVERS);
-      stream
-        .getTracks()
-        .forEach((track) => pcRef.current.addTrack(track, stream));
-      pcRef.current.ontrack = (event) => setRemoteStream(event.streams[0]);
-      const roomRef = doc(
-        db,
-        "artifacts",
-        appId,
-        "public",
-        "data",
-        "platina_calls",
-        roomId
-      );
+
+      stream.getTracks().forEach((track) => pcRef.current.addTrack(track, stream));
+
+      pcRef.current.ontrack = (event) => {
+        if (event.streams && event.streams[0]) {
+          setRemoteStream(event.streams[0]);
+        } else if (event.track) {
+          setRemoteStream(new MediaStream([event.track]));
+        }
+      };
+
+      const roomRef = doc(db, "artifacts", appId, "public", "data", "platina_calls", roomId);
+
+      pcRef.current.onicecandidate = async (event) => {
+        if (event.candidate) {
+          const candId = "cand_" + Date.now() + Math.random().toString(36).substr(2, 5);
+          await setDoc(roomRef, { callerCandidates: { [candId]: event.candidate.toJSON() } }, { merge: true }).catch(() => {});
+        }
+      };
 
       const offer = await pcRef.current.createOffer();
       await pcRef.current.setLocalDescription(offer);
+
       await setDoc(roomRef, {
         callerId: currentUserAcc,
         calleeId: activeChat.id,
@@ -2108,49 +2112,36 @@ export default function App() {
         status: "ringing",
       });
 
-      pcRef.current.onicecandidate = async (event) => {
-        if (event.candidate) {
-          const candId =
-            "cand_" + Date.now() + Math.random().toString(36).substr(2, 5);
-          await setDoc(roomRef, {
-            callerCandidates: {
-              [candId]: event.candidate.toJSON()
-            }
-          }, { merge: true }).catch(() => {});
-        }
-      };
       const peerRef = getAccRef(activeChat.id);
-      await updateDoc(peerRef, {
-        "settings.incomingCall": { roomId, callerId: currentUserAcc, type },
-      });
+      await updateDoc(peerRef, { "settings.incomingCall": { roomId, callerId: currentUserAcc, type } });
+
       callDocUnsubRef.current = onSnapshot(roomRef, async (snap) => {
         const data = snap.data();
         if (!data) return;
-        if (data.status === "rejected") {
-          endCall(false);
-          triggerToast("Звонок", "Абонент сбросил вызов");
-          return;
-        }
-        if (data.status === "ended") {
-          endCall(false);
-          triggerToast("Звонок", "Звонок завершен");
-          return;
-        }
+        if (data.status === "rejected") { endCall(false); triggerToast("Звонок", "Абонент сбросил вызов"); return; }
+        if (data.status === "ended") { endCall(false); triggerToast("Звонок", "Звонок завершен"); return; }
+
         if (!pcRef.current.currentRemoteDescription && data.answer) {
-          await pcRef.current.setRemoteDescription(
-            new RTCSessionDescription(data.answer)
-          );
-          setCallState((prev) =>
-            prev ? { ...prev, status: "connected" } : null
-          );
-        }
-        if (data.calleeCandidates) {
-          Object.entries(data.calleeCandidates).forEach(async ([id, cand]) => {
+          await pcRef.current.setRemoteDescription(new RTCSessionDescription(data.answer));
+          setCallState((prev) => prev ? { ...prev, status: "connected" } : null);
+
+          for (const {id, cand} of iceCandidatesQueueRef.current) {
             if (!addedCandsRef.current.has(id)) {
               addedCandsRef.current.add(id);
-              try {
-                await pcRef.current.addIceCandidate(new RTCIceCandidate(cand));
-              } catch (e) {}
+              await pcRef.current.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+            }
+          }
+          iceCandidatesQueueRef.current = [];
+        }
+
+        if (data.calleeCandidates) {
+          Object.entries(data.calleeCandidates).forEach(async ([id, cand]) => {
+            if (addedCandsRef.current.has(id)) return;
+            if (pcRef.current && pcRef.current.currentRemoteDescription) {
+              addedCandsRef.current.add(id);
+              await pcRef.current.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+            } else {
+              iceCandidatesQueueRef.current.push({id, cand});
             }
           });
         }
@@ -2176,9 +2167,10 @@ export default function App() {
     setIsCallVideoOff(false);
     setRemoteStream(null);
     addedCandsRef.current.clear();
-    updateDoc(getAccRef(currentUserAcc), {
-      "settings.incomingCall": null,
-    }).catch(() => {});
+    iceCandidatesQueueRef.current = [];
+
+    updateDoc(getAccRef(currentUserAcc), { "settings.incomingCall": null }).catch(() => {});
+
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error("Браузер не поддерживает звонки");
@@ -2189,61 +2181,61 @@ export default function App() {
       });
       callStreamRef.current = stream;
       pcRef.current = new RTCPeerConnection(STUN_SERVERS);
-      stream
-        .getTracks()
-        .forEach((track) => pcRef.current.addTrack(track, stream));
-      pcRef.current.ontrack = (event) => setRemoteStream(event.streams[0]);
-      const roomRef = doc(
-        db,
-        "artifacts",
-        appId,
-        "public",
-        "data",
-        "platina_calls",
-        roomId
-      );
-      const roomSnap = await getDoc(roomRef);
-      if (!roomSnap.exists()) {
-        endCall(false);
-        return;
-      }
-      const roomData = roomSnap.data();
-      pcRef.current.onicecandidate = async (event) => {
-        if (event.candidate) {
-          const candId =
-            "cand_" + Date.now() + Math.random().toString(36).substr(2, 5);
-          await setDoc(roomRef, {
-            calleeCandidates: {
-              [candId]: event.candidate.toJSON()
-            }
-          }, { merge: true }).catch(() => {});
+
+      stream.getTracks().forEach((track) => pcRef.current.addTrack(track, stream));
+
+      pcRef.current.ontrack = (event) => {
+        if (event.streams && event.streams[0]) {
+          setRemoteStream(event.streams[0]);
+        } else if (event.track) {
+          setRemoteStream(new MediaStream([event.track]));
         }
       };
-      await pcRef.current.setRemoteDescription(
-        new RTCSessionDescription(roomData.offer)
-      );
+
+      const roomRef = doc(db, "artifacts", appId, "public", "data", "platina_calls", roomId);
+      const roomSnap = await getDoc(roomRef);
+      if (!roomSnap.exists()) { endCall(false); return; }
+      const roomData = roomSnap.data();
+
+      pcRef.current.onicecandidate = async (event) => {
+        if (event.candidate) {
+          const candId = "cand_" + Date.now() + Math.random().toString(36).substr(2, 5);
+          await setDoc(roomRef, { calleeCandidates: { [candId]: event.candidate.toJSON() } }, { merge: true }).catch(() => {});
+        }
+      };
+
+      await pcRef.current.setRemoteDescription(new RTCSessionDescription(roomData.offer));
       const answer = await pcRef.current.createAnswer();
       await pcRef.current.setLocalDescription(answer);
+
       await updateDoc(roomRef, {
         answer: { type: answer.type, sdp: answer.sdp },
         status: "connected",
       });
+
       setCallState({ type, status: "connected", peer: callerUser });
+
+      for (const {id, cand} of iceCandidatesQueueRef.current) {
+        if (!addedCandsRef.current.has(id)) {
+          addedCandsRef.current.add(id);
+          await pcRef.current.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+        }
+      }
+      iceCandidatesQueueRef.current = [];
+
       callDocUnsubRef.current = onSnapshot(roomRef, async (snap) => {
         const data = snap.data();
         if (!data) return;
-        if (data.status === "ended") {
-          endCall(false);
-          triggerToast("Звонок", "Завершен");
-          return;
-        }
+        if (data.status === "ended") { endCall(false); triggerToast("Звонок", "Завершен"); return; }
+
         if (data.callerCandidates) {
           Object.entries(data.callerCandidates).forEach(async ([id, cand]) => {
-            if (!addedCandsRef.current.has(id)) {
+            if (addedCandsRef.current.has(id)) return;
+            if (pcRef.current && pcRef.current.currentRemoteDescription) {
               addedCandsRef.current.add(id);
-              try {
-                await pcRef.current.addIceCandidate(new RTCIceCandidate(cand));
-              } catch (e) {}
+              await pcRef.current.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+            } else {
+              iceCandidatesQueueRef.current.push({id, cand});
             }
           });
         }
