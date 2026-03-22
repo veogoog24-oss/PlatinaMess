@@ -2028,12 +2028,8 @@ export default function App() {
 
   const STUN_SERVERS = {
     iceServers: [
-      {
-        urls: [
-          "stun:stun1.l.google.com:19302",
-          "stun:stun2.l.google.com:19302",
-        ],
-      },
+      { urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302", "stun:stun3.l.google.com:19302", "stun:stun4.l.google.com:19302"] },
+      { urls: "stun:stun.services.mozilla.com" },
       {
         urls: "turn:openrelay.metered.ca:80",
         username: "openrelayproject",
@@ -2050,6 +2046,7 @@ export default function App() {
         credential: "openrelayproject",
       },
     ],
+    iceCandidatePoolSize: 10,
   };
 
   const startCall = async (type) => {
@@ -2074,8 +2071,18 @@ export default function App() {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: type === "video" ? { facingMode } : false,
-        audio: true,
+        video: type === "video" ? {
+          facingMode,
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          frameRate: { ideal: 30 }
+        } : false,
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000
+        },
       });
       callStreamRef.current = stream;
       pcRef.current = new RTCPeerConnection(STUN_SERVERS);
@@ -2176,8 +2183,18 @@ export default function App() {
         throw new Error("Браузер не поддерживает звонки");
       }
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: type === "video" ? { facingMode } : false,
-        audio: true,
+        video: type === "video" ? {
+          facingMode,
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          frameRate: { ideal: 30 }
+        } : false,
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000
+        },
       });
       callStreamRef.current = stream;
       pcRef.current = new RTCPeerConnection(STUN_SERVERS);
