@@ -384,12 +384,15 @@ const defaultSettings = {
   bubbleStyle: "rounded",
   bubbleOpacity: 1,
   glassEffect: true,
+  animationSpeed: 1,
+  messageVolume: 0.5,
   messageDensity: "normal",
   lastSeen: "everyone",
   perfMode: "ultra",
   activeBadge: null,
   officialBadge: null,
   lastOnline: 0,
+  customWallpaper: null,
 };
 
 const themesMap = {
@@ -1156,7 +1159,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
   return (
     <div className="flex h-[100dvh] w-full items-center justify-center bg-zinc-950 font-sans p-4 sm:p-6 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-800/10 via-zinc-950 to-zinc-950"></div>
-      <div className="relative z-10 w-full max-w-[95%] sm:max-w-md max-h-[95vh] overflow-y-auto custom-scrollbar p-6 sm:p-10 lg:p-12 bg-zinc-900/40 backdrop-blur-3xl border border-zinc-800 rounded-[2rem] sm:rounded-[3.5rem] shadow-2xl animate-spring-up flex flex-col justify-center">
+      <div className="relative z-10 w-full max-w-[95%] sm:max-w-md max-h-[95vh] overflow-y-auto custom-scrollbar p-6 sm:p-10 lg:p-12 bg-zinc-900/40 backdrop-blur-3xl border border-white/10 rounded-[2rem] sm:rounded-[3.5rem] shadow-2xl animate-spring-up flex flex-col justify-center">
         <div className="flex flex-col items-center mb-8 sm:mb-10 flex-shrink-0">
           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-amber-400 to-orange-600 rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-2xl mb-4 sm:mb-6 animate-float">
             <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-orange-950" />
@@ -1224,7 +1227,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                     placeholder={t("disp_name", lang)}
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="w-full bg-black/50 border border-zinc-800 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-amber-500 transition-all font-bold placeholder-zinc-700 text-xs sm:text-sm"
+                    className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-amber-500 transition-all font-bold placeholder-zinc-700 text-xs sm:text-sm"
                   />
                 </div>
                 <div className="relative group">
@@ -1234,7 +1237,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                     placeholder={t("bio", lang)}
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
-                    className="w-full bg-black/50 border border-zinc-800 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-amber-500 transition-all font-bold placeholder-zinc-700 text-xs sm:text-sm"
+                    className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-amber-500 transition-all font-bold placeholder-zinc-700 text-xs sm:text-sm"
                   />
                 </div>
                 <div className="relative group">
@@ -1243,7 +1246,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                     type="date"
                     value={birthday}
                     onChange={(e) => setBirthday(e.target.value)}
-                    className={`w-full bg-black/50 border border-zinc-800 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 focus:outline-none focus:border-amber-500 transition-all font-bold text-xs sm:text-sm ${
+                    className={`w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 focus:outline-none focus:border-amber-500 transition-all font-bold text-xs sm:text-sm ${
                       birthday ? "text-white" : "text-zinc-600"
                     }`}
                   />
@@ -1258,7 +1261,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
               placeholder={t("login_id", lang)}
               value={username}
               onChange={(e) => setUsername(e.target.value.replace(/\s+/g, ""))}
-              className="w-full bg-black/50 border border-zinc-800 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-amber-500 transition-all font-bold placeholder-zinc-700 text-xs sm:text-sm"
+              className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-amber-500 transition-all font-bold placeholder-zinc-700 text-xs sm:text-sm"
             />
           </div>
           <div className="relative group">
@@ -1268,7 +1271,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
               placeholder={t("login_pass", lang)}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-black/50 border border-zinc-800 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-12 text-white focus:outline-none focus:border-amber-500 transition-all font-bold placeholder-zinc-700 text-xs sm:text-sm"
+              className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-12 text-white focus:outline-none focus:border-amber-500 transition-all font-bold placeholder-zinc-700 text-xs sm:text-sm"
             />
             <button
               type="button"
@@ -1338,6 +1341,7 @@ export default function App() {
   const [adminSearchQuery, setAdminSearchQuery] = useState("");
   const [adminBroadcastText, setAdminBroadcastText] = useState("");
   const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [onlineCount, setOnlineCount] = useState(0);
   const [toasts, setToasts] = useState([]);
   const [showSettings, setShowSettings] = useState(false);
   const [activeSettingsTab, setActiveSettingsTab] = useState("profile");
@@ -1405,6 +1409,18 @@ export default function App() {
   useEffect(() => {
     if (activeSettingsTab === "admin" && isAdmin) fetchAdminUsers();
   }, [activeSettingsTab, isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    const calculateOnline = () => {
+      const now = Date.now();
+      const count = adminUsersList.filter(u => u.settings?.lastOnline && (now - u.settings.lastOnline < 120000)).length;
+      setOnlineCount(count);
+    };
+    calculateOnline();
+    const it = setInterval(calculateOnline, 30000);
+    return () => clearInterval(it);
+  }, [isAdmin, adminUsersList]);
 
   const adminAction = async (targetId, action, value) => {
     try {
@@ -1632,6 +1648,7 @@ export default function App() {
     if (!settings.soundEnabled) return;
     try {
       const ctx = getAudioContext();
+      const vol = settings.messageVolume || 0.5;
       const playNote = (freq, start, type = "sine", dur = 0.5) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -1639,7 +1656,7 @@ export default function App() {
         osc.connect(gain);
         gain.connect(ctx.destination);
         gain.gain.setValueAtTime(0, start);
-        gain.gain.linearRampToValueAtTime(0.15, start + 0.02);
+        gain.gain.linearRampToValueAtTime(0.15 * vol, start + 0.02);
         gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
         osc.start(start);
         osc.stop(start + dur + 0.1);
@@ -1815,8 +1832,9 @@ export default function App() {
           return;
         }
         setIsGeneratingImage(true);
+        const promptText = myMsg.text.replace(/нарисуй|draw/i, "").trim();
         const b64 = await callImagen(
-          myMsg.text.replace(/нарисуй|draw/i, "").trim()
+          `High quality, highly detailed, professional digital art, masterpiece: ${promptText}`
         );
         setIsGeneratingImage(false);
         if (b64) {
@@ -1968,9 +1986,15 @@ export default function App() {
   };
 
   const startCall = async (type) => {
+    if (!db || !appId) {
+      triggerToast("Ошибка", "Нет связи с сервером");
+      return;
+    }
     if (!activeChat || activeChat.id === "ai") return;
-    if (!navigator.mediaDevices) {
-      triggerToast("Звонок", "Микрофон/Камера недоступны");
+
+    // ПРОВЕРКА КРАЙНИХ СЛУЧАЕВ
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      triggerToast("Звонок", "Ваш браузер не поддерживает звонки или нет HTTPS");
       return;
     }
     const roomId = `call_${Date.now()}_${Math.random()
@@ -2006,15 +2030,7 @@ export default function App() {
         "platina_calls",
         roomId
       );
-      pcRef.current.onicecandidate = async (event) => {
-        if (event.candidate) {
-          const candId =
-            "cand_" + Date.now() + Math.random().toString(36).substr(2, 5);
-          await updateDoc(roomRef, {
-            [`callerCandidates.${candId}`]: event.candidate.toJSON(),
-          }).catch(() => {});
-        }
-      };
+
       const offer = await pcRef.current.createOffer();
       await pcRef.current.setLocalDescription(offer);
       await setDoc(roomRef, {
@@ -2026,6 +2042,16 @@ export default function App() {
         calleeCandidates: {},
         status: "ringing",
       });
+
+      pcRef.current.onicecandidate = async (event) => {
+        if (event.candidate) {
+          const candId =
+            "cand_" + Date.now() + Math.random().toString(36).substr(2, 5);
+          await updateDoc(roomRef, {
+            [`callerCandidates.${candId}`]: event.candidate.toJSON(),
+          }).catch(() => {});
+        }
+      };
       const peerRef = getAccRef(activeChat.id);
       await updateDoc(peerRef, {
         "settings.incomingCall": { roomId, callerId: currentUserAcc, type },
@@ -2064,7 +2090,7 @@ export default function App() {
       });
     } catch (e) {
       console.error(e);
-      triggerToast("Ошибка", "Не удалось начать звонок");
+      triggerToast("Ошибка", `Не удалось начать звонок: ${e.name === 'NotAllowedError' ? 'Доступ запрещен' : e.message}`);
       endCall(false);
     }
   };
@@ -2087,6 +2113,9 @@ export default function App() {
       "settings.incomingCall": null,
     }).catch(() => {});
     try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error("Браузер не поддерживает звонки");
+      }
       const stream = await navigator.mediaDevices.getUserMedia({
         video: type === "video" ? { facingMode } : false,
         audio: true,
@@ -2152,7 +2181,7 @@ export default function App() {
       });
     } catch (e) {
       console.error(e);
-      triggerToast("Ошибка", "Не удалось ответить на звонок");
+      triggerToast("Ошибка", `Не удалось ответить: ${e.message}`);
       rejectCall();
     }
   };
@@ -2645,26 +2674,36 @@ export default function App() {
     const lineOpacity = settings.theme === 'light' ? '0.1' : '0.04';
     const lineColor = settings.theme === 'light' ? '0,0,0' : '255,255,255';
     const line = `rgba(${lineColor},${lineOpacity})`;
+    const speed = 60 / (settings.animationSpeed || 1);
+
+    if (settings.wallpaper === "custom" && settings.customWallpaper) {
+      return {
+        backgroundImage: `url(${settings.customWallpaper})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      };
+    }
+
     switch (settings.wallpaper) {
       case "grid":
         return {
           backgroundImage:
             `linear-gradient(${line} 1px, transparent 1px), linear-gradient(90deg, ${line} 1px, transparent 1px)`,
           backgroundSize: "24px 24px",
-          animation: "bgMove 60s linear infinite",
+          animation: `bgMove ${speed}s linear infinite`,
         };
       case "dots":
         return {
           backgroundImage:
             `radial-gradient(circle at 50% 50%, ${line} 1px, transparent 1px)`,
           backgroundSize: "24px 24px",
-          animation: "bgMove 60s linear infinite",
+          animation: `bgMove ${speed}s linear infinite`,
         };
       case "lines":
         return {
           backgroundImage:
             `repeating-linear-gradient(-45deg, transparent, transparent 10px, ${line} 10px, ${line} 11px)`,
-          animation: "bgMove 60s linear infinite",
+          animation: `bgMove ${speed}s linear infinite`,
         };
       default:
         return {};
@@ -3172,7 +3211,7 @@ export default function App() {
           </>
         )}
 
-        <div className="p-3 sm:p-4 md:p-6 flex items-center gap-2 sm:gap-4 border-b border-white/5 bg-white/5">
+        <div className={`p-3 sm:p-4 md:p-6 flex items-center gap-2 sm:gap-4 border-b ${currentTheme.border} ${settings.theme === 'light' ? 'bg-zinc-100' : 'bg-white/5'}`}>
           <button
             type="button"
             onClick={() => setIsMainMenuOpen(true)}
@@ -3228,8 +3267,8 @@ export default function App() {
                   }}
                   className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl cursor-pointer transition-all duration-300 ${
                     isActive
-                      ? "bg-white/10 shadow-lg ring-1 ring-white/10"
-                      : "hover:bg-white/5 hover:scale-[1.01]"
+                      ? `${settings.theme === 'light' ? 'bg-zinc-200' : 'bg-white/10'} shadow-lg ring-1 ${settings.theme === 'light' ? 'ring-zinc-300' : 'ring-white/10'}`
+                      : `${settings.theme === 'light' ? 'hover:bg-zinc-100' : 'hover:bg-white/5'} hover:scale-[1.01]`
                   }`}
                 >
                   <div className="relative flex-shrink-0">
@@ -3538,7 +3577,7 @@ export default function App() {
               }}
             >
               <div className="text-center w-full my-2 sm:my-4">
-                <div className="text-[8px] sm:text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em] bg-black/50 inline-block px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-white/5">
+                <div className={`text-[8px] sm:text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em] ${settings.theme === 'light' ? 'bg-zinc-200' : 'bg-black/50'} inline-block px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border ${currentTheme.border}`}>
                   {getText("today")}
                 </div>
               </div>
@@ -3767,7 +3806,7 @@ export default function App() {
                         >
                           {msg.expiresAt && (
                             <div
-                              className={`absolute top-0 right-0 px-2 py-1 rounded-bl-xl bg-rose-500 flex items-center gap-1 text-[8px] font-black uppercase text-white shadow-md`}
+                              className={`absolute top-0 right-0 px-2 py-1 rounded-bl-xl bg-rose-500 flex items-center gap-1 text-[8px] font-black uppercase ${isMe ? currentAccent.text : 'text-white'} shadow-md`}
                             >
                               <Flame size={10} className="animate-pulse" />{" "}
                               <BurnTimer
@@ -3777,7 +3816,7 @@ export default function App() {
                             </div>
                           )}
                           {msg.replyTo && (
-                            <div className="flex flex-col mb-2 sm:mb-3 pl-2 sm:pl-3.5 border-l-2 sm:border-l-4 border-white/40 opacity-90 text-[10px] sm:text-sm bg-black/20 p-2 sm:p-2.5 rounded-r-lg sm:rounded-r-xl cursor-pointer hover:bg-black/30 transition-colors mt-2">
+                            <div className={`flex flex-col mb-2 sm:mb-3 pl-2 sm:pl-3.5 border-l-2 sm:border-l-4 ${isMe ? 'border-white/40' : 'border-current/40'} opacity-90 text-[10px] sm:text-sm ${settings.theme === 'light' ? 'bg-black/5' : 'bg-black/20'} p-2 sm:p-2.5 rounded-r-lg sm:rounded-r-xl cursor-pointer hover:bg-black/30 transition-colors mt-2`}>
                               <span className="font-black text-[8px] sm:text-[10px] uppercase tracking-widest mb-0.5 sm:mb-1">
                                 {msg.replyTo.senderId === "me"
                                   ? getText("you")
@@ -3792,7 +3831,7 @@ export default function App() {
                             </div>
                           )}
                           {msg.type === "image" && (
-                            <div className="mt-1 mb-2 sm:mb-3 relative group/img overflow-hidden rounded-xl sm:rounded-2xl bg-black/50 shadow-inner cursor-pointer border border-white/5">
+                            <div className={`mt-1 mb-2 sm:mb-3 relative group/img overflow-hidden rounded-xl sm:rounded-2xl ${settings.theme === 'light' ? 'bg-zinc-200' : 'bg-black/50'} shadow-inner cursor-pointer border ${currentTheme.border}`}>
                               <img
                                 src={msg.url}
                                 className="w-full max-h-[200px] sm:max-h-[300px] object-cover transition-transform duration-700 group-hover/img:scale-105"
@@ -3807,7 +3846,7 @@ export default function App() {
                               className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl mb-2 sm:mb-3 mt-1 cursor-pointer transition-all border shadow-sm sm:shadow-lg hover:-translate-y-0.5 sm:hover:-translate-y-1 ${
                                 isMe
                                   ? "bg-black/20 border-white/10 hover:bg-black/30"
-                                  : "bg-black/40 border-white/5 hover:bg-black/60"
+                                  : `${settings.theme === 'light' ? 'bg-zinc-100' : 'bg-black/40'} ${currentTheme.border} hover:bg-black/60`
                               }`}
                             >
                               <div
@@ -3838,7 +3877,7 @@ export default function App() {
                               className={`flex flex-col overflow-hidden rounded-xl sm:rounded-2xl mb-2 sm:mb-3 mt-1 border shadow-sm sm:shadow-lg ${
                                 isMe
                                   ? "border-white/10 bg-black/20"
-                                  : "border-white/5 bg-black/40"
+                                  : `${currentTheme.border} ${settings.theme === 'light' ? 'bg-zinc-100' : 'bg-black/40'}`
                               }`}
                             >
                               <div className="h-20 sm:h-28 relative w-full flex items-center justify-center overflow-hidden bg-emerald-950/40 cursor-pointer group/geo">
@@ -5268,6 +5307,96 @@ export default function App() {
 
                     <div>
                       <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 uppercase tracking-[0.3em] font-black text-center sm:text-left lg:ml-2">
+                        ОБОИ ЧАТА
+                      </h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                        {[
+                          { id: "dots", label: "Точки" },
+                          { id: "grid", label: "Сетка" },
+                          { id: "lines", label: "Линии" },
+                          { id: "custom", label: "Свои" },
+                        ].map((w) => (
+                          <button
+                            key={w.id}
+                            onClick={() => updateSettingField("wallpaper", w.id)}
+                            className={`py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                              settings.wallpaper === w.id
+                                ? "bg-amber-500 text-amber-950"
+                                : "bg-black/40 text-zinc-500 hover:text-white"
+                            }`}
+                          >
+                            {w.label}
+                          </button>
+                        ))}
+                      </div>
+                      {settings.wallpaper === "custom" && (
+                        <div className="bg-black/40 p-4 rounded-2xl border border-white/5 flex flex-col gap-3">
+                           <input
+                            type="text"
+                            placeholder="URL картинки..."
+                            value={settings.customWallpaper || ""}
+                            onChange={(e) => updateSettingField("customWallpaper", e.target.value)}
+                            className="bg-black/60 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-amber-500 transition-all"
+                           />
+                           <p className="text-[8px] text-zinc-500 font-bold uppercase text-center">Или выбери файл ниже</p>
+                           <button
+                            onClick={() => {
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = 'image/*';
+                              input.onchange = (e) => {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                const reader = new FileReader();
+                                reader.onload = (ev) => updateSettingField("customWallpaper", ev.target.result);
+                                reader.readAsDataURL(file);
+                              };
+                              input.click();
+                            }}
+                            className="bg-white/10 hover:bg-white/20 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest text-white transition-all"
+                           >
+                             ВЫБРАТЬ ФАЙЛ
+                           </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 uppercase tracking-[0.3em] font-black text-center sm:text-left lg:ml-2">
+                        СКОРОСТЬ АНИМАЦИЙ ({settings.animationSpeed}x)
+                      </h4>
+                      <div className="bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-[2rem] p-4 border border-white/5 shadow-inner">
+                        <input
+                          type="range"
+                          min="0.1"
+                          max="2"
+                          step="0.1"
+                          value={settings.animationSpeed}
+                          onChange={(e) => updateSettingField("animationSpeed", parseFloat(e.target.value))}
+                          className="w-full accent-indigo-500 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 uppercase tracking-[0.3em] font-black text-center sm:text-left lg:ml-2">
+                        ГРОМКОСТЬ УВЕДОМЛЕНИЙ ({Math.round(settings.messageVolume * 100)}%)
+                      </h4>
+                      <div className="bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-[2rem] p-4 border border-white/5 shadow-inner">
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.1"
+                          value={settings.messageVolume}
+                          onChange={(e) => updateSettingField("messageVolume", parseFloat(e.target.value))}
+                          className="w-full accent-rose-500 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 uppercase tracking-[0.3em] font-black text-center sm:text-left lg:ml-2">
                         {getText("density")}
                       </h4>
                       <div className="flex flex-col sm:flex-row bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-[2rem] p-1 sm:p-1.5 lg:p-2 border border-white/5 shadow-inner gap-1 sm:gap-0">
@@ -5440,7 +5569,7 @@ export default function App() {
 
                 {activeSettingsTab === "admin" && isAdmin && (
                   <div className="space-y-6 sm:space-y-8 animate-fade-in">
-                    <h3 className={`text-xl sm:text-2xl font-black ${settings.theme === 'light' ? 'text-indigo-600' : 'text-rose-500'} mb-4 tracking-tighter uppercase border-b ${settings.theme === 'light' ? 'border-indigo-100' : 'border-rose-500/20'} pb-3 flex items-center gap-3`}>
+                    <h3 className={`text-xl sm:text-2xl font-black ${settings.theme === 'light' ? 'text-indigo-600' : 'text-rose-500'} mb-4 tracking-tighter uppercase border-b ${currentTheme.border} pb-3 flex items-center gap-3`}>
                       <ShieldAlert
                         size={28}
                         className="animate-pulse drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]"
@@ -5448,19 +5577,23 @@ export default function App() {
                       АДМИН ПАНЕЛЬ
                     </h3>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+                      <div className={`${settings.theme === 'light' ? 'bg-emerald-50 border-emerald-100' : 'bg-emerald-500/10 border-emerald-500/20'} border p-5 rounded-3xl shadow-sm`}>
+                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-emerald-600' : 'text-emerald-500'} font-black uppercase tracking-widest mb-1`}>В сети</p>
+                        <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>{onlineCount}</p>
+                      </div>
                       <div className={`${settings.theme === 'light' ? 'bg-indigo-50 border-indigo-100' : 'bg-rose-500/10 border-rose-500/20'} border p-5 rounded-3xl shadow-sm`}>
                         <p className={`text-[10px] ${settings.theme === 'light' ? 'text-indigo-600' : 'text-rose-500'} font-black uppercase tracking-widest mb-1`}>Пользователи</p>
                         <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>{adminUsersList.length}</p>
                       </div>
                       <div className={`${settings.theme === 'light' ? 'bg-amber-50 border-amber-100' : 'bg-amber-500/10 border-amber-500/20'} border p-5 rounded-3xl shadow-sm`}>
-                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-amber-600' : 'text-amber-500'} font-black uppercase tracking-widest mb-1`}>Всего Кристаллов</p>
+                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-amber-600' : 'text-amber-500'} font-black uppercase tracking-widest mb-1`}>Premium</p>
                         <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
-                          {adminUsersList.reduce((acc, u) => acc + (u.settings?.balance || 0), 0).toLocaleString()} 💎
+                          {adminUsersList.filter(u => u.settings?.isPremium).length}
                         </p>
                       </div>
                       <div className={`${settings.theme === 'light' ? 'bg-cyan-50 border-cyan-100' : 'bg-cyan-500/10 border-cyan-500/20'} border p-5 rounded-3xl shadow-sm`}>
-                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-cyan-600' : 'text-cyan-500'} font-black uppercase tracking-widest mb-1`}>Всего Сообщений</p>
+                        <p className={`text-[10px] ${settings.theme === 'light' ? 'text-cyan-600' : 'text-cyan-500'} font-black uppercase tracking-widest mb-1`}>Сообщения</p>
                         <p className={`text-2xl font-black ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
                           {adminUsersList.reduce((acc, u) => acc + Object.values(u.messages || {}).reduce((mAcc, mArr) => mAcc + mArr.length, 0), 0).toLocaleString()}
                         </p>
@@ -5576,7 +5709,7 @@ export default function App() {
                                 className={`p-2 rounded-xl text-[10px] font-black uppercase transition-all ${
                                   !u.settings?.officialBadge
                                     ? 'bg-zinc-500 text-white shadow-lg'
-                                    : 'text-zinc-600 hover:text-zinc-400'
+                                    : `${settings.theme === 'light' ? 'text-zinc-400 hover:text-zinc-600' : 'text-zinc-600 hover:text-zinc-400'}`
                                 }`}
                                 title="Без значка"
                               >
@@ -5611,7 +5744,7 @@ export default function App() {
                               }
                               className={`flex-1 sm:flex-none px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95 ${
                                 u.settings?.isPremium
-                                  ? "bg-zinc-800 text-zinc-400 hover:text-white"
+                                  ? `${settings.theme === 'light' ? 'bg-zinc-100 text-zinc-400' : 'bg-zinc-800 text-zinc-400'} hover:text-white`
                                   : "bg-amber-500/20 text-amber-500 hover:bg-amber-500 hover:text-black border border-amber-500/30"
                               }`}
                             >
@@ -5798,8 +5931,8 @@ export default function App() {
         .custom-scrollbar::-webkit-scrollbar { width: 3px; }
         @media (min-width: 640px) { .custom-scrollbar::-webkit-scrollbar { width: 4px; } }
         @media (min-width: 1024px) { .custom-scrollbar::-webkit-scrollbar { width: 6px; } }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 20px; transition: all 0.3s; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: ${settings.theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.05)'}; border-radius: 20px; transition: all 0.3s; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: ${settings.theme === 'light' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'}; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
