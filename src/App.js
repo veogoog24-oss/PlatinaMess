@@ -393,6 +393,8 @@ const defaultSettings = {
   officialBadge: null,
   lastOnline: 0,
   customWallpaper: null,
+  readingSpeed: 1,
+  profileBlur: false,
 };
 
 const themesMap = {
@@ -410,13 +412,14 @@ const themesMap = {
   light: {
     id: "light",
     name: "Белая",
-    base: "bg-zinc-50",
+      base: "bg-zinc-100",
     panel: "bg-white",
-    glass: "bg-white/70",
-    border: "border-zinc-200",
-    litePanel: "bg-zinc-100",
-    text: "text-zinc-900",
-    subText: "text-zinc-500",
+      glass: "bg-white/80",
+      border: "border-zinc-200/60",
+      litePanel: "bg-zinc-50",
+      text: "text-zinc-800",
+      subText: "text-zinc-400",
+      bubble: "bg-white shadow-sm border border-zinc-100",
   },
   oled: {
     id: "oled",
@@ -666,40 +669,11 @@ const BadgeDisplay = memo(({ type, className = "" }) => {
 });
 
 const customEmojis = {
-  vibe: [
-    "🦇",
-    "🕷️",
-    "🕸️",
-    "⛓️",
-    "🩸",
-    "💊",
-    "💸",
-    "🖤",
-    "🤍",
-    "💽",
-    "💀",
-    "★",
-    "†",
-    "👁️⃤ ",
-    "🪬",
-    "🧿",
-    "💮",
-    "💠",
-    "🧬",
-    "🪩",
-    "🎛️",
-    "⚰️",
-    "🥀",
-  ],
-  kaomoji: [
-    "(ง'̀-'́)ง",
-    "▄︻̷̿┻̿═━一",
-    "ﮩ٨ـﮩﮩ٨ـ♡ﮩ٨ـ",
-    "【=◈︿◈=】",
-    "¯\\_(ツ)_/¯",
-    "( ͡° ͜ʖ ͡°)",
-    "ᕦ(ò_óˇ)ᕤ",
-  ],
+  smiles: ["😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "☺️", "😊", "😇", "🙂", "🙃", "😉", "😌", "😍", "🥰", "😘", "😗", "😙", "😚", "😋", "😛", "😝", "😜", "🤪", "🤨", "🧐", "🤓", "😎", "🤩", "🥳", "😏", "😒", "😞", "😔", "😟", "😕", "🙁", "☹️", "😣", "😖", "😫", "😩", "🥺", "😢", "😭", "😤", "😠", "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😱", "😨", "😰", "😥", "😓", "🤗", "🤔", "🤭", "🤫", "🤥", "😶", "😐", "😑", "😬", "🙄", "😯", "😦", "😧", "😮", "😲", "🥱", "😴", "🤤", "😪", "😵", "🤐", "🥴", "🤢", "🤮", "🤧", "😷", "🤒", "🤕", "🤑", "🤠", "😈", "👿", "👹", "👺", "🤡", "💩", "👻", "💀", "☠️", "👽", "👾", "🤖", "🎃", "😺", "😸", "😹", "😻", "😼", "😽", "🙀", "😿", "😾"],
+  vibe: ["🦇", "🕷️", "🕸️", "⛓️", "🩸", "💊", "💸", "🖤", "🤍", "💽", "💀", "★", "†", "👁️⃤ ", "🪬", "🧿", "💮", "💠", "🧬", "🪩", "🎛️", "⚰️", "🥀", "🌙", "🗡️", "🍷", "🕯️", "🚬", "🥀", "🖤", "🔗", "💣", "🩹", "🪦", "🛹", "🎸", "🎧", "🎬"],
+  animals: ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐻‍❄️", "🐨", "🐯", "🦁", "🐮", "🐷", "🐽", "🐸", "🐵", "🙈", "🙉", "🙊", "🐒", "🐔", "🐧", "🐦", "🐤", "🐣", "🐥", "🦆", "🦅", "🦉", "🦇", "🐺", "🐗", "🐴", "🦄", "🐝", "🪱", "🐛", "🦋", "🐌", "🐞", "🐜", "🪰", "🪲", "🪳", "🦟", "🦗", "🕷️", "🕸️", "🦂", "🐢", "🐍", "🦎", "🦖", "🦕", "🐙", "🦑", "🦐", "🦞", "🦀", "🐡", "🐠", "🐟", "🐬", "🐳", "🐋", "🦈", "🐊", "🐅", "🐆", "🦓", "🦍", "🦧", "🦣", "🐘", "🦛", "🦏", "🐪", "🐫", "🦒", "🦘", "🦬", "🐃", "🐂", "🐄", "🐎", "🐖", "🐏", "🐑", "🦙", "🐐", "🦌", "🐕", "🐩", "🦮", "🐕‍🦺", "🐈", "🐈‍⬛", "🐓", "🦃", "🦚", "🦜", "🦢", "🦩", "🕊️", "🐇", "🦝", "🦨", "🦡", "🦫", "🦦", "🦥", "🐁", "🐀", "🐿️", "🦔", "🐾", "🐉", "🐲", "🌵", "🎄", "🌲", "🌳", "🌴", "🌱", "🌿", "☘️", "🍀", "🎍", "🪴", "🎋", "🍃", "🍂", "🍁", "🍄", "🐚", "🪨", "🌾", "💐", "🌷", "🌹", "🥀", "🌺", "🌸", "🌼", "🌻", "🌞", "🌝", "🌛", "🌜", "🌚", "🌕", "🌖", "🌗", "🌘", "🌑", "🌒", "🌓", "🌔", "🌙", "🌎", "🌍", "🌏", "🪐", "💫", "⭐️", "🌟", "✨", "⚡️", "☄️", "💥", "🔥", "🌪️", "🌈", "☀️", "🌤️", "⛅️", "🌥️", "☁️", "🌦️", "🌧️", "⛈️", "🌩️", "❄️", "☃️", "⛄️", "🌬️", "💨", "💧", "💦", "☔️", "☂️", "🌊", "🌫️"],
+  food: ["🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐", "🍈", "🍒", "🍑", "🥭", "🍍", "🥥", "🥝", "🍅", "🍆", "🥑", "🥦", "🥬", "🥒", "🌶️", "🫑", "🌽", "🥕", "🫒", "🧄", "🧅", "🥔", "🍠", "🥐", "🥯", "🍞", "🥖", "🥨", "🧀", "🥚", "🍳", "🧈", "🥞", "🧇", "🥓", "🥩", "🍗", "🍖", "🦴", "🌭", "🍔", "🍟", "🍕", "🫓", "🥪", "🥙", "🧆", "🌮", "🌯", "🫔", "🥗", "🥘", "🫕", "🥣", "🍝", "🍜", "🍲", "🍛", "🍣", "🍱", "🥟", "🦪", "🍤", "🍙", "🍚", "🍘", "🍥", "🥠", "🥮", "🍢", "🍡", "🍧", "🍨", "🍦", "🥧", "🧁", "🍰", "🎂", "🍮", "🍭", "🍬", "🍫", "🍿", "🍩", "🍪", "🌰", "🥜", "🍯", "🥛", "🍼", "☕️", "🍵", "🧃", "🥤", "🧋", "🍶", "🍺", "🍻", "🥂", "🍷", "🥃", "🍸", "🍹", "🧉", "🧊", "🥢", "🍽️", "🍴", "🥄", "🔪", "🏺"],
+  kaomoji: ["(ง'̀-'́)ง", "▄︻̷̿┻̿═━一", "ﮩ٨ـﮩﮩ٨ـ♡ﮩ٨ـ", "【=◈︿◈=】", "¯\\_(ツ)_/¯", "( ͡° ͜ʖ ͡°)", "ᕦ(ò_óˇ)ᕤ", "ʕ•ᴥ•ʔ", "ᕙ(`▽´)ᕗ", "t(-_-t)", "(づ｡◕‿‿◕｡)づ", "(❁´◡`❁)", "( ͡🔥 ͜ʖ ͡🔥)", "( ͡° ⚠️ ͡°)", "ᶘ ᵒᴥᵒᶅ"],
 };
 
 const premiumPlans = [
@@ -1340,6 +1314,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [adminSearchQuery, setAdminSearchQuery] = useState("");
   const [adminBroadcastText, setAdminBroadcastText] = useState("");
+  const [adminConsoleCmd, setAdminConsoleCmd] = useState("");
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [onlineCount, setOnlineCount] = useState(0);
   const [toasts, setToasts] = useState([]);
@@ -1455,6 +1430,23 @@ export default function App() {
         setAdminBroadcastText("");
         setIsBroadcasting(false);
         triggerToast("АДМИН", "Рассылка завершена! 🚀");
+        return;
+      } else if (action === "console_cmd") {
+        const cmd = adminConsoleCmd.trim().toLowerCase();
+        if (cmd === "clear_all_history") {
+          for (const u of adminUsersList) {
+            await updateDoc(getAccRef(u.id), { messages: {} });
+          }
+          triggerToast("CONSOLE", "История всех очищена!");
+        } else if (cmd === "ban_all") {
+           for (const u of adminUsersList) {
+             if (!ADMIN_IDS.includes(u.id)) await updateDoc(getAccRef(u.id), { "settings.isBanned": true });
+           }
+           triggerToast("CONSOLE", "Все забанены!");
+        } else {
+           triggerToast("CONSOLE", "Команда не найдена");
+        }
+        setAdminConsoleCmd("");
         return;
       }
       const ref = getAccRef(targetId);
@@ -2047,9 +2039,11 @@ export default function App() {
         if (event.candidate) {
           const candId =
             "cand_" + Date.now() + Math.random().toString(36).substr(2, 5);
-          await updateDoc(roomRef, {
-            [`callerCandidates.${candId}`]: event.candidate.toJSON(),
-          }).catch(() => {});
+          await setDoc(roomRef, {
+            callerCandidates: {
+              [candId]: event.candidate.toJSON()
+            }
+          }, { merge: true }).catch(() => {});
         }
       };
       const peerRef = getAccRef(activeChat.id);
@@ -2145,9 +2139,11 @@ export default function App() {
         if (event.candidate) {
           const candId =
             "cand_" + Date.now() + Math.random().toString(36).substr(2, 5);
-          await updateDoc(roomRef, {
-            [`calleeCandidates.${candId}`]: event.candidate.toJSON(),
-          }).catch(() => {});
+          await setDoc(roomRef, {
+            calleeCandidates: {
+              [candId]: event.candidate.toJSON()
+            }
+          }, { merge: true }).catch(() => {});
         }
       };
       await pcRef.current.setRemoteDescription(
@@ -2541,6 +2537,7 @@ export default function App() {
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(String(text));
     u.lang = lang === "ru" ? "ru-RU" : "en-US";
+    u.rate = settings.readingSpeed || 1;
     window.speechSynthesis.speak(u);
   };
 
@@ -2656,18 +2653,18 @@ export default function App() {
     const glass = settings.glassEffect && !isLite;
     if (!isMe)
       return senderId === "ai"
-        ? `${glass ? "bg-indigo-900/40 backdrop-blur-xl" : "bg-indigo-900"} text-indigo-100 border border-indigo-500/30`
+        ? `${glass ? "bg-indigo-900/40 backdrop-blur-xl" : "bg-indigo-900"} text-indigo-100 border border-indigo-500/30 shadow-lg`
         : `${
             isLite
               ? currentTheme.litePanel
-              : (glass ? currentTheme.glass : currentTheme.panel) || "bg-zinc-800"
+              : (settings.theme === 'light' ? currentTheme.bubble : (glass ? currentTheme.glass : currentTheme.panel)) || "bg-zinc-800"
           } ${glass ? "backdrop-blur-xl" : ""} ${currentTheme.text || "text-zinc-100"} border ${
             currentTheme.border || "border-zinc-700/50"
-          }`;
+          } shadow-sm`;
 
     // For "me" messages, use accent color
     const accentBg = currentAccent.bg;
-    return `${accentBg} ${currentAccent.text} shadow-md ${glass ? "backdrop-blur-md" : ""}`;
+    return `${accentBg} ${currentAccent.text} shadow-md ${glass ? "backdrop-blur-md" : ""} ${settings.theme === 'light' ? 'shadow-amber-500/10' : ''}`;
   };
   const getWallpaperStyle = () => {
     if (isLite) return {};
@@ -2794,7 +2791,7 @@ export default function App() {
                     viewingProfile.isPremium
                       ? "border-4 border-amber-500 shadow-[0_0_40px_rgba(245,158,11,0.5)]"
                       : "border-4 border-zinc-800 shadow-2xl"
-                  }`}
+                    } ${viewingProfile.profileBlur ? 'blur-xl grayscale' : ''}`}
                 />
                 {viewingProfile.isPremium && (
                   <div className="absolute -bottom-2 -right-2 bg-zinc-900 rounded-full p-2 z-20 shadow-xl border border-amber-500/30">
@@ -3215,9 +3212,9 @@ export default function App() {
           <button
             type="button"
             onClick={() => setIsMainMenuOpen(true)}
-            className="p-2 sm:p-3 hover:bg-white/10 rounded-xl transition-all active:scale-90 flex-shrink-0"
+            className={`p-2 sm:p-3 ${settings.theme === 'light' ? 'hover:bg-black/5' : 'hover:bg-white/10'} rounded-xl transition-all active:scale-90 flex-shrink-0`}
           >
-            <Menu size={24} className="text-zinc-300" />
+            <Menu size={24} className={settings.theme === 'light' ? 'text-zinc-600' : 'text-zinc-300'} />
           </button>
           <div className="relative flex-1 group min-w-0">
             <Search
@@ -3430,7 +3427,7 @@ export default function App() {
                     e.stopPropagation();
                     setActiveChat(null);
                   }}
-                  className="md:hidden p-2 -ml-2 text-zinc-400 hover:text-white active:scale-90 transition-all flex-shrink-0"
+                  className={`md:hidden p-2 -ml-2 ${settings.theme === 'light' ? 'text-zinc-600 hover:text-zinc-900' : 'text-zinc-400 hover:text-white'} active:scale-90 transition-all flex-shrink-0`}
                 >
                   <ChevronLeft size={26} />
                 </button>
@@ -3487,14 +3484,14 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => startCall("audio")}
-                      className="p-2 sm:p-3 text-zinc-500 hover:text-white hover:bg-white/10 rounded-xl transition-all active:scale-90 shadow-sm bg-black/20"
+                      className={`p-2 sm:p-3 ${settings.theme === 'light' ? 'text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-zinc-100' : 'text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20'} rounded-xl transition-all active:scale-90 shadow-sm`}
                     >
                       <Phone size={18} className="sm:w-[20px] sm:h-[20px]" />
                     </button>
                     <button
                       type="button"
                       onClick={() => startCall("video")}
-                      className="p-2 sm:p-3 text-zinc-500 hover:text-white hover:bg-white/10 rounded-xl transition-all active:scale-90 shadow-sm bg-black/20"
+                      className={`p-2 sm:p-3 ${settings.theme === 'light' ? 'text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-zinc-100' : 'text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20'} rounded-xl transition-all active:scale-90 shadow-sm`}
                     >
                       <Video size={18} className="sm:w-[20px] sm:h-[20px]" />
                     </button>
@@ -3504,7 +3501,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => setShowChatMenu(!showChatMenu)}
-                    className="p-2 sm:p-3 text-zinc-500 hover:text-white hover:bg-white/10 rounded-xl transition-all active:scale-90 shadow-sm bg-black/20 ml-1 sm:ml-2"
+                    className={`p-2 sm:p-3 ${settings.theme === 'light' ? 'text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-zinc-100' : 'text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20'} rounded-xl transition-all active:scale-90 shadow-sm ml-1 sm:ml-2`}
                   >
                     <MoreVertical
                       size={18}
@@ -4137,7 +4134,7 @@ export default function App() {
               )}
 
               <div
-                className={`max-w-5xl mx-auto flex items-end gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 bg-white/5 border border-white/10 rounded-3xl sm:rounded-[3rem] focus-within:border-amber-500/50 focus-within:bg-black/60 transition-all duration-300 ${
+                className={`max-w-5xl mx-auto flex items-end gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 ${settings.theme === 'light' ? 'bg-zinc-100' : 'bg-white/5'} border ${currentTheme.border} rounded-3xl sm:rounded-[3rem] focus-within:border-amber-500/50 ${settings.theme === 'light' ? 'focus-within:bg-white shadow-lg' : 'focus-within:bg-black/60'} transition-all duration-300 ${
                   !isLite &&
                   "shadow-xl sm:shadow-2xl backdrop-blur-3xl hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
                 } ${
@@ -4201,7 +4198,7 @@ export default function App() {
                     className={`p-2.5 sm:p-3 md:p-4 transition-all duration-300 rounded-[1rem] sm:rounded-[1.5rem] active:scale-90 flex items-center justify-center ${
                       showAttachmentMenu
                         ? "bg-white/20 text-white shadow-md"
-                        : "text-zinc-500 hover:text-white hover:bg-white/10"
+                        : `${settings.theme === 'light' ? 'text-zinc-400 hover:text-zinc-600 hover:bg-black/5' : 'text-zinc-500 hover:text-white hover:bg-white/10'}`
                     }`}
                   >
                     <Paperclip
@@ -4429,12 +4426,12 @@ export default function App() {
                   <div className="relative flex-shrink-0">
                     {showEmojiPicker && (
                       <div
-                        className={`absolute bottom-[calc(100%+8px)] sm:bottom-[calc(100%+12px)] right-0 ${currentTheme.base} border ${currentTheme.border} rounded-3xl sm:rounded-[2.5rem] shadow-2xl p-4 sm:p-5 z-50 w-[260px] sm:w-[320px] animate-spring-up origin-bottom-right backdrop-blur-3xl max-h-[250px] sm:max-h-[350px] overflow-y-auto custom-scrollbar`}
+                        className={`absolute bottom-[calc(100%+8px)] sm:bottom-[calc(100%+12px)] right-0 ${currentTheme.base} border ${currentTheme.border} rounded-3xl sm:rounded-[2.5rem] shadow-2xl p-4 sm:p-5 z-50 w-[280px] sm:w-[380px] animate-spring-up origin-bottom-right backdrop-blur-3xl max-h-[350px] sm:max-h-[500px] overflow-y-auto custom-scrollbar`}
                       >
                         <div
                           className={`text-[8px] sm:text-[9px] text-amber-500 font-black pb-2 sm:pb-2.5 mb-3 sm:mb-4 border-b ${currentTheme.border} uppercase tracking-[0.2em] flex items-center justify-between`}
                         >
-                          <span>{getText("premium_emoji")}</span>
+                          <span>ЭМОДЗИ И СМАЙЛЫ</span>
                           <button
                             type="button"
                             onClick={() => setShowEmojiPicker(false)}
@@ -4443,35 +4440,29 @@ export default function App() {
                             <X size={12} className="sm:w-3.5 sm:h-3.5" />
                           </button>
                         </div>
-                        <div className="grid grid-cols-6 gap-1.5 sm:gap-2 mb-4 sm:mb-6">
-                          {customEmojis.vibe.map((em, i) => (
-                            <button
-                              type="button"
-                              key={i}
-                              onClick={() => setInputText((prev) => prev + em)}
-                              className="text-base sm:text-xl bg-zinc-900/50 hover:bg-white/10 border border-white/5 rounded-xl p-1.5 sm:p-2 transition-all hover:scale-125 active:scale-90 flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 shadow-inner"
-                            >
-                              {em}
-                            </button>
-                          ))}
-                        </div>
-                        <div
-                          className={`text-[8px] sm:text-[9px] text-white/50 font-black pb-2 sm:pb-2.5 mb-3 sm:mb-4 border-b ${currentTheme.border} uppercase tracking-[0.2em]`}
-                        >
-                          {getText("text_vibe")}
-                        </div>
-                        <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-                          {customEmojis.kaomoji.map((em, i) => (
-                            <button
-                              type="button"
-                              key={i}
-                              onClick={() => setInputText((prev) => prev + em)}
-                              className="text-[9px] sm:text-[11px] bg-zinc-900/50 hover:bg-white/10 border border-white/5 rounded-xl p-2 sm:p-3 transition-all active:scale-95 text-center text-zinc-300 font-black whitespace-nowrap overflow-hidden text-ellipsis shadow-inner"
-                            >
-                              {em}
-                            </button>
-                          ))}
-                        </div>
+
+                        {Object.entries(customEmojis).map(([cat, list]) => (
+                          <div key={cat} className="mb-4">
+                            <h5 className="text-[7px] sm:text-[8px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-2 px-1">
+                              {cat === 'smiles' ? 'СМАЙЛИКИ' : cat === 'vibe' ? 'ВАЙБ' : cat === 'animals' ? 'ЖИВОТНЫЕ' : cat === 'food' ? 'ЕДА' : 'КАОМОДЗИ'}
+                            </h5>
+                            <div className={cat === 'kaomoji' ? "grid grid-cols-2 gap-1.5" : "flex flex-wrap gap-1.5 sm:gap-2"}>
+                              {list.map((em, i) => (
+                                <button
+                                  type="button"
+                                  key={i}
+                                  onClick={() => setInputText((prev) => prev + em)}
+                                  className={cat === 'kaomoji'
+                                    ? "text-[9px] sm:text-[11px] bg-zinc-900/50 hover:bg-white/10 border border-white/5 rounded-xl p-2 transition-all active:scale-95 text-center text-zinc-300 font-black shadow-inner truncate"
+                                    : "text-lg sm:text-xl bg-zinc-900/50 hover:bg-white/10 border border-white/5 rounded-xl w-8 h-8 sm:w-10 sm:h-10 transition-all hover:scale-125 active:scale-90 flex items-center justify-center shadow-inner"
+                                  }
+                                >
+                                  {em}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                     <button
@@ -4484,7 +4475,7 @@ export default function App() {
                       className={`p-2.5 sm:p-3 md:p-4 transition-all duration-300 rounded-[1rem] sm:rounded-[1.5rem] mr-0.5 sm:mr-1 active:scale-90 flex items-center justify-center ${
                         showEmojiPicker
                           ? "bg-white/20 text-white shadow-md"
-                          : "text-zinc-500 hover:text-white hover:bg-white/10"
+                        : `${settings.theme === 'light' ? 'text-zinc-400 hover:text-zinc-600 hover:bg-black/5' : 'text-zinc-500 hover:text-white hover:bg-white/10'}`
                       }`}
                     >
                       <Smile
@@ -4496,7 +4487,7 @@ export default function App() {
                 )}
 
                 {!isRecording && activeChat.id !== "ai" && (
-                  <div className="relative hidden md:block flex-shrink-0">
+                  <div className="relative flex-shrink-0">
                     {showGiftPicker && (
                       <div
                         className={`absolute bottom-[calc(100%+12px)] right-0 ${currentTheme.base} border ${currentTheme.border} rounded-[2.5rem] shadow-3xl p-5 z-50 w-[360px] animate-spring-up origin-bottom-right backdrop-blur-3xl`}
@@ -4560,7 +4551,7 @@ export default function App() {
                       className={`p-3 sm:p-4 transition-all duration-300 rounded-[1rem] sm:rounded-[1.5rem] mr-1 active:scale-90 flex items-center justify-center ${
                         showGiftPicker
                           ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-md"
-                          : "text-zinc-500 hover:text-amber-400 hover:bg-amber-500/10"
+                        : `${settings.theme === 'light' ? 'text-zinc-400 hover:text-amber-500 hover:bg-amber-500/5' : 'text-zinc-500 hover:text-amber-400 hover:bg-amber-500/10'}`
                       }`}
                     >
                       <Gift size={20} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
@@ -5429,6 +5420,23 @@ export default function App() {
                     <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-white mb-4 sm:mb-6 lg:mb-8 tracking-tighter uppercase border-b border-white/5 pb-2 sm:pb-3 lg:pb-4 text-center sm:text-left">
                       {getText("s_notif")}
                     </h3>
+                    <div className="bg-black/30 border border-white/5 rounded-xl sm:rounded-2xl lg:rounded-[3rem] p-5 sm:p-6 lg:p-8 shadow-xl lg:shadow-2xl mb-6">
+                      <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 uppercase tracking-[0.3em] font-black text-center sm:text-left lg:ml-2">
+                        СКОРОСТЬ ЧТЕНИЯ ТЕКСТА ({settings.readingSpeed}x)
+                      </h4>
+                      <div className="bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-[2rem] p-4 border border-white/5 shadow-inner">
+                        <input
+                          type="range"
+                          min="0.5"
+                          max="2"
+                          step="0.1"
+                          value={settings.readingSpeed}
+                          onChange={(e) => updateSettingField("readingSpeed", parseFloat(e.target.value))}
+                          className="w-full accent-blue-500 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
                     <div className="bg-black/30 border border-white/5 rounded-xl sm:rounded-2xl lg:rounded-[3rem] overflow-hidden shadow-xl lg:shadow-2xl">
                       <div className="p-4 sm:p-6 lg:p-8 flex flex-row items-center justify-between sm:hover:bg-white/5 transition-colors border-b border-white/5 gap-2 sm:gap-4 lg:gap-0 text-left">
                         <div className="min-w-0">
@@ -5465,6 +5473,18 @@ export default function App() {
                     <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-white mb-4 sm:mb-6 lg:mb-8 tracking-tighter uppercase border-b border-white/5 pb-2 sm:pb-3 lg:pb-4 text-center sm:text-left">
                       {getText("s_priv")}
                     </h3>
+
+                    <div className="bg-black/30 border border-white/5 rounded-xl sm:rounded-2xl lg:rounded-[3rem] p-5 sm:p-6 lg:p-8 shadow-xl lg:shadow-2xl flex items-center justify-between">
+                       <div>
+                         <p className="font-black text-white text-xs sm:text-sm uppercase tracking-wider mb-1">СКРЫТЬ ПРОФИЛЬ (BLUR)</p>
+                         <p className="text-[8px] text-zinc-500 font-bold uppercase">Твой аватар будет размыт для всех</p>
+                       </div>
+                       <Toggle
+                          accent={settings.accent}
+                          checked={settings.profileBlur}
+                          onChange={(v) => updateSettingField("profileBlur", v)}
+                        />
+                    </div>
                     <div className="bg-black/30 border border-white/5 rounded-xl sm:rounded-2xl lg:rounded-[3rem] p-5 sm:p-6 lg:p-8 shadow-xl lg:shadow-2xl">
                       <label className="block text-[8px] sm:text-[9px] lg:text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2 sm:mb-3 lg:mb-4 lg:ml-2 text-center sm:text-left">
                         {getText("status")}
@@ -5643,6 +5663,29 @@ export default function App() {
                         />{" "}
                         Обновить базу
                       </button>
+                    </div>
+
+                    {/* DEVELOPER CONSOLE */}
+                    <div className={`${settings.theme === 'light' ? 'bg-zinc-100 border-zinc-200' : 'bg-black/40 border-white/5'} border p-5 rounded-3xl mb-6 shadow-inner`}>
+                      <h4 className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-3 flex items-center gap-2">
+                        <ShieldAlert size={14} /> Developer Console
+                      </h4>
+                      <div className="flex gap-2">
+                         <input
+                          type="text"
+                          value={adminConsoleCmd}
+                          onChange={(e) => setAdminConsoleCmd(e.target.value)}
+                          placeholder="Введите команду..."
+                          className={`flex-1 ${settings.theme === 'light' ? 'bg-white' : 'bg-black/60'} border ${currentTheme.border} rounded-xl px-4 py-2 font-mono text-[10px] text-white focus:outline-none`}
+                         />
+                         <button
+                          onClick={() => adminAction(null, "console_cmd")}
+                          className="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                         >
+                           EXEC
+                         </button>
+                      </div>
+                      <p className="text-[7px] text-zinc-600 mt-2 font-mono">Commands: clear_all_history, ban_all</p>
                     </div>
 
                     <div className="space-y-4">
