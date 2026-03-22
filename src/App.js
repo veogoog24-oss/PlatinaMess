@@ -1020,7 +1020,17 @@ function AuthScreen({ onLogin, isDeviceReady }) {
   const [bio, setBio] = useState("");
   const [birthday, setBirthday] = useState("");
   const [avatar, setAvatar] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null); // Для показа выбранного пресета
   const avatarRef = useRef(null);
+
+  const PRESET_AVATARS = [
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Aria",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Leo",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Milo",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Luna",
+    "https://api.dicebear.com/7.x/avataaars/svg?seed=Jack",
+  ];
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -1052,6 +1062,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
         canvas.height = h;
         canvas.getContext("2d").drawImage(img, 0, 0, w, h);
         setAvatar(canvas.toDataURL("image/jpeg", 0.8));
+        setAvatarPreview(null); // Сбрасываем пресет, если выбрано фото
       };
       img.src = event.target.result;
     };
@@ -1097,6 +1108,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           const finalBio = bio.trim() || "Я в Platina Messenger";
           const finalAvatar =
             avatar ||
+            avatarPreview ||
             `https://api.dicebear.com/7.x/avataaars/svg?seed=${login}`;
 
           await setDoc(
@@ -1167,8 +1179,8 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                 onClick={() => avatarRef.current?.click()}
                 className="relative w-24 h-24 rounded-full bg-black/50 border-[3px] border-zinc-700 flex items-center justify-center cursor-pointer hover:border-amber-500 transition-colors overflow-hidden group shadow-xl"
               >
-                {avatar ? (
-                  <img src={avatar} className="w-full h-full object-cover" />
+                {avatar || avatarPreview ? (
+                  <img src={avatar || avatarPreview} className="w-full h-full object-cover" />
                 ) : (
                   <Camera
                     size={32}
@@ -1180,6 +1192,22 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                     {t("photo", lang)}
                   </span>
                 </div>
+              </div>
+
+              {/* ПРЕСЕТЫ АВАТАРОК */}
+              <div className="flex gap-2 mt-4 overflow-x-auto no-scrollbar py-2 w-full justify-center">
+                 {PRESET_AVATARS.map((url, i) => (
+                   <div
+                    key={i}
+                    onClick={() => {
+                      setAvatarPreview(url);
+                      setAvatar(null);
+                    }}
+                    className={`w-10 h-10 rounded-full cursor-pointer border-2 transition-all flex-shrink-0 hover:scale-110 ${avatarPreview === url ? 'border-amber-500 scale-110 shadow-lg' : 'border-zinc-800 opacity-60'}`}
+                   >
+                     <img src={url} className="w-full h-full rounded-full" />
+                   </div>
+                 ))}
               </div>
               <input
                 type="file"
@@ -2614,25 +2642,28 @@ export default function App() {
   };
   const getWallpaperStyle = () => {
     if (isLite) return {};
+    const lineOpacity = settings.theme === 'light' ? '0.1' : '0.04';
+    const lineColor = settings.theme === 'light' ? '0,0,0' : '255,255,255';
+    const line = `rgba(${lineColor},${lineOpacity})`;
     switch (settings.wallpaper) {
       case "grid":
         return {
           backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
+            `linear-gradient(${line} 1px, transparent 1px), linear-gradient(90deg, ${line} 1px, transparent 1px)`,
           backgroundSize: "24px 24px",
           animation: "bgMove 60s linear infinite",
         };
       case "dots":
         return {
           backgroundImage:
-            "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.04) 1px, transparent 1px)",
+            `radial-gradient(circle at 50% 50%, ${line} 1px, transparent 1px)`,
           backgroundSize: "24px 24px",
           animation: "bgMove 60s linear infinite",
         };
       case "lines":
         return {
           backgroundImage:
-            "repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 11px)",
+            `repeating-linear-gradient(-45deg, transparent, transparent 10px, ${line} 10px, ${line} 11px)`,
           animation: "bgMove 60s linear infinite",
         };
       default:
@@ -2698,7 +2729,7 @@ export default function App() {
           }}
         >
           <div
-            className="bg-zinc-900/80 border border-white/10 rounded-[2rem] sm:rounded-[3rem] w-full max-w-md shadow-3xl overflow-hidden relative"
+            className={`${currentTheme.panel} border ${currentTheme.border} rounded-[2rem] sm:rounded-[3rem] w-full max-w-md shadow-3xl overflow-hidden relative`}
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -2739,7 +2770,7 @@ export default function App() {
                 className={`text-2xl sm:text-3xl font-black mt-4 sm:mt-6 uppercase tracking-tighter text-center leading-none flex items-center justify-center gap-1 ${
                   viewingProfile.isPremium
                     ? "text-amber-400 drop-shadow-md"
-                    : "text-white"
+                    : currentTheme.text
                 }`}
               >
                 {viewingProfile.username || "Без имени"}
@@ -2774,17 +2805,17 @@ export default function App() {
             </div>
 
             <div className="px-6 pb-6 sm:px-8 sm:pb-8 space-y-3 sm:space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar relative z-10">
-              <div className="bg-black/50 p-4 sm:p-5 rounded-2xl sm:rounded-[1.5rem] border border-white/5 shadow-inner">
+              <div className={`${settings.theme === 'light' ? 'bg-zinc-100' : 'bg-black/50'} p-4 sm:p-5 rounded-2xl sm:rounded-[1.5rem] border ${currentTheme.border} shadow-inner`}>
                 <p className="text-[9px] sm:text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-1 sm:mb-1.5 flex items-center gap-1.5">
                   <Info size={12} /> {getText("bio")}
                 </p>
-                <p className="text-sm sm:text-base font-bold text-white leading-relaxed">
+                <p className={`text-sm sm:text-base font-bold ${currentTheme.text} leading-relaxed`}>
                   {viewingProfile.bio || "Нет описания"}
                 </p>
               </div>
 
               {viewingProfile.birthday && (
-                <div className="bg-black/50 p-4 sm:p-5 rounded-2xl sm:rounded-[1.5rem] border border-white/5 shadow-inner flex items-center gap-3 sm:gap-4">
+                <div className={`${settings.theme === 'light' ? 'bg-zinc-100' : 'bg-black/50'} p-4 sm:p-5 rounded-2xl sm:rounded-[1.5rem] border ${currentTheme.border} shadow-inner flex items-center gap-3 sm:gap-4`}>
                   <div className="bg-amber-500/20 p-2 sm:p-3 rounded-xl border border-amber-500/30">
                     <CalendarDays className="text-amber-500 sm:w-6 sm:h-6" />
                   </div>
@@ -2792,7 +2823,7 @@ export default function App() {
                     <p className="text-[9px] sm:text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-0.5">
                       {getText("birthday")}
                     </p>
-                    <p className="text-sm sm:text-base font-black text-white">
+                    <p className={`text-sm sm:text-base font-black ${currentTheme.text}`}>
                       {viewingProfile.birthday}
                     </p>
                   </div>
@@ -3044,7 +3075,7 @@ export default function App() {
         } ${
           isLite
             ? currentTheme.litePanel
-            : "bg-black/20 backdrop-blur-3xl shadow-xl"
+            : `${settings.theme === 'light' ? 'bg-white/40' : 'bg-black/20'} backdrop-blur-3xl shadow-xl`
         }`}
       >
         {isMainMenuOpen && (
@@ -3159,7 +3190,7 @@ export default function App() {
               placeholder={getText("search")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black/40 border border-white/5 rounded-xl sm:rounded-2xl py-2.5 sm:py-3.5 pl-9 sm:pl-12 pr-3 sm:pr-4 text-[10px] sm:text-[11px] md:text-xs focus:outline-none focus:bg-black/60 transition-all font-black placeholder-zinc-700 tracking-widest text-white truncate"
+              className={`w-full ${settings.theme === 'light' ? 'bg-zinc-100 text-zinc-900' : 'bg-black/40 text-white'} border ${currentTheme.border} rounded-xl sm:rounded-2xl py-2.5 sm:py-3.5 pl-9 sm:pl-12 pr-3 sm:pr-4 text-[10px] sm:text-[11px] md:text-xs focus:outline-none transition-all font-black placeholder-zinc-500 tracking-widest truncate`}
             />
           </div>
           <button
@@ -3225,7 +3256,7 @@ export default function App() {
                         className={`font-black text-[11px] sm:text-xs lg:text-sm truncate tracking-tight uppercase flex items-center gap-1 ${
                           cUser.id === "ai" || cUser.isPremium
                             ? "text-amber-400"
-                            : "text-white"
+                          : currentTheme.text
                         }`}
                       >
                         {String(cUser.name)}
@@ -3346,8 +3377,8 @@ export default function App() {
           <>
             {/* Хедер Чата */}
             <div
-              className={`h-16 sm:h-20 flex items-center justify-between px-3 sm:px-6 md:px-8 border-b border-white/5 z-20 shadow-sm flex-shrink-0 ${
-                isLite ? "bg-zinc-900" : "bg-black/40 backdrop-blur-3xl"
+              className={`h-16 sm:h-20 flex items-center justify-between px-3 sm:px-6 md:px-8 border-b ${currentTheme.border} z-20 shadow-sm flex-shrink-0 ${
+                isLite ? currentTheme.litePanel : `${settings.theme === 'light' ? 'bg-white/60' : 'bg-black/40'} backdrop-blur-3xl`
               }`}
             >
               <div
@@ -3385,7 +3416,7 @@ export default function App() {
                 <div className="flex-1 min-w-0 pr-2">
                   <h2
                     className={`font-black text-[11px] sm:text-sm md:text-base uppercase tracking-tighter truncate flex items-center gap-1.5 group-hover:underline ${
-                      chatUser.isPremium ? "text-amber-400" : "text-white"
+                      chatUser.isPremium ? "text-amber-400" : currentTheme.text
                     }`}
                   >
                     {String(chatUser.username || chatUser.name || "Без имени")}
@@ -4319,7 +4350,7 @@ export default function App() {
                         placeholder={
                           editingMsg ? getText("edit_msg") : getText("type_msg")
                         }
-                        className={`w-full bg-transparent border-none focus:outline-none py-2.5 sm:py-3 px-2 sm:px-3 text-white font-black text-xs sm:text-sm md:text-base resize-none max-h-24 sm:max-h-32 placeholder-zinc-600 custom-scrollbar tracking-tight ${
+                        className={`w-full bg-transparent border-none focus:outline-none py-2.5 sm:py-3 px-2 sm:px-3 ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'} font-black text-xs sm:text-sm md:text-base resize-none max-h-24 sm:max-h-32 placeholder-zinc-500 custom-scrollbar tracking-tight ${
                           isBurnMode
                             ? "text-rose-400 placeholder-rose-500/50"
                             : ""
