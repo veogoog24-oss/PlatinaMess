@@ -2643,10 +2643,16 @@ export default function App() {
         .forEach((track) => pcRef.current.addTrack(track, stream));
 
       pcRef.current.ontrack = (event) => {
-        if (event.streams && event.streams[0]) {
+        if (event.streams && event.streams.length > 0) {
           setRemoteStream(event.streams[0]);
-        } else if (event.track) {
-          setRemoteStream(new MediaStream([event.track]));
+        } else {
+          setRemoteStream((prev) => {
+            if (prev) {
+              prev.addTrack(event.track);
+              return prev;
+            }
+            return new MediaStream([event.track]);
+          });
         }
       };
 
@@ -2796,10 +2802,16 @@ export default function App() {
         .forEach((track) => pcRef.current.addTrack(track, stream));
 
       pcRef.current.ontrack = (event) => {
-        if (event.streams && event.streams[0]) {
+        if (event.streams && event.streams.length > 0) {
           setRemoteStream(event.streams[0]);
-        } else if (event.track) {
-          setRemoteStream(new MediaStream([event.track]));
+        } else {
+          setRemoteStream((prev) => {
+            if (prev) {
+              prev.addTrack(event.track);
+              return prev;
+            }
+            return new MediaStream([event.track]);
+          });
         }
       };
 
@@ -3749,7 +3761,7 @@ export default function App() {
             </div>
           </div>
           {callState.type === "audio" && (
-            <audio ref={remoteAudioRef} autoPlay className="hidden" />
+            <audio ref={remoteAudioRef} autoPlay playsInline className="hidden" />
           )}
           <div className="relative z-10 flex items-center justify-center gap-4 sm:gap-6 mb-10 sm:mb-16 bg-black/60 backdrop-blur-2xl p-4 sm:p-6 rounded-2xl sm:rounded-2xl border border-white/10 shadow-lg">
             {callState.type === "video" && (
