@@ -2094,9 +2094,11 @@ export default function App() {
   useEffect(() => {
     if (remoteAudioRef.current && remoteStream && callState?.type === "audio") {
       remoteAudioRef.current.srcObject = remoteStream;
-      remoteAudioRef.current
-        .play()
-        .catch((e) => console.error("Audio play failed", e));
+      remoteAudioRef.current.volume = 1;
+      const playPromise = remoteAudioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((e) => console.error("Audio play failed", e));
+      }
     }
   }, [remoteStream, callState]);
 
@@ -2643,17 +2645,15 @@ export default function App() {
         .forEach((track) => pcRef.current.addTrack(track, stream));
 
       pcRef.current.ontrack = (event) => {
-        if (event.streams && event.streams.length > 0) {
-          setRemoteStream(event.streams[0]);
-        } else {
-          setRemoteStream((prev) => {
-            if (prev) {
-              prev.addTrack(event.track);
-              return prev;
-            }
-            return new MediaStream([event.track]);
-          });
-        }
+        const stream = (event.streams && event.streams[0]) || new MediaStream([event.track]);
+        setRemoteStream((prev) => {
+          if (prev && prev.id === stream.id) return prev;
+          if (prev && prev.getTracks().length > 0) {
+             prev.addTrack(event.track);
+             return new MediaStream(prev.getTracks());
+          }
+          return stream;
+        });
       };
 
       const roomRef = doc(
@@ -2678,7 +2678,7 @@ export default function App() {
         }
       };
 
-      const offer = await pcRef.current.createOffer();
+      const offer = await pcRef.current.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: type === "video" });
       await pcRef.current.setLocalDescription(offer);
 
       await setDoc(roomRef, {
@@ -2802,17 +2802,15 @@ export default function App() {
         .forEach((track) => pcRef.current.addTrack(track, stream));
 
       pcRef.current.ontrack = (event) => {
-        if (event.streams && event.streams.length > 0) {
-          setRemoteStream(event.streams[0]);
-        } else {
-          setRemoteStream((prev) => {
-            if (prev) {
-              prev.addTrack(event.track);
-              return prev;
-            }
-            return new MediaStream([event.track]);
-          });
-        }
+        const stream = (event.streams && event.streams[0]) || new MediaStream([event.track]);
+        setRemoteStream((prev) => {
+          if (prev && prev.id === stream.id) return prev;
+          if (prev && prev.getTracks().length > 0) {
+             prev.addTrack(event.track);
+             return new MediaStream(prev.getTracks());
+          }
+          return stream;
+        });
       };
 
       const roomRef = doc(
@@ -3760,9 +3758,7 @@ export default function App() {
               )}
             </div>
           </div>
-          {callState.type === "audio" && (
-            <audio ref={remoteAudioRef} autoPlay playsInline className="hidden" />
-          )}
+          <audio ref={remoteAudioRef} autoPlay playsInline className="hidden" />
           <div className="relative z-10 flex items-center justify-center gap-4 sm:gap-6 mb-10 sm:mb-16 bg-black/60 backdrop-blur-2xl p-4 sm:p-6 rounded-2xl sm:rounded-2xl border border-white/10 shadow-lg">
             {callState.type === "video" && (
               <button
