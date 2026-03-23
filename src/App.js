@@ -2670,9 +2670,11 @@ export default function App() {
         if (event.candidate) {
           const candId =
             "cand_" + Date.now() + Math.random().toString(36).substr(2, 5);
-          await updateDoc(roomRef, {
-            [`callerCandidates.${candId}`]: event.candidate.toJSON()
-          }).catch(() => {});
+          await setDoc(
+            roomRef,
+            { callerCandidates: { [candId]: event.candidate.toJSON() } },
+            { merge: true },
+          ).catch(() => {});
         }
       };
 
@@ -2831,9 +2833,11 @@ export default function App() {
         if (event.candidate) {
           const candId =
             "cand_" + Date.now() + Math.random().toString(36).substr(2, 5);
-          await updateDoc(roomRef, {
-            [`calleeCandidates.${candId}`]: event.candidate.toJSON()
-          }).catch(() => {});
+          await setDoc(
+            roomRef,
+            { calleeCandidates: { [candId]: event.candidate.toJSON() } },
+            { merge: true },
+          ).catch(() => {});
         }
       };
 
@@ -2849,6 +2853,18 @@ export default function App() {
       });
 
       setCallState({ type, status: "connected", peer: callerUser });
+
+      // Fills existing STUN/TURN candidates that caller generated before we answered
+      if (roomData.callerCandidates) {
+        Object.entries(roomData.callerCandidates).forEach(async ([id, cand]) => {
+          if (!addedCandsRef.current.has(id)) {
+            addedCandsRef.current.add(id);
+            await pcRef.current
+              .addIceCandidate(new RTCIceCandidate(cand))
+              .catch(() => {});
+          }
+        });
+      }
 
       for (const { id, cand } of iceCandidatesQueueRef.current) {
         if (!addedCandsRef.current.has(id)) {
