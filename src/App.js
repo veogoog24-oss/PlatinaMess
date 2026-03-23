@@ -1879,6 +1879,9 @@ export default function App() {
     let dark = 0,
       light = 0;
     let totalGifts = 0;
+    let voiceMsgs = 0;
+    let imagesSent = 0;
+    let totalFiles = 0;
 
     adminUsersList.forEach((u) => {
       // Gifts
@@ -1894,6 +1897,9 @@ export default function App() {
           if (m.senderId === "me" && m.type === "gift") {
             spenders[u.id] = (spenders[u.id] || 0) + (m.gift?.price || 0);
           }
+          if (m.isVoice) voiceMsgs++;
+          if (m.type === "image") imagesSent++;
+          if (m.type === "file") totalFiles++;
         });
       });
 
@@ -6516,6 +6522,14 @@ export default function App() {
                               </span>
                               <span className="text-sm font-medium text-emerald-400">
                                 {adminStats.totalGifts} 🎁
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-[10px] font-medium text-zinc-400">
+                                ГОЛОСОВЫЕ / ФОТО / ФАЙЛЫ
+                              </span>
+                              <span className="text-sm font-medium text-purple-400">
+                                🎤 {adminStats.voiceMsgs} / 🖼️ {adminStats.imagesSent} / 📎 {adminStats.totalFiles}
                               </span>
                             </div>
                             <div className="flex justify-between items-center">
