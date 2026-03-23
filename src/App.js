@@ -378,7 +378,7 @@ const defaultSettings = {
   username: "",
   bio: "",
   birthday: "",
-  theme: "dark",
+  theme: "light",
   accent: "sky",
   fontSize: "text-[15px]",
   wallpaper: "dots",
@@ -516,10 +516,10 @@ const accentMap = {
     textActive: "text-white",
   },
   amber: {
-    bg: "bg-sky-500",
+    bg: "bg-[#3390ec]",
     text: "text-amber-950",
     toggleBg: "bg-sky-400",
-    textActive: "text-sky-500",
+    textActive: "text-[#3390ec]",
   },
   indigo: {
     bg: "bg-indigo-500",
@@ -577,7 +577,7 @@ const premiumGifts = [
     price: 50,
     glow: "rgba(217,119,6,0.4)",
     grad: "from-sky-500/20 to-blue-600/20",
-    border: "border-sky-500/30",
+    border: "border-[#3390ec]/30",
     text: "text-sky-400",
   },
   {
@@ -618,7 +618,7 @@ const OFFICIAL_BADGES = {
     icon: "👑",
     label: "СОЗДАТЕЛЬ",
     color: "text-sky-400",
-    bg: "bg-sky-500/20",
+    bg: "bg-[#3390ec]/20",
   },
   verified: {
     icon: "☑️",
@@ -1415,7 +1415,7 @@ const CustomAudioPlayer = memo(({ src, isMe, durationText }) => {
       <button
         onClick={togglePlay}
         className={`w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 flex items-center justify-center rounded-full transition-all active:scale-90 hover:scale-105 shadow-md ${
-          isMe ? "bg-white text-zinc-950" : "bg-sky-500 text-amber-950"
+          isMe ? "bg-white text-zinc-950" : "bg-[#3390ec] text-amber-950"
         }`}
       >
         {isPlaying ? (
@@ -1450,7 +1450,7 @@ const CustomAudioPlayer = memo(({ src, isMe, durationText }) => {
         <div className="w-full h-1 sm:h-1.5 bg-black/30 rounded-full overflow-hidden absolute bottom-0 left-0">
           <div
             className={`h-full transition-all duration-100 shadow-md ${
-              isMe ? "bg-white" : "bg-sky-500"
+              isMe ? "bg-white" : "bg-[#3390ec]"
             }`}
             style={{ width: `${progress}%` }}
           />
@@ -1616,12 +1616,12 @@ function AuthScreen({ onLogin, isDeviceReady }) {
     return (
       <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-[#0e1621] font-sans p-4">
         <div className="w-20 h-20 sm:w-24 sm:h-24 relative mb-6 sm:mb-8">
-          <div className="absolute inset-0 bg-sky-500 rounded-2xl animate-ping opacity-20"></div>
+          <div className="absolute inset-0 bg-[#3390ec] rounded-2xl animate-ping opacity-20"></div>
           <div className="absolute inset-0 bg-gradient-to-br from-sky-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-            <Crown className="w-10 h-10 sm:w-12 sm:h-12 text-orange-950 animate-pulse" />
+            <Crown className="w-10 h-10 sm:w-12 sm:h-12 text-white animate-pulse" />
           </div>
         </div>
-        <p className="text-sky-500 font-medium tracking-[0.4em] animate-pulse text-xs sm:text-sm">
+        <p className="text-[#3390ec] font-medium tracking-[0.4em] animate-pulse text-xs sm:text-sm">
           PLATINA WEB
         </p>
       </div>
@@ -1633,10 +1633,10 @@ function AuthScreen({ onLogin, isDeviceReady }) {
       <div className="relative z-10 w-full max-w-[95%] sm:max-w-md max-h-[95vh] overflow-y-auto custom-scrollbar p-6 sm:p-10 lg:p-12 bg-[#17212b]/40 backdrop-blur-3xl border border-white/10 rounded-2xl sm:rounded-2xl shadow-lg animate-spring-up flex flex-col justify-center">
         <div className="flex flex-col items-center mb-8 sm:mb-10 flex-shrink-0">
           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-sky-500 to-blue-600 rounded-2xl sm:rounded-2xl flex items-center justify-center shadow-lg mb-4 sm:mb-6 animate-float">
-            <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-orange-950" />
+            <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
           <h1 className="text-3xl sm:text-4xl font-medium text-white leading-none">
-            Platina<span className="text-sky-500">Web</span>
+            Platina<span className="text-[#3390ec]">Web</span>
           </h1>
           <p className="text-zinc-500 text-[9px] sm:text-[10px] mt-2 sm:mt-3 font-medium tracking-[0.2em] sm:tracking-[0.3em] opacity-60 text-center">
             {mode === "login" ? t("login_title", lang) : t("reg_title", lang)}
@@ -1651,7 +1651,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
             <div className="flex flex-col items-center gap-2 mb-6 animate-fade-in">
               <div
                 onClick={() => avatarRef.current?.click()}
-                className="relative w-24 h-24 rounded-full bg-black/50 border-[3px] border-[#2b3949] flex items-center justify-center cursor-pointer hover:border-sky-500 transition-colors overflow-hidden group shadow-xl"
+                className="relative w-24 h-24 rounded-full bg-black/50 border-[3px] border-[#2b3949] flex items-center justify-center cursor-pointer hover:border-[#3390ec] transition-colors overflow-hidden group shadow-xl"
               >
                 {avatar || avatarPreview ? (
                   <img
@@ -1661,7 +1661,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                 ) : (
                   <Camera
                     size={32}
-                    className="text-zinc-600 group-hover:text-sky-500 transition-colors"
+                    className="text-zinc-600 group-hover:text-[#3390ec] transition-colors"
                   />
                 )}
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -1680,7 +1680,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                       setAvatarPreview(url);
                       setAvatar(null);
                     }}
-                    className={`w-10 h-10 rounded-full cursor-pointer border-2 transition-all flex-shrink-0 hover:scale-110 ${avatarPreview === url ? "border-sky-500 scale-110 shadow-lg" : "border-[#2b3949] opacity-60"}`}
+                    className={`w-10 h-10 rounded-full cursor-pointer border-2 transition-all flex-shrink-0 hover:scale-110 ${avatarPreview === url ? "border-[#3390ec] scale-110 shadow-lg" : "border-[#2b3949] opacity-60"}`}
                   >
                     <img src={url} className="w-full h-full rounded-full" />
                   </div>
@@ -1695,32 +1695,32 @@ function AuthScreen({ onLogin, isDeviceReady }) {
               />
               <div className="w-full space-y-4 sm:space-y-5 mt-4">
                 <div className="relative group">
-                  <UserCircle className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-sky-500 transition-colors w-4 h-4 sm:w-5 sm:h-5" />
+                  <UserCircle className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
                   <input
                     type="text"
                     placeholder={t("disp_name", lang)}
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-sky-500 transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
+                    className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
                   />
                 </div>
                 <div className="relative group">
-                  <Info className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-sky-500 transition-colors w-4 h-4 sm:w-5 sm:h-5" />
+                  <Info className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
                   <input
                     type="text"
                     placeholder={t("bio", lang)}
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
-                    className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-sky-500 transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
+                    className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
                   />
                 </div>
                 <div className="relative group">
-                  <CalendarDays className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-sky-500 transition-colors w-4 h-4 sm:w-5 sm:h-5" />
+                  <CalendarDays className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
                   <input
                     type="date"
                     value={birthday}
                     onChange={(e) => setBirthday(e.target.value)}
-                    className={`w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 focus:outline-none focus:border-sky-500 transition-all font-medium text-xs sm:text-sm ${
+                    className={`w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 focus:outline-none focus:border-[#3390ec] transition-all font-medium text-xs sm:text-sm ${
                       birthday ? "text-white" : "text-zinc-600"
                     }`}
                   />
@@ -1729,23 +1729,23 @@ function AuthScreen({ onLogin, isDeviceReady }) {
             </div>
           )}
           <div className="relative group">
-            <User className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-sky-500 transition-colors w-4 h-4 sm:w-5 sm:h-5" />
+            <User className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
             <input
               type="text"
               placeholder={t("login_id", lang)}
               value={username}
               onChange={(e) => setUsername(e.target.value.replace(/\s+/g, ""))}
-              className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-sky-500 transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
+              className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
             />
           </div>
           <div className="relative group">
-            <Lock className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-sky-500 transition-colors w-4 h-4 sm:w-5 sm:h-5" />
+            <Lock className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
             <input
               type={showPassword ? "text" : "password"}
               placeholder={t("login_pass", lang)}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-12 text-white focus:outline-none focus:border-sky-500 transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
+              className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-12 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
             />
             <button
               type="button"
@@ -1765,7 +1765,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 sm:py-4 mt-2 sm:mt-4 bg-zinc-100 hover:bg-white text-zinc-950 font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+            className="w-full py-4 sm:py-4 mt-2 sm:mt-4 bg-[#f1f1f1] hover:bg-white text-zinc-950 font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
           >
             {loading ? (
               <Loader2 className="animate-spin w-5 h-5 sm:w-6 sm:h-6" />
@@ -1784,7 +1784,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
             setMode(mode === "login" ? "register" : "login");
             setError("");
           }}
-          className="w-full mt-6 sm:mt-8 text-[9px] sm:text-[10px] text-zinc-500 hover:text-sky-500 font-medium tracking-[0.2em] transition-all hover:tracking-[0.3em] flex-shrink-0"
+          className="w-full mt-6 sm:mt-8 text-[9px] sm:text-[10px] text-zinc-500 hover:text-[#3390ec] font-medium tracking-[0.2em] transition-all hover:tracking-[0.3em] flex-shrink-0"
         >
           {mode === "login" ? t("no_acc", lang) : t("has_acc", lang)}
         </button>
@@ -2209,15 +2209,15 @@ export default function App() {
     // Сразу ставим базовую инфу из списка контактов, чтобы не было задержки
     setActiveChatProfile(activeChat);
 
-    if (activeChat.id === "ai") {
+    if (activeChat?.id === "ai") {
       setActiveChatProfile(aiUser);
       return;
     }
 
-    const unsub = onSnapshot(getAccRef(activeChat.id), (snap) => {
+    const unsub = onSnapshot(getAccRef(activeChat?.id), (snap) => {
       if (snap.exists()) {
         const d = snap.data();
-        setActiveChatProfile({ id: activeChat.id, ...d.settings });
+        setActiveChatProfile({ id: activeChat?.id, ...d.settings });
       }
     });
     return () => unsub();
@@ -2348,19 +2348,19 @@ export default function App() {
     });
 
     if (editingMsg && !payloadOverride) {
-      const updatedChat = (messages[activeChat.id] || []).map((m) =>
+      const updatedChat = (messages?.[activeChat?.id] || []).map((m) =>
         m.id === editingMsg.id
           ? { ...m, text: inputText.trim(), isEdited: true }
           : m,
       );
-      const myNextMsgs = { ...messages, [activeChat.id]: updatedChat };
+      const myNextMsgs = { ...messages, [activeChat?.id]: updatedChat };
       setMessages(myNextMsgs);
       setEditingMsg(null);
       setInputText("");
       await saveToCloud({ messages: myNextMsgs });
-      if (activeChat.id !== "ai") {
+      if (activeChat?.id !== "ai") {
         try {
-          const fRef = getAccRef(activeChat.id);
+          const fRef = getAccRef(activeChat?.id);
           const fSnap = await getDoc(fRef);
           if (fSnap.exists()) {
             const fMsgs = fSnap.data().messages || {};
@@ -2410,7 +2410,7 @@ export default function App() {
 
     const myNextMsgs = {
       ...messages,
-      [activeChat.id]: [...(messages[activeChat.id] || []), myMsg],
+      [activeChat?.id]: [...(messages?.[activeChat?.id] || []), myMsg],
     };
     setMessages(myNextMsgs);
     setInputText("");
@@ -2419,7 +2419,7 @@ export default function App() {
     playNotificationSound();
     await saveToCloud({ messages: myNextMsgs });
 
-    if (activeChat.id === "ai") {
+    if (activeChat?.id === "ai") {
       const txt = String(myMsg.text || "").toLowerCase();
       if (txt.startsWith("нарисуй") || txt.startsWith("draw")) {
         if (!settings.isPremium) {
@@ -2501,7 +2501,7 @@ export default function App() {
       }
     } else {
       try {
-        const friendRef = getAccRef(activeChat.id);
+        const friendRef = getAccRef(activeChat?.id);
         const friendSnap = await getDoc(friendRef);
         if (friendSnap.exists()) {
           const fData = friendSnap.data();
@@ -2590,7 +2590,7 @@ export default function App() {
       triggerToast("Ошибка", "Нет связи с сервером");
       return;
     }
-    if (!activeChat || activeChat.id === "ai") return;
+    if (!activeChat || activeChat?.id === "ai") return;
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       triggerToast(
@@ -2672,7 +2672,7 @@ export default function App() {
 
       await setDoc(roomRef, {
         callerId: currentUserAcc,
-        calleeId: activeChat.id,
+        calleeId: activeChat?.id,
         type,
         offer: { type: offer.type, sdp: offer.sdp },
         callerCandidates: {},
@@ -2680,7 +2680,7 @@ export default function App() {
         status: "ringing",
       });
 
-      const peerRef = getAccRef(activeChat.id);
+      const peerRef = getAccRef(activeChat?.id);
       await updateDoc(peerRef, {
         "settings.incomingCall": { roomId, callerId: currentUserAcc, type },
       });
@@ -3120,20 +3120,20 @@ export default function App() {
       return;
     }
     setMessages((prev) => {
-      const chatMsgs = prev[activeChat.id] || [];
+      const chatMsgs = prev[activeChat?.id] || [];
       const updatedMsgs = chatMsgs.map((msg) => {
         if (msg.id === msgId && !(msg.reactions || []).includes(emoji))
           return { ...msg, reactions: [...(msg.reactions || []), emoji] };
         return msg;
       });
-      const next = { ...prev, [activeChat.id]: updatedMsgs };
+      const next = { ...prev, [activeChat?.id]: updatedMsgs };
       saveToCloud({ messages: next });
       return next;
     });
     setActiveReactionMsg(null);
-    if (activeChat.id !== "ai") {
+    if (activeChat?.id !== "ai") {
       try {
-        const fRef = getAccRef(activeChat.id);
+        const fRef = getAccRef(activeChat?.id);
         const fSnap = await getDoc(fRef);
         if (fSnap.exists()) {
           const fMsgs = fSnap.data().messages || {};
@@ -3160,13 +3160,13 @@ export default function App() {
     if (!activeChat) return;
     setMessages((prev) => {
       const next = { ...prev };
-      next[activeChat.id] = [];
+      next[activeChat?.id] = [];
       saveToCloud({ messages: next });
       return next;
     });
-    if (activeChat.id !== "ai") {
+    if (activeChat?.id !== "ai") {
       try {
-        const fRef = getAccRef(activeChat.id);
+        const fRef = getAccRef(activeChat?.id);
         const fSnap = await getDoc(fRef);
         if (fSnap.exists()) {
           const fMsgs = fSnap.data().messages || {};
@@ -3183,16 +3183,16 @@ export default function App() {
   const deleteSingleMessage = async (msgId) => {
     if (!activeChat) return;
     setMessages((prev) => {
-      const newChatMsgs = (prev[activeChat.id] || []).filter(
+      const newChatMsgs = (prev[activeChat?.id] || []).filter(
         (m) => m.id !== msgId,
       );
-      const next = { ...prev, [activeChat.id]: newChatMsgs };
+      const next = { ...prev, [activeChat?.id]: newChatMsgs };
       saveToCloud({ messages: next });
       return next;
     });
-    if (activeChat.id !== "ai") {
+    if (activeChat?.id !== "ai") {
       try {
-        const fRef = getAccRef(activeChat.id);
+        const fRef = getAccRef(activeChat?.id);
         const fSnap = await getDoc(fRef);
         if (fSnap.exists()) {
           const fMsgs = fSnap.data().messages || {};
@@ -3429,7 +3429,7 @@ export default function App() {
     <div
       className={`flex h-[100dvh] w-full ${currentTheme.base} ${
         settings.theme === "light" ? "text-zinc-900" : "text-zinc-100"
-      } font-sans overflow-hidden selection:bg-sky-500/20 relative`}
+      } font-sans overflow-hidden selection:bg-[#3390ec]/20 relative`}
     >
       <input
         type="file"
@@ -3456,7 +3456,7 @@ export default function App() {
       {/* --- КАРТОЧКА ПРОФИЛЯ (МОДАЛЬНОЕ ОКНО) --- */}
       {viewingProfile && (
         <div
-          className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-3xl flex items-center justify-center p-4 sm:p-6 animate-fade-in"
+          className="fixed inset-0 z-[2000] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fade-in"
           onClick={() => {
             setViewingProfile(null);
             setGiftActionMenu(null);
@@ -3487,12 +3487,12 @@ export default function App() {
                   src={viewingProfile.avatar}
                   className={`w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover relative z-10 transition-transform duration-500 group-hover:scale-105 ${
                     viewingProfile.isPremium
-                      ? "border-4 border-sky-500 shadow-md"
+                      ? "border-4 border-[#3390ec] shadow-md"
                       : "border-4 border-[#2b3949] shadow-lg"
                   } ${viewingProfile.profileBlur ? "blur-xl grayscale" : ""}`}
                 />
                 {viewingProfile.isPremium && (
-                  <div className="absolute -bottom-2 -right-2 bg-[#17212b] rounded-full p-2 z-20 shadow-xl border border-sky-500/30">
+                  <div className="absolute -bottom-2 -right-2 bg-[#17212b] rounded-full p-2 z-20 shadow-xl border border-[#3390ec]/30">
                     <Crown size={20} className="text-sky-400 fill-amber-400" />
                   </div>
                 )}
@@ -3538,7 +3538,7 @@ export default function App() {
 
             <div className="px-6 pb-6 sm:px-8 sm:pb-8 space-y-3 sm:space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar relative z-10">
               <div
-                className={`${settings.theme === "light" ? "bg-zinc-100" : "bg-black/50"} p-4 sm:p-5 rounded-2xl sm:rounded-xl border ${currentTheme.border} shadow-inner`}
+                className={`${settings.theme === "light" ? "bg-[#f1f1f1]" : "bg-black/50"} p-4 sm:p-5 rounded-2xl sm:rounded-xl border ${currentTheme.border} shadow-inner`}
               >
                 <p className="text-[9px] sm:text-[10px] text-zinc-500 font-medium tracking-[0.2em] mb-1 sm:mb-1.5 flex items-center gap-1.5">
                   <Info size={12} /> {getText("bio")}
@@ -3552,10 +3552,10 @@ export default function App() {
 
               {viewingProfile.birthday && (
                 <div
-                  className={`${settings.theme === "light" ? "bg-zinc-100" : "bg-black/50"} p-4 sm:p-5 rounded-2xl sm:rounded-xl border ${currentTheme.border} shadow-inner flex items-center gap-3 sm:gap-4`}
+                  className={`${settings.theme === "light" ? "bg-[#f1f1f1]" : "bg-black/50"} p-4 sm:p-5 rounded-2xl sm:rounded-xl border ${currentTheme.border} shadow-inner flex items-center gap-3 sm:gap-4`}
                 >
-                  <div className="bg-sky-500/20 p-2 sm:p-3 rounded-xl border border-sky-500/30">
-                    <CalendarDays className="text-sky-500 sm:w-6 sm:h-6" />
+                  <div className="bg-[#3390ec]/20 p-2 sm:p-3 rounded-xl border border-[#3390ec]/30">
+                    <CalendarDays className="text-[#3390ec] sm:w-6 sm:h-6" />
                   </div>
                   <div>
                     <p className="text-[9px] sm:text-[10px] text-zinc-500 font-medium tracking-[0.2em] mb-0.5">
@@ -3625,7 +3625,7 @@ export default function App() {
                 onClick={() => setGiftActionMenu(null)}
               >
                 <div
-                  className="bg-[#17212b] border border-sky-500/30 p-6 rounded-2xl shadow-lg w-full max-w-xs flex flex-col items-center animate-spring-up"
+                  className="bg-[#17212b] border border-[#3390ec]/30 p-6 rounded-2xl shadow-lg w-full max-w-xs flex flex-col items-center animate-spring-up"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <span className="text-6xl mb-4 drop-shadow-lg animate-float">
@@ -3642,7 +3642,7 @@ export default function App() {
                   <div className="w-full space-y-2">
                     <button
                       onClick={handlePinGiftBadge}
-                      className="w-full py-3 bg-sky-500/20 hover:bg-sky-500 text-sky-500 hover:text-black font-medium text-xs rounded-xl transition-all border border-sky-500/30 flex items-center justify-center gap-2"
+                      className="w-full py-3 bg-[#3390ec]/20 hover:bg-[#3390ec] text-[#3390ec] hover:text-black font-medium text-xs rounded-xl transition-all border border-[#3390ec]/30 flex items-center justify-center gap-2"
                     >
                       <UserCircle size={16} /> {getText("pin_badge")}
                     </button>
@@ -3727,8 +3727,8 @@ export default function App() {
                   className={`absolute inset-0 rounded-full ${
                     callState.status === "calling" ||
                     callState.status === "connecting"
-                      ? "animate-ping bg-sky-500/30"
-                      : "bg-sky-500/10 shadow-md"
+                      ? "animate-ping bg-[#3390ec]/30"
+                      : "bg-[#3390ec]/10 shadow-md"
                   }`}
                 ></div>
                 <img
@@ -3922,7 +3922,7 @@ export default function App() {
         )}
 
         <div
-          className={`p-3 sm:p-4 md:p-6 flex items-center gap-2 sm:gap-4 border-b ${currentTheme.border} ${settings.theme === "light" ? "bg-zinc-100" : "bg-white/5"}`}
+          className={`p-3 sm:p-4 md:p-6 flex items-center gap-2 sm:gap-4 border-b ${currentTheme.border} ${settings.theme === "light" ? "bg-[#f1f1f1]" : "bg-white/5"}`}
         >
           <button
             type="button"
@@ -3938,7 +3938,7 @@ export default function App() {
           </button>
           <div className="relative flex-1 group min-w-0">
             <Search
-              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-sky-500 transition-colors"
+              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-[#3390ec] transition-colors"
               size={16}
             />
             <input
@@ -3946,7 +3946,7 @@ export default function App() {
               placeholder={getText("search")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full ${settings.theme === "light" ? "bg-zinc-100 text-zinc-900" : "bg-black/40 text-white"} border ${currentTheme.border} rounded-xl sm:rounded-2xl py-2.5 sm:py-3.5 pl-9 sm:pl-12 pr-3 sm:pr-4 text-[10px] sm:text-[11px] md:text-xs focus:outline-none transition-all font-medium placeholder-zinc-500 truncate`}
+              className={`w-full ${settings.theme === "light" ? "bg-[#f1f1f1] text-zinc-900" : "bg-black/40 text-white"} border ${currentTheme.border} rounded-xl sm:rounded-2xl py-2.5 sm:py-3.5 pl-9 sm:pl-12 pr-3 sm:pr-4 text-[10px] sm:text-[11px] md:text-xs focus:outline-none transition-all font-medium placeholder-zinc-500 truncate`}
             />
           </div>
           <button
@@ -3985,7 +3985,7 @@ export default function App() {
                   className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl cursor-pointer transition-all duration-300 ${
                     isActive
                       ? `${settings.theme === "light" ? "bg-zinc-200" : "bg-white/10"} shadow-lg ring-1 ${settings.theme === "light" ? "ring-zinc-300" : "ring-white/10"}`
-                      : `${settings.theme === "light" ? "hover:bg-zinc-100" : "hover:bg-white/5"} hover:scale-[1.01]`
+                      : `${settings.theme === "light" ? "hover:bg-[#f1f1f1]" : "hover:bg-white/5"} hover:scale-[1.01]`
                   }`}
                 >
                   <div className="relative flex-shrink-0">
@@ -4191,7 +4191,7 @@ export default function App() {
                   <p
                     className={`text-[8px] sm:text-[9px] ${
                       isOnline
-                        ? "text-sky-500/80 animate-pulse"
+                        ? "text-[#3390ec]/80 animate-pulse"
                         : "text-zinc-500"
                     } font-medium tracking-[0.2em] mt-0.5 truncate`}
                   >
@@ -4201,19 +4201,19 @@ export default function App() {
               </div>
 
               <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0 relative">
-                {activeChat.id !== "ai" && (
+                {activeChat?.id !== "ai" && (
                   <>
                     <button
                       type="button"
                       onClick={() => startCall("audio")}
-                      className={`p-2 sm:p-3 ${settings.theme === "light" ? "text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-zinc-100" : "text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20"} rounded-xl transition-all active:scale-90 shadow-sm`}
+                      className={`p-2 sm:p-3 ${settings.theme === "light" ? "text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-[#f1f1f1]" : "text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20"} rounded-xl transition-all active:scale-90 shadow-sm`}
                     >
                       <Phone size={18} className="sm:w-[20px] sm:h-[20px]" />
                     </button>
                     <button
                       type="button"
                       onClick={() => startCall("video")}
-                      className={`p-2 sm:p-3 ${settings.theme === "light" ? "text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-zinc-100" : "text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20"} rounded-xl transition-all active:scale-90 shadow-sm`}
+                      className={`p-2 sm:p-3 ${settings.theme === "light" ? "text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-[#f1f1f1]" : "text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20"} rounded-xl transition-all active:scale-90 shadow-sm`}
                     >
                       <Video size={18} className="sm:w-[20px] sm:h-[20px]" />
                     </button>
@@ -4223,7 +4223,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => setShowChatMenu(!showChatMenu)}
-                    className={`p-2 sm:p-3 ${settings.theme === "light" ? "text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-zinc-100" : "text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20"} rounded-xl transition-all active:scale-90 shadow-sm ml-1 sm:ml-2`}
+                    className={`p-2 sm:p-3 ${settings.theme === "light" ? "text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-[#f1f1f1]" : "text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20"} rounded-xl transition-all active:scale-90 shadow-sm ml-1 sm:ml-2`}
                   >
                     <MoreVertical
                       size={18}
@@ -4248,7 +4248,7 @@ export default function App() {
                         }}
                         className={`flex items-center gap-2 px-3 py-3 text-[10px] font-medium rounded-xl transition-colors w-full text-left ${
                           isBurnMode
-                            ? "text-sky-400 bg-sky-500/10"
+                            ? "text-sky-400 bg-[#3390ec]/10"
                             : "text-zinc-300 hover:bg-white/10"
                         }`}
                       >
@@ -4265,7 +4265,7 @@ export default function App() {
                       >
                         <Wallpaper size={14} /> {getText("change_bg")}
                       </button>
-                      {activeChat.id !== "ai" && (
+                      {activeChat?.id !== "ai" && (
                         <button
                           type="button"
                           onClick={() => {
@@ -4303,7 +4303,7 @@ export default function App() {
                 </div>
               </div>
 
-              {(messages[activeChat.id] || []).map((msg, i, arr) => {
+              {(messages?.[activeChat?.id] || []).map((msg, i, arr) => {
                 const isMe = msg.senderId === "me";
                 const showAvatar =
                   !isMe && (i === 0 || arr[i - 1].senderId !== msg.senderId);
@@ -4360,12 +4360,12 @@ export default function App() {
                             {g.name}
                           </p>
                           <div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2 bg-black/50 px-3 sm:px-4 py-1 sm:py-2 rounded-full border border-white/10 shadow-inner">
-                            <span className="text-[10px] sm:text-xs text-sky-500 font-medium">
+                            <span className="text-[10px] sm:text-xs text-[#3390ec] font-medium">
                               {g.price}
                             </span>
                             <Gem
                               size={10}
-                              className="fill-amber-500 text-sky-500 sm:w-3.5 sm:h-3.5"
+                              className="fill-amber-500 text-[#3390ec] sm:w-3.5 sm:h-3.5"
                             />
                           </div>
                         </div>
@@ -4404,7 +4404,7 @@ export default function App() {
                             <img
                               src={chatUser.avatar || activeChat.avatar}
                               className="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-md object-cover animate-fade-in cursor-pointer hover:scale-110 transition-transform"
-                              onClick={() => loadProfile(activeChat.id)}
+                              onClick={() => loadProfile(activeChat?.id)}
                             />
                           )}
                         </div>
@@ -4474,7 +4474,7 @@ export default function App() {
                                     e.stopPropagation();
                                     translateMessage(msg.id, msg.text);
                                   }}
-                                  className="flex items-center gap-2 px-3 py-2.5 text-[10px] sm:text-xs font-medium text-sky-400 hover:text-amber-300 hover:bg-sky-500/10 rounded-xl transition-colors w-full text-left mt-1"
+                                  className="flex items-center gap-2 px-3 py-2.5 text-[10px] sm:text-xs font-medium text-sky-400 hover:text-amber-300 hover:bg-[#3390ec]/10 rounded-xl transition-colors w-full text-left mt-1"
                                 >
                                   <Languages size={14} /> {getText("translate")}
                                 </button>
@@ -4572,7 +4572,7 @@ export default function App() {
                               className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl mb-2 sm:mb-3 mt-1 cursor-pointer transition-all border shadow-sm sm:shadow-lg hover:-translate-y-0.5 sm:hover:-translate-y-1 ${
                                 isMe
                                   ? "bg-black/20 border-white/10 hover:bg-black/30"
-                                  : `${settings.theme === "light" ? "bg-zinc-100" : "bg-black/40"} ${currentTheme.border} hover:bg-black/60`
+                                  : `${settings.theme === "light" ? "bg-[#f1f1f1]" : "bg-black/40"} ${currentTheme.border} hover:bg-black/60`
                               }`}
                             >
                               <div
@@ -4603,7 +4603,7 @@ export default function App() {
                               className={`flex flex-col overflow-hidden rounded-xl sm:rounded-2xl mb-2 sm:mb-3 mt-1 border shadow-sm sm:shadow-lg ${
                                 isMe
                                   ? "border-white/10 bg-black/20"
-                                  : `${currentTheme.border} ${settings.theme === "light" ? "bg-zinc-100" : "bg-black/40"}`
+                                  : `${currentTheme.border} ${settings.theme === "light" ? "bg-[#f1f1f1]" : "bg-black/40"}`
                               }`}
                             >
                               <div className="h-20 sm:h-28 relative w-full flex items-center justify-center overflow-hidden bg-emerald-950/40 cursor-pointer group/geo">
@@ -4639,7 +4639,7 @@ export default function App() {
                                   className={`mt-2 p-3 rounded-xl text-xs font-medium leading-relaxed border shadow-inner ${
                                     isMe
                                       ? "bg-black/20 border-white/10 text-amber-200"
-                                      : "bg-sky-500/10 border-sky-500/20 text-sky-400"
+                                      : "bg-[#3390ec]/10 border-[#3390ec]/20 text-sky-400"
                                   }`}
                                 >
                                   <Languages
@@ -4793,7 +4793,7 @@ export default function App() {
               className={`p-3 sm:p-4 md:p-6 lg:p-8 ${
                 isLite
                   ? "bg-[#0e1621] border-t border-white/5"
-                  : "bg-gradient-to-t from-black/90 via-black/50 to-transparent z-30"
+                  : "bg-gradient-to-t from-gray-100 via-gray-100/80 to-transparent dark:from-black/90 dark:via-black/50 dark:to-transparent z-30"
               } flex-shrink-0`}
             >
               {replyingTo && !editingMsg && (
@@ -4835,9 +4835,9 @@ export default function App() {
               )}
 
               {editingMsg && (
-                <div className="max-w-5xl mx-auto mb-2 sm:mb-3 flex items-center justify-between bg-amber-900/90 backdrop-blur-3xl rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-3 border border-sky-500/30 shadow-xl animate-slide-up relative overflow-hidden">
+                <div className="max-w-5xl mx-auto mb-2 sm:mb-3 flex items-center justify-between bg-amber-900/90 backdrop-blur-3xl rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-3 border border-[#3390ec]/30 shadow-xl animate-slide-up relative overflow-hidden">
                   <div
-                    className={`absolute left-0 top-0 bottom-0 w-1 sm:w-1.5 bg-sky-500`}
+                    className={`absolute left-0 top-0 bottom-0 w-1 sm:w-1.5 bg-[#3390ec]`}
                   ></div>
                   <div className="flex items-center gap-2 sm:gap-3 overflow-hidden ml-2 sm:ml-3">
                     <Edit3
@@ -4858,7 +4858,7 @@ export default function App() {
                       setEditingMsg(null);
                       setInputText("");
                     }}
-                    className="p-1 sm:p-1.5 hover:bg-sky-500/20 rounded-full text-sky-500 hover:text-sky-400 transition-colors active:scale-90 flex-shrink-0"
+                    className="p-1 sm:p-1.5 hover:bg-[#3390ec]/20 rounded-full text-[#3390ec] hover:text-sky-400 transition-colors active:scale-90 flex-shrink-0"
                   >
                     <X size={14} className="sm:w-4 sm:h-4" />
                   </button>
@@ -4866,7 +4866,7 @@ export default function App() {
               )}
 
               <div
-                className={`max-w-5xl mx-auto flex items-end gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 ${settings.theme === "light" ? "bg-zinc-100" : "bg-white/5"} border ${currentTheme.border} rounded-2xl sm:rounded-2xl focus-within:border-sky-500/50 ${settings.theme === "light" ? "focus-within:bg-white shadow-lg" : "focus-within:bg-black/60"} transition-all duration-300 ${
+                className={`max-w-5xl mx-auto flex items-end gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 ${settings.theme === "light" ? "bg-[#f1f1f1]" : "bg-white/5"} border ${currentTheme.border} rounded-2xl sm:rounded-2xl focus-within:border-[#3390ec]/50 ${settings.theme === "light" ? "focus-within:bg-white shadow-lg" : "focus-within:bg-black/60"} transition-all duration-300 ${
                   !isLite &&
                   "shadow-xl sm:shadow-lg backdrop-blur-3xl hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
                 } ${
@@ -4880,7 +4880,7 @@ export default function App() {
                     className={`absolute bottom-[calc(100%+8px)] sm:bottom-[calc(100%+12px)] left-2 sm:left-14 ${currentTheme.base} border ${currentTheme.border} rounded-2xl sm:rounded-2xl shadow-lg p-2 sm:p-3 flex flex-col gap-1 sm:gap-1.5 z-50 min-w-[180px] sm:min-w-[220px] animate-spring-up origin-bottom-left backdrop-blur-3xl`}
                   >
                     <div
-                      className={`text-[8px] sm:text-[9px] text-sky-500 font-medium px-2 sm:px-3 pb-1.5 sm:pb-2 pt-1 sm:pt-1.5 mb-1 sm:mb-2 border-b ${currentTheme.border} tracking-[0.2em] flex items-center gap-1 sm:gap-1.5`}
+                      className={`text-[8px] sm:text-[9px] text-[#3390ec] font-medium px-2 sm:px-3 pb-1.5 sm:pb-2 pt-1 sm:pt-1.5 mb-1 sm:mb-2 border-b ${currentTheme.border} tracking-[0.2em] flex items-center gap-1 sm:gap-1.5`}
                     >
                       <Wand2 size={12} className="sm:w-3.5 sm:h-3.5" />
                       {""}
@@ -4911,7 +4911,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => handleRewrite("slang")}
-                      className="text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-white/5 rounded-xl sm:rounded-2xl text-[10px] sm:text-[11px] font-medium text-sky-400 hover:text-amber-300 transition-all active:scale-95 flex items-center gap-2 sm:gap-3 bg-sky-500/10 border border-sky-500/20"
+                      className="text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-white/5 rounded-xl sm:rounded-2xl text-[10px] sm:text-[11px] font-medium text-sky-400 hover:text-amber-300 transition-all active:scale-95 flex items-center gap-2 sm:gap-3 bg-[#3390ec]/10 border border-[#3390ec]/20"
                     >
                       <span className="text-lg sm:text-xl drop-shadow-md">
                         💿
@@ -5008,11 +5008,11 @@ export default function App() {
                           className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl sm:rounded-2xl bg-[#17212b]/50 hover:bg-white/10 border border-transparent hover:border-white/10 transition-all active:scale-90 group"
                         >
                           <div
-                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-sky-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform shadow-inner`}
+                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#3390ec]/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform shadow-inner`}
                           >
                             <UserPlus
                               size={20}
-                              className="text-sky-500 sm:w-6 sm:h-6"
+                              className="text-[#3390ec] sm:w-6 sm:h-6"
                             />
                           </div>
                           <span className="text-[8px] sm:text-[9px] font-medium text-zinc-400 group-hover:text-white">
@@ -5146,7 +5146,7 @@ export default function App() {
                     disabled={!inputText.trim()}
                     className={`hidden sm:flex p-3 sm:p-4 rounded-full transition-all ${
                       inputText.trim()
-                        ? "text-sky-400 hover:bg-sky-500/10"
+                        ? "text-sky-400 hover:bg-[#3390ec]/10"
                         : "text-zinc-700"
                     }`}
                   >
@@ -5165,7 +5165,7 @@ export default function App() {
                         className={`absolute bottom-[calc(100%+8px)] sm:bottom-[calc(100%+12px)] right-0 ${currentTheme.base} border ${currentTheme.border} rounded-2xl sm:rounded-2xl shadow-lg p-4 sm:p-5 z-50 w-[280px] sm:w-[380px] animate-spring-up origin-bottom-right backdrop-blur-3xl max-h-[350px] sm:max-h-[500px] overflow-y-auto custom-scrollbar`}
                       >
                         <div
-                          className={`text-[8px] sm:text-[9px] text-sky-500 font-medium pb-2 sm:pb-2.5 mb-3 sm:mb-4 border-b ${currentTheme.border} tracking-[0.2em] flex items-center justify-between`}
+                          className={`text-[8px] sm:text-[9px] text-[#3390ec] font-medium pb-2 sm:pb-2.5 mb-3 sm:mb-4 border-b ${currentTheme.border} tracking-[0.2em] flex items-center justify-between`}
                         >
                           <span>ЭМОДЗИ И СМАЙЛЫ</span>
                           <button
@@ -5239,7 +5239,7 @@ export default function App() {
                   </div>
                 )}
 
-                {!isRecording && activeChat.id !== "ai" && (
+                {!isRecording && activeChat?.id !== "ai" && (
                   <div className="relative flex-shrink-0">
                     {showGiftPicker && (
                       <div
@@ -5251,7 +5251,7 @@ export default function App() {
                           <span className="text-xs font-medium text-white">
                             {getText("vip_gift")}
                           </span>
-                          <div className="text-[9px] font-medium text-sky-400 bg-sky-500/10 px-3 py-1.5 rounded-full border border-sky-500/20 flex items-center gap-1.5 shadow-inner">
+                          <div className="text-[9px] font-medium text-sky-400 bg-[#3390ec]/10 px-3 py-1.5 rounded-full border border-[#3390ec]/20 flex items-center gap-1.5 shadow-inner">
                             {settings.balance} <Gem size={12} />
                           </div>
                         </div>
@@ -5286,7 +5286,7 @@ export default function App() {
                               >
                                 {gift.name}
                               </span>
-                              <span className="text-[9px] text-sky-500 font-medium bg-black/80 px-3 py-1.5 rounded-full relative z-10 flex items-center gap-1.5 border border-sky-500/30 shadow-md group-hover:scale-110 transition-transform">
+                              <span className="text-[9px] text-[#3390ec] font-medium bg-black/80 px-3 py-1.5 rounded-full relative z-10 flex items-center gap-1.5 border border-[#3390ec]/30 shadow-md group-hover:scale-110 transition-transform">
                                 {gift.price} <Gem size={10} />
                               </span>
                             </button>
@@ -5303,8 +5303,8 @@ export default function App() {
                       }}
                       className={`p-3 sm:p-4 transition-all duration-300 rounded-[1rem] sm:rounded-xl mr-1 active:scale-90 flex items-center justify-center ${
                         showGiftPicker
-                          ? "bg-sky-500/20 text-sky-400 border border-sky-500/30 shadow-md"
-                          : `${settings.theme === "light" ? "text-zinc-400 hover:text-sky-500 hover:bg-sky-500/5" : "text-zinc-500 hover:text-sky-400 hover:bg-sky-500/10"}`
+                          ? "bg-[#3390ec]/20 text-sky-400 border border-[#3390ec]/30 shadow-md"
+                          : `${settings.theme === "light" ? "text-zinc-400 hover:text-[#3390ec] hover:bg-[#3390ec]/5" : "text-zinc-500 hover:text-sky-400 hover:bg-[#3390ec]/10"}`
                       }`}
                     >
                       <Gift size={20} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
@@ -5418,7 +5418,7 @@ export default function App() {
        ? "bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-[0_5px_15px_rgba(245,158,11,0.4)] md:shadow-[0_10px_25px_rgba(245,158,11,0.4)] scale-100 md:scale-[1.02]"
        : "bg-white text-zinc-950 shadow-md md:shadow-xl scale-100 md:scale-[1.02]"
      : tab.isPremiumBtn
-       ? "text-sky-500 hover:bg-sky-500/10 border border-sky-500/20"
+       ? "text-[#3390ec] hover:bg-[#3390ec]/10 border border-[#3390ec]/20"
        : "text-zinc-500 hover:bg-white/10 hover:text-white"
  }`}
                   >
@@ -5443,13 +5443,13 @@ export default function App() {
                 {activeSettingsTab === "premium" && (
                   <div className="space-y-6 sm:space-y-10 animate-fade-in">
                     <div className="relative overflow-hidden rounded-xl sm:rounded-2xl lg:rounded-2xl bg-gradient-to-br from-indigo-950/80 via-purple-900/40 to-rose-950/80 p-6 sm:p-8 lg:p-12 border border-white/10 shadow-xl lg:shadow-lg backdrop-blur-3xl">
-                      <div className="absolute top-0 right-0 -mr-10 sm:-mr-20 -mt-10 sm:-mt-20 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-sky-500/20 rounded-full blur-[40px] sm:blur-[80px] animate-pulse-slow"></div>
+                      <div className="absolute top-0 right-0 -mr-10 sm:-mr-20 -mt-10 sm:-mt-20 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-[#3390ec]/20 rounded-full blur-[40px] sm:blur-[80px] animate-pulse-slow"></div>
 
                       <div className="relative z-10 flex flex-col items-center text-center">
                         <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 bg-gradient-to-br from-amber-300 via-amber-500 to-blue-600 rounded-[1rem] sm:rounded-xl lg:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 lg:mb-8 shadow-md lg:shadow-md animate-float border border-white/20">
                           <Crown
                             size={32}
-                            className="sm:w-10 sm:h-10 lg:w-14 lg:h-14 text-orange-950"
+                            className="sm:w-10 sm:h-10 lg:w-14 lg:h-14 text-white"
                           />
                         </div>
                         <h3 className="text-2xl sm:text-4xl lg:text-6xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-yellow-400 to-blue-600 mb-3 sm:mb-4 lg:mb-6 drop-shadow-xl lg:drop-shadow-lg leading-none">
@@ -5473,7 +5473,7 @@ export default function App() {
                                   key={i}
                                   className="flex items-start gap-2.5 sm:gap-3 lg:gap-4 bg-black/40 p-3 sm:p-4 lg:p-5 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5 shadow-inner hover:bg-black/60 transition-colors group"
                                 >
-                                  <div className="bg-sky-500/20 p-1 sm:p-1.5 rounded-full group-hover:scale-110 transition-transform flex-shrink-0">
+                                  <div className="bg-[#3390ec]/20 p-1 sm:p-1.5 rounded-full group-hover:scale-110 transition-transform flex-shrink-0">
                                     <CheckCircle2
                                       size={14}
                                       className="sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-sky-400 drop-shadow-md"
@@ -5495,7 +5495,7 @@ export default function App() {
                                   }
                                   className={`flex-1 relative cursor-pointer rounded-xl sm:rounded-2xl lg:rounded-2xl border-2 p-4 sm:p-5 lg:p-6 transition-all duration-300 hover:-translate-y-1 sm:hover:-translate-y-2 ${
                                     selectedPremiumPlan === plan.id
-                                      ? "border-sky-500 bg-sky-500/10 shadow-[0_5px_15px_rgba(245,158,11,0.2)] lg:shadow-[0_15px_40px_rgba(245,158,11,0.2)]"
+                                      ? "border-[#3390ec] bg-[#3390ec]/10 shadow-[0_5px_15px_rgba(245,158,11,0.2)] lg:shadow-[0_15px_40px_rgba(245,158,11,0.2)]"
                                       : "border-white/5 bg-black/30 hover:border-white/20"
                                   }`}
                                 >
@@ -5542,7 +5542,7 @@ export default function App() {
                             </button>
                           </>
                         ) : (
-                          <div className="bg-black/60 p-6 sm:p-8 lg:p-12 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-sky-500/50 w-full max-w-xl backdrop-blur-2xl shadow-md lg:shadow-md animate-spring-up mt-6">
+                          <div className="bg-black/60 p-6 sm:p-8 lg:p-12 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-[#3390ec]/50 w-full max-w-xl backdrop-blur-2xl shadow-md lg:shadow-md animate-spring-up mt-6">
                             <h4 className="text-xl sm:text-2xl lg:text-4xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-amber-200 to-orange-500 mb-3 sm:mb-4 lg:mb-6">
                               СТАТУС АКТИВЕН
                             </h4>
@@ -5689,7 +5689,7 @@ export default function App() {
                               settings.avatar ||
                               `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUserAcc}`
                             }
-                            className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 rounded-full bg-[#17212b] border-[3px] sm:border-[4px] lg:border-[6px] border-zinc-950 object-cover group-hover:opacity-50 transition-opacity"
+                            className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 rounded-full bg-[#17212b] border border-[#e4e4e4] object-cover group-hover:opacity-50 transition-opacity"
                           />
                         </div>
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
@@ -5709,7 +5709,7 @@ export default function App() {
                             onChange={(e) =>
                               updateSettingField("username", e.target.value)
                             }
-                            className="w-full bg-black/40 border border-[#2b3949] rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-sky-500 transition-all text-white font-medium text-xs sm:text-sm lg:text-lg placeholder-zinc-700"
+                            className="w-full bg-black/40 border border-[#2b3949] rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-[#3390ec] transition-all text-white font-medium text-xs sm:text-sm lg:text-lg placeholder-zinc-700"
                           />
                         </div>
                         <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5 shadow-inner">
@@ -5722,7 +5722,7 @@ export default function App() {
                             onChange={(e) =>
                               updateSettingField("bio", e.target.value)
                             }
-                            className="w-full bg-black/40 border border-[#2b3949] rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-sky-500 transition-all text-white font-medium text-xs sm:text-sm lg:text-lg placeholder-zinc-700"
+                            className="w-full bg-black/40 border border-[#2b3949] rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-[#3390ec] transition-all text-white font-medium text-xs sm:text-sm lg:text-lg placeholder-zinc-700"
                           />
                         </div>
                         {/* ДЕНЬ РОЖДЕНИЯ В НАСТРОЙКАХ */}
@@ -5736,7 +5736,7 @@ export default function App() {
                             onChange={(e) =>
                               updateSettingField("birthday", e.target.value)
                             }
-                            className={`w-full bg-black/40 border border-[#2b3949] rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-sky-500 transition-all font-medium text-xs sm:text-sm lg:text-lg ${
+                            className={`w-full bg-black/40 border border-[#2b3949] rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-[#3390ec] transition-all font-medium text-xs sm:text-sm lg:text-lg ${
                               settings.birthday ? "text-white" : "text-zinc-600"
                             }`}
                           />
@@ -5744,9 +5744,9 @@ export default function App() {
 
                         {/* ЗНАЧОК ПРОФИЛЯ */}
                         {settings.activeBadge && (
-                          <div className="bg-sky-500/10 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-sky-500/20 shadow-inner flex items-center justify-between gap-4">
+                          <div className="bg-[#3390ec]/10 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-[#3390ec]/20 shadow-inner flex items-center justify-between gap-4">
                             <div>
-                              <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-sky-500 tracking-[0.2em]">
+                              <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-[#3390ec] tracking-[0.2em]">
                                 ТЕКУЩИЙ СТАТУС-ЗНАЧОК
                               </label>
                               <div className="text-3xl mt-2 drop-shadow-md animate-bounce-slow">
@@ -5800,8 +5800,8 @@ export default function App() {
                     </h3>
 
                     {/* НОВАЯ ФИЧА: ОПТИМИЗАЦИЯ */}
-                    <div className="bg-sky-500/10 border border-sky-500/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl">
-                      <h4 className="text-[9px] sm:text-[10px] lg:text-xs text-sky-500 mb-3 sm:mb-4 lg:mb-5 tracking-[0.2em] font-medium flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2">
+                    <div className="bg-[#3390ec]/10 border border-[#3390ec]/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl">
+                      <h4 className="text-[9px] sm:text-[10px] lg:text-xs text-[#3390ec] mb-3 sm:mb-4 lg:mb-5 tracking-[0.2em] font-medium flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2">
                         <Zap
                           size={14}
                           className="sm:w-4 sm:h-4 lg:w-5 lg:h-5"
@@ -5820,7 +5820,7 @@ export default function App() {
                             onClick={() => updateSettingField("perfMode", m.id)}
                             className={`flex-1 py-2.5 sm:py-3 lg:py-4 rounded-lg sm:rounded-xl lg:rounded-2xl text-[9px] sm:text-[10px] lg:text-[11px] font-medium transition-all duration-300 ${
                               settings.perfMode === m.id
-                                ? "bg-sky-500 text-amber-950 shadow-md lg:shadow-xl sm:scale-[1.02]"
+                                ? "bg-[#3390ec] text-amber-950 shadow-md lg:shadow-xl sm:scale-[1.02]"
                                 : "text-zinc-500 hover:text-white sm:hover:bg-white/5"
                             }`}
                           >
@@ -5828,7 +5828,7 @@ export default function App() {
                           </button>
                         ))}
                       </div>
-                      <p className="text-[8px] sm:text-[9px] lg:text-[10px] text-sky-500/60 mt-2 sm:mt-3 font-medium text-center sm:text-left">
+                      <p className="text-[8px] sm:text-[9px] lg:text-[10px] text-[#3390ec]/60 mt-2 sm:mt-3 font-medium text-center sm:text-left">
                         Если телефон греется или лагает чат — включи режим LITE.
                       </p>
                     </div>
@@ -5892,7 +5892,7 @@ export default function App() {
                               }`}
                             >
                               {isLocked && (
-                                <div className="absolute top-1.5 sm:top-2 lg:top-3 right-1.5 sm:right-2 lg:right-3 z-10 text-sky-500 bg-black/60 p-1 sm:p-1.5 lg:p-2 rounded-full backdrop-blur-md shadow-lg border border-sky-500/20">
+                                <div className="absolute top-1.5 sm:top-2 lg:top-3 right-1.5 sm:right-2 lg:right-3 z-10 text-[#3390ec] bg-black/60 p-1 sm:p-1.5 lg:p-2 rounded-full backdrop-blur-md shadow-lg border border-[#3390ec]/20">
                                   <Crown
                                     size={10}
                                     className="sm:w-3 lg:w-3.5 sm:h-3 lg:h-3.5"
@@ -6076,7 +6076,7 @@ export default function App() {
                             }
                             className={`py-2 rounded-xl text-[9px] font-medium transition-all ${
                               settings.wallpaper === w.id
-                                ? "bg-sky-500 text-amber-950"
+                                ? "bg-[#3390ec] text-amber-950"
                                 : "bg-black/40 text-zinc-500 hover:text-white"
                             }`}
                           >
@@ -6096,7 +6096,7 @@ export default function App() {
                                 e.target.value,
                               )
                             }
-                            className="bg-black/60 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-sky-500 transition-all"
+                            className="bg-black/60 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-[#3390ec] transition-all"
                           />
                           <p className="text-[8px] text-zinc-500 font-medium text-center">
                             Или выбери файл ниже
@@ -6301,7 +6301,7 @@ export default function App() {
                             }
                             updateSettingField("lastSeen", e.target.value);
                           }}
-                          className="w-full bg-black/50 border-2 border-[#2b3949] hover:border-[#2b3949] rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 text-[10px] sm:text-xs lg:text-sm text-white focus:outline-none focus:border-sky-500 font-medium transition-all cursor-pointer appearance-none shadow-inner text-center sm:text-left"
+                          className="w-full bg-black/50 border-2 border-[#2b3949] hover:border-[#2b3949] rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 text-[10px] sm:text-xs lg:text-sm text-white focus:outline-none focus:border-[#3390ec] font-medium transition-all cursor-pointer appearance-none shadow-inner text-center sm:text-left"
                         >
                           <option value="everyone">
                             {getText("everyone")}
@@ -6425,10 +6425,10 @@ export default function App() {
                         </p>
                       </div>
                       <div
-                        className={`${settings.theme === "light" ? "bg-amber-50 border-amber-100" : "bg-sky-500/10 border-sky-500/20"} border p-4 rounded-2xl shadow-sm`}
+                        className={`${settings.theme === "light" ? "bg-amber-50 border-amber-100" : "bg-[#3390ec]/10 border-[#3390ec]/20"} border p-4 rounded-2xl shadow-sm`}
                       >
                         <p
-                          className={`text-[9px] ${settings.theme === "light" ? "text-amber-600" : "text-sky-500"} font-medium mb-1`}
+                          className={`text-[9px] ${settings.theme === "light" ? "text-amber-600" : "text-[#3390ec]"} font-medium mb-1`}
                         >
                           PREMIUM
                         </p>
@@ -6661,7 +6661,7 @@ export default function App() {
                       </div>
                       <button
                         onClick={fetchAdminUsers}
-                        className={`px-4 py-3 ${settings.theme === "light" ? "bg-zinc-100 hover:bg-zinc-200 text-zinc-600" : "bg-black/50 hover:bg-[#242f3d] text-zinc-400"} rounded-xl transition-all border border-transparent font-medium text-[9px] flex items-center gap-2 whitespace-nowrap`}
+                        className={`px-4 py-3 ${settings.theme === "light" ? "bg-[#f1f1f1] hover:bg-zinc-200 text-zinc-600" : "bg-black/50 hover:bg-[#242f3d] text-zinc-400"} rounded-xl transition-all border border-transparent font-medium text-[9px] flex items-center gap-2 whitespace-nowrap`}
                       >
                         <RefreshCw
                           size={14}
@@ -6674,7 +6674,7 @@ export default function App() {
 
                     {/* DEVELOPER CONSOLE */}
                     <div
-                      className={`${settings.theme === "light" ? "bg-zinc-100 border-zinc-200" : "bg-black/40 border-white/5"} border p-5 rounded-2xl mb-6 shadow-inner`}
+                      className={`${settings.theme === "light" ? "bg-[#f1f1f1] border-zinc-200" : "bg-black/40 border-white/5"} border p-5 rounded-2xl mb-6 shadow-inner`}
                     >
                       <h4 className="text-[9px] font-medium text-zinc-500 mb-3 flex items-center gap-2">
                         <ShieldAlert size={14} /> Developer Console
@@ -6729,7 +6729,7 @@ export default function App() {
                                   }`}
                                 />
                                 {u.settings?.isPremium && (
-                                  <div className="absolute -bottom-1 -right-1 bg-[#17212b] rounded-full p-1 border border-sky-500/30">
+                                  <div className="absolute -bottom-1 -right-1 bg-[#17212b] rounded-full p-1 border border-[#3390ec]/30">
                                     <Crown
                                       size={14}
                                       className="text-sky-400 fill-amber-400"
@@ -6754,7 +6754,7 @@ export default function App() {
                                     : "Оффлайн"}
                                 </p>
                                 <div className="flex items-center gap-3 mt-2">
-                                  <p className="text-[10px] text-sky-500 font-medium bg-sky-500/10 px-2 py-0.5 rounded-md border border-sky-500/20 flex items-center gap-1">
+                                  <p className="text-[10px] text-[#3390ec] font-medium bg-[#3390ec]/10 px-2 py-0.5 rounded-md border border-[#3390ec]/20 flex items-center gap-1">
                                     <Gem size={10} /> {u.settings?.balance || 0}
                                   </p>
                                   {u.settings?.isBanned && (
@@ -6812,8 +6812,8 @@ export default function App() {
                                   }
                                   className={`flex-1 sm:flex-none px-4 py-3 rounded-xl text-[10px] font-medium transition-all shadow-md active:scale-95 ${
                                     u.settings?.isPremium
-                                      ? `${settings.theme === "light" ? "bg-zinc-100 text-zinc-400" : "bg-[#242f3d] text-zinc-400"} hover:text-white`
-                                      : "bg-sky-500/20 text-sky-500 hover:bg-sky-500 hover:text-black border border-sky-500/30"
+                                      ? `${settings.theme === "light" ? "bg-[#f1f1f1] text-zinc-400" : "bg-[#242f3d] text-zinc-400"} hover:text-white`
+                                      : "bg-[#3390ec]/20 text-[#3390ec] hover:bg-[#3390ec] hover:text-black border border-[#3390ec]/30"
                                   }`}
                                 >
                                   {u.settings?.isPremium
@@ -6954,7 +6954,7 @@ export default function App() {
                 )
               }
               placeholder="ID..."
-              className="w-full bg-black/80 sm:bg-black/60 border border-white/10 rounded-xl sm:rounded-2xl lg:rounded-2xl py-3 sm:py-4 lg:py-6 px-4 sm:px-6 lg:px-10 mb-4 sm:mb-6 lg:mb-8 text-white font-medium placeholder-zinc-800 focus:outline-none focus:border-sky-500 transition-all text-sm sm:text-base lg:text-xl"
+              className="w-full bg-black/80 sm:bg-black/60 border border-white/10 rounded-xl sm:rounded-2xl lg:rounded-2xl py-3 sm:py-4 lg:py-6 px-4 sm:px-6 lg:px-10 mb-4 sm:mb-6 lg:mb-8 text-white font-medium placeholder-zinc-800 focus:outline-none focus:border-[#3390ec] transition-all text-sm sm:text-base lg:text-xl"
             />
             {addContactError && (
               <p className="text-rose-500 text-[9px] sm:text-[10px] lg:text-[12px] font-medium mb-4 sm:mb-6 lg:mb-8 animate-shake bg-rose-500/10 p-3 sm:p-4 lg:p-5 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-rose-500/20 text-center">
