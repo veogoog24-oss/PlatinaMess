@@ -1240,7 +1240,12 @@ const callGemini = async (prompt, systemInstruction) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error(`API Error: ${res.status}`);
+    if (!res.ok) {
+      if (res.status === 403) {
+        return "Привет! Я ИИ-ассистент. Мой API-ключ временно заблокирован или недействителен. Но я всё равно с тобой на связи! 😉";
+      }
+      throw new Error(`API Error: ${res.status}`);
+    }
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
     return (
@@ -1283,7 +1288,7 @@ const callImagen = async (prompt) => {
 // ==========================================
 const CallTimerDisplay = memo(({ status, lang }) => {
   const [timer, setTimer] = useState(0);
-  useEffect(() => {
+    useEffect(() => {
     let it;
     if (status === "connected")
       it = setInterval(() => setTimer((t) => t + 1), 1000);
@@ -2186,7 +2191,7 @@ export default function App() {
               incomingCallData.roomId !== data.settings.incomingCall.roomId
             ) {
               setIncomingCallData(data.settings.incomingCall);
-              playNotificationSound();
+              // playNotificationSound() disabled;
             }
           } else if (!data.settings.incomingCall && incomingCallData) {
             setIncomingCallData(null);
@@ -2416,7 +2421,7 @@ export default function App() {
     setInputText("");
     setReplyingTo(null);
     setIsBurnMode(false);
-    playNotificationSound();
+    // playNotificationSound() disabled;
     await saveToCloud({ messages: myNextMsgs });
 
     if (activeChat?.id === "ai") {
@@ -2447,7 +2452,7 @@ export default function App() {
           };
           setMessages(withAi);
           await saveToCloud({ messages: withAi });
-          playNotificationSound();
+          // playNotificationSound() disabled;
         } else {
           triggerToast("Platina AI", "Сервера художников перегружены 🎨");
         }
@@ -2471,7 +2476,7 @@ export default function App() {
         const withAi = { ...myNextMsgs, ai: [...(myNextMsgs.ai || []), aiMsg] };
         setMessages(withAi);
         await saveToCloud({ messages: withAi });
-        playNotificationSound();
+        // playNotificationSound() disabled;
         setIsAiTyping(false);
       } else {
         setIsAiTyping(true);
@@ -2495,7 +2500,7 @@ export default function App() {
           };
           setMessages(withAi);
           await saveToCloud({ messages: withAi });
-          playNotificationSound();
+          // playNotificationSound() disabled;
           setIsAiTyping(false);
         }, 2000);
       }
@@ -3347,25 +3352,12 @@ export default function App() {
   );
 
   const getAccentClasses = (isMe, senderId) => {
-    const glass = settings.glassEffect && !isLite;
-    if (!isMe)
-      return senderId === "ai"
-        ? `${glass ? "bg-indigo-900/40 backdrop-blur-xl" : "bg-indigo-900"} text-indigo-100 border border-indigo-500/30 shadow-lg`
-        : `${
-            isLite
-              ? currentTheme.litePanel
-              : (settings.theme === "light"
-                  ? currentTheme.bubble
-                  : glass
-                    ? currentTheme.glass
-                    : currentTheme.panel) || "bg-[#242f3d]"
-          } ${glass ? "backdrop-blur-xl" : ""} ${currentTheme.text || "text-zinc-100"} border ${
-            currentTheme.border || "border-[#2b3949]/50"
-          } shadow-sm`;
-
-    // For"me"messages, use accent color
-    const accentBg = currentAccent.bg;
-    return `${accentBg} ${currentAccent.text} shadow-md ${glass ? "backdrop-blur-md" : ""} ${settings.theme === "light" ? "shadow-amber-500/10" : ""}`;
+    const isLight = settings.theme === "light";
+    if (!isMe) {
+      if (senderId === "ai") return isLight ? "bg-indigo-50 text-indigo-900 border border-indigo-100" : "bg-indigo-900 text-indigo-100 border border-indigo-500/30";
+      return isLight ? "bg-white text-black border border-gray-100" : "bg-[#182533] text-white border border-[#2b3949]/50";
+    }
+    return isLight ? "bg-[#e3f2fd] text-black border border-blue-100" : "bg-[#2b5278] text-white border border-blue-900/50";
   };
   const getWallpaperStyle = () => {
     if (isLite) return {};
@@ -4413,7 +4405,7 @@ export default function App() {
                       <div className="relative flex flex-col w-full">
                         {/* Меню сообщения */}
                         <div
-                          className={`absolute -top-3 sm:-top-4 ${
+                          className={`absolute -top-6 sm:-top-8 z-50 ${
                             isMe ? "left-0 sm:-left-10" : "right-0 sm:-right-10"
                           } opacity-100 transition-all duration-300 z-40`}
                         >
@@ -4506,18 +4498,13 @@ export default function App() {
                               ? "px-3 py-1.5 sm:px-4 sm:py-2"
                               : "px-4 py-3 sm:px-5 sm:py-4"
                           } ${settings.fontSize} ${
-                            settings.bubbleStyle === "sharp"
-                              ? "rounded-sm sm:rounded-md"
-                              : isMe
-                                ? "rounded-xl sm:rounded-2xl rounded-br-sm sm:rounded-br-md"
-                                : "rounded-xl sm:rounded-2xl rounded-bl-sm sm:rounded-bl-md"
+                            isMe
+                              ? "rounded-2xl rounded-br-sm"
+                              : "rounded-2xl rounded-bl-sm"
                           } ${getAccentClasses(
                             isMe,
                             msg.senderId,
-                          )} transition-all duration-300 flex flex-col overflow-hidden ${
-                            !isLite &&
-                            "shadow-md sm:shadow-xl hover:shadow-[0_5px_20px_rgba(0,0,0,0.4)] sm:hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
-                          } border border-transparent min-w-0 ${
+                          )} flex flex-col min-w-0 shadow-sm ${
                             msg.expiresAt
                               ? isMe
                                 ? "border-rose-500/50 shadow-md"
