@@ -2670,11 +2670,9 @@ export default function App() {
         if (event.candidate) {
           const candId =
             "cand_" + Date.now() + Math.random().toString(36).substr(2, 5);
-          await setDoc(
-            roomRef,
-            { callerCandidates: { [candId]: event.candidate.toJSON() } },
-            { merge: true },
-          ).catch(() => {});
+          await updateDoc(roomRef, {
+            [`callerCandidates.${candId}`]: event.candidate.toJSON()
+          }).catch(() => {});
         }
       };
 
@@ -2833,11 +2831,9 @@ export default function App() {
         if (event.candidate) {
           const candId =
             "cand_" + Date.now() + Math.random().toString(36).substr(2, 5);
-          await setDoc(
-            roomRef,
-            { calleeCandidates: { [candId]: event.candidate.toJSON() } },
-            { merge: true },
-          ).catch(() => {});
+          await updateDoc(roomRef, {
+            [`calleeCandidates.${candId}`]: event.candidate.toJSON()
+          }).catch(() => {});
         }
       };
 
