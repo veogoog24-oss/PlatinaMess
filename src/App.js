@@ -26,6 +26,8 @@ import {
   deleteDoc,
   arrayUnion,
 } from "firebase/firestore";
+import nacl from "tweetnacl";
+import util from "tweetnacl-util";
 
 // ==========================================
 // 🎨 АВТО-ЗАГРУЗКА ДИЗАЙНА (TAILWIND CSS)
@@ -1574,37 +1576,63 @@ function AuthScreen({ onLogin, isDeviceReady }) {
             setLoading(false);
             return;
           }
+
+          if (!localStorage.getItem(`platina_sk_${login}`)) {
+            setError("⚠️ Вход с нового устройства: старые сообщения будут недоступны без ключа шифрования. Если согласны, создайте новый ключ при регистрации.");
+            setLoading(false);
+            return;
+          }
+
           onLogin(login);
         } else {
           setError("Неверный логин или пароль ❌");
         }
       } else {
-        if (snap.exists()) {
-          setError("Логин уже занят 😢");
+        if (snap.exists() && snap.data().password !== password) {
+          setError("Логин уже занят 😢 или неверный пароль.");
         } else {
+          // If the user is registering to overwrite existing device key (snap exists but no local key)
+          // We must update the public key and keep existing messages and contacts,
+          // however, old encrypted messages will be unreadable by this user (though they exist in DB).
+          const isOverwritingDevice = snap.exists();
+
+          const existingData = isOverwritingDevice ? snap.data() : {};
+
           const finalName =
-            displayName.trim() !== "" ? displayName.trim() : login;
-          const finalBio = bio.trim() || "Я в Platina Messenger";
+            displayName.trim() !== "" ? displayName.trim() : (existingData.settings?.username || login);
+          const finalBio = bio.trim() || existingData.settings?.bio || "Я в Platina Messenger";
           const finalAvatar =
             avatar ||
             avatarPreview ||
+            existingData.settings?.avatar ||
             `https://api.dicebear.com/7.x/avataaars/svg?seed=${login}`;
+
+          // Generate key pair for E2EE
+          const keyPair = nacl.box.keyPair();
+          const publicKeyBase64 = util.encodeBase64(keyPair.publicKey);
+          const secretKeyBase64 = util.encodeBase64(keyPair.secretKey);
+
+          // Save private key to local storage
+          localStorage.setItem(`platina_sk_${login}`, secretKeyBase64);
 
           await setDoc(
             ref,
             cleanData({
+              ...existingData,
               password,
-              receivedGifts: [],
-              messages: { ai: initialMessages["ai"] },
+              publicKey: publicKeyBase64,
+              receivedGifts: existingData.receivedGifts || [],
+              messages: existingData.messages || { ai: initialMessages["ai"] },
               settings: {
                 ...defaultSettings,
+                ...(existingData.settings || {}),
                 username: finalName,
                 bio: finalBio,
-                birthday,
+                birthday: birthday || existingData.settings?.birthday,
                 avatar: finalAvatar,
                 lastOnline: Date.now(),
               },
-              contacts: [aiUser],
+              contacts: existingData.contacts || [aiUser],
             }),
           );
           onLogin(login);
@@ -2184,7 +2212,47 @@ export default function App() {
     const unsubscribe = onSnapshot(ref, (snap) => {
       if (snap.exists()) {
         const data = snap.data();
-        if (data.messages) setMessages(data.messages);
+
+        // Decrypt messages before storing in state
+        if (data.messages) {
+          const mySecretKeyBase64 = localStorage.getItem(`platina_sk_${currentUserAcc}`);
+          let mySecretKey = null;
+          if (mySecretKeyBase64) {
+            try {
+              mySecretKey = util.decodeBase64(mySecretKeyBase64);
+            } catch(e) {}
+          }
+
+          const decryptedMessages = {};
+
+          for (const [chatId, msgs] of Object.entries(data.messages)) {
+            decryptedMessages[chatId] = msgs.map(msg => {
+              if (msg.isEncrypted && mySecretKey) {
+                try {
+                  let contact = (data.contacts || []).find(c => c.id === chatId);
+                  if (contact && contact.publicKey) {
+                    const peerPublicKey = util.decodeBase64(contact.publicKey);
+                    const sharedKey = nacl.box.before(peerPublicKey, mySecretKey);
+
+                    const nonce = util.decodeBase64(msg.nonce);
+                    const encryptedData = util.decodeBase64(msg.data);
+
+                    const decryptedUint8 = nacl.box.open.after(encryptedData, nonce, sharedKey);
+                    if (decryptedUint8) {
+                      const decryptedPayload = JSON.parse(util.encodeUTF8(decryptedUint8));
+                      return { ...msg, ...decryptedPayload, isEncrypted: false };
+                    }
+                  }
+                  return msg;
+                } catch(e) {
+                  return msg;
+                }
+              }
+              return msg;
+            });
+          }
+          setMessages(decryptedMessages);
+        }
         if (data.contacts) setContacts(data.contacts);
         if (data.settings) {
           setSettings((prev) => ({ ...prev, ...data.settings }));
@@ -2392,10 +2460,36 @@ export default function App() {
     }
 
     const basePayload = payloadOverride || { text: inputText.trim() };
-    const myMsg = cleanData({
-      id: Date.now(),
-      senderId: "me",
-      time,
+    const getSharedKey = (remotePublicKeyBase64) => {
+      const mySecretKeyBase64 = localStorage.getItem(`platina_sk_${currentUserAcc}`);
+      if (!mySecretKeyBase64 || !remotePublicKeyBase64) return null;
+      try {
+        const mySecretKey = util.decodeBase64(mySecretKeyBase64);
+        const remotePublicKey = util.decodeBase64(remotePublicKeyBase64);
+        return nacl.box.before(remotePublicKey, mySecretKey);
+      } catch(e) {
+        return null;
+      }
+    };
+
+    const encryptPayload = (payloadObj, sharedKey) => {
+      if (!sharedKey) return payloadObj;
+      try {
+        const nonce = nacl.randomBytes(nacl.box.nonceLength);
+        const messageUint8 = util.decodeUTF8(JSON.stringify(payloadObj));
+        const encrypted = nacl.box.after(messageUint8, nonce, sharedKey);
+        return {
+          isEncrypted: true,
+          nonce: util.encodeBase64(nonce),
+          data: util.encodeBase64(encrypted)
+        };
+      } catch(e) {
+        return payloadObj;
+      }
+    };
+
+    // Prepare full message data
+    const messageData = {
       text: basePayload.text || null,
       type: basePayload.type || null,
       url: basePayload.url || null,
@@ -2408,6 +2502,23 @@ export default function App() {
       audioData: basePayload.audioData || null,
       durationText: basePayload.durationText || null,
       voiceEffect: basePayload.voiceEffect || null,
+    };
+
+    // Find active contact to encrypt myMsg if it's not AI
+    let myMsgPayload = messageData;
+    if (activeChat?.id !== "ai") {
+      const contact = contacts.find(c => c.id === activeChat?.id);
+      if (contact && contact.publicKey) {
+        const sharedKey = getSharedKey(contact.publicKey);
+        myMsgPayload = encryptPayload(messageData, sharedKey);
+      }
+    }
+
+    const myMsg = cleanData({
+      id: Date.now(),
+      senderId: "me",
+      time,
+      ...myMsgPayload,
       expiresAt:
         isBurnMode && basePayload.type !== "gift" ? Date.now() + 10000 : null,
       replyTo: replyingTo
@@ -2421,16 +2532,23 @@ export default function App() {
       reactions: [],
     });
 
-    const myNextMsgs = {
+    const displayMsg = { ...myMsg, ...messageData, isEncrypted: false }; // So it displays properly immediately before roundtrip
+
+    const myNextMsgsForCloud = {
       ...messages,
       [activeChat?.id]: [...(messages?.[activeChat?.id] || []), myMsg],
     };
-    setMessages(myNextMsgs);
+    const myNextMsgsForState = {
+      ...messages,
+      [activeChat?.id]: [...(messages?.[activeChat?.id] || []), displayMsg],
+    };
+
+    setMessages(myNextMsgsForState);
     setInputText("");
     setReplyingTo(null);
     setIsBurnMode(false);
     // playNotificationSound() disabled;
-    await saveToCloud({ messages: myNextMsgs });
+    await saveToCloud({ messages: myNextMsgsForCloud });
 
     if (activeChat?.id === "ai") {
       const txt = String(myMsg.text || "").toLowerCase();
@@ -2454,12 +2572,16 @@ export default function App() {
             time,
             status: "read",
           };
-          const withAi = {
-            ...myNextMsgs,
-            ai: [...(myNextMsgs.ai || []), aiImg],
+          const withAiForCloud = {
+            ...myNextMsgsForCloud,
+            ai: [...(myNextMsgsForCloud.ai || []), aiImg],
           };
-          setMessages(withAi);
-          await saveToCloud({ messages: withAi });
+          const withAiForState = {
+            ...myNextMsgsForState,
+            ai: [...(myNextMsgsForState.ai || []), aiImg],
+          };
+          setMessages(withAiForState);
+          await saveToCloud({ messages: withAiForCloud });
           // playNotificationSound() disabled;
         } else {
           triggerToast("Platina AI", "Сервера художников перегружены 🎨");
@@ -2481,9 +2603,10 @@ export default function App() {
           time,
           status: "read",
         };
-        const withAi = { ...myNextMsgs, ai: [...(myNextMsgs.ai || []), aiMsg] };
-        setMessages(withAi);
-        await saveToCloud({ messages: withAi });
+        const withAiForCloud = { ...myNextMsgsForCloud, ai: [...(myNextMsgsForCloud.ai || []), aiMsg] };
+        const withAiForState = { ...myNextMsgsForState, ai: [...(myNextMsgsForState.ai || []), aiMsg] };
+        setMessages(withAiForState);
+        await saveToCloud({ messages: withAiForCloud });
         // playNotificationSound() disabled;
         setIsAiTyping(false);
       } else {
@@ -2502,12 +2625,16 @@ export default function App() {
             time,
             status: "read",
           };
-          const withAi = {
-            ...myNextMsgs,
-            ai: [...(myNextMsgs.ai || []), aiMsg],
+          const withAiForCloud = {
+            ...myNextMsgsForCloud,
+            ai: [...(myNextMsgsForCloud.ai || []), aiMsg],
           };
-          setMessages(withAi);
-          await saveToCloud({ messages: withAi });
+          const withAiForState = {
+            ...myNextMsgsForState,
+            ai: [...(myNextMsgsForState.ai || []), aiMsg],
+          };
+          setMessages(withAiForState);
+          await saveToCloud({ messages: withAiForCloud });
           // playNotificationSound() disabled;
           setIsAiTyping(false);
         }, 2000);
@@ -2521,6 +2648,14 @@ export default function App() {
           const fMsgs = fData.messages || {};
           const fContacts = fData.contacts || [aiUser];
           const meIndex = fContacts.findIndex((c) => c.id === currentUserAcc);
+          let myPublicKey = null;
+          try {
+            const mySnap = await getDoc(getAccRef(currentUserAcc));
+            if (mySnap.exists()) {
+              myPublicKey = mySnap.data().publicKey || null;
+            }
+          } catch(e) {}
+
           const myContactData = {
             id: currentUserAcc,
             name: settings.username || currentUserAcc,
@@ -2531,14 +2666,22 @@ export default function App() {
             isPremium: settings.isPremium,
             activeBadge: settings.activeBadge || null,
             officialBadge: settings.officialBadge || null,
+            publicKey: myPublicKey,
           };
           if (meIndex === -1) {
             fContacts.push(myContactData);
           } else {
             fContacts[meIndex] = { ...fContacts[meIndex], ...myContactData };
           }
+          let friendMsgPayload = messageData;
+          if (fData.publicKey) {
+            const sharedKey = getSharedKey(fData.publicKey);
+            friendMsgPayload = encryptPayload(messageData, sharedKey);
+          }
+
           const friendMsg = {
             ...myMsg,
+            ...friendMsgPayload,
             senderId: currentUserAcc,
             status: "unread",
           };
@@ -3296,6 +3439,7 @@ export default function App() {
           isRealUser: true,
           isPremium: d.settings?.isPremium,
           officialBadge: d.settings?.officialBadge || null,
+          publicKey: d.publicKey || null,
         };
         const next = [...contacts, newC];
         setContacts(next);
