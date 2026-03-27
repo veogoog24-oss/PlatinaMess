@@ -1550,17 +1550,28 @@ function AuthScreen({ onLogin, isDeviceReady }) {
       try {
         if (!window.recaptchaVerifier && document.getElementById('recaptcha-container')) {
           window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'invisible',
+            'size': 'normal',
             'callback': (response) => {
               // reCAPTCHA solved
+              console.log("reCAPTCHA solved:", response);
+              window.isRecaptchaSolved = true;
+            },
+            'expired-callback': () => {
+              window.isRecaptchaSolved = false;
             }
+          });
+          window.recaptchaVerifier.render().catch(e => {
+            console.warn("reCAPTCHA render error:", e);
           });
         }
       } catch (e) {
         console.warn("Recaptcha error:", e);
       }
     };
-    initRecaptcha();
+
+    // Slight delay to ensure element is in DOM after any remounts
+    const t = setTimeout(initRecaptcha, 500);
+    return () => clearTimeout(t);
   }, [auth, mode]);
 
   const handleSubmit = async (e) => {
@@ -1571,6 +1582,10 @@ function AuthScreen({ onLogin, isDeviceReady }) {
     }
     if (username.length < 5 || password.length < 6) {
       setError("Почта от 5 символов и пароль от 6 символов!");
+      return;
+    }
+    if (!window.isRecaptchaSolved) {
+      setError("Пожалуйста, пройдите капчу (reCAPTCHA) перед входом.");
       return;
     }
 
