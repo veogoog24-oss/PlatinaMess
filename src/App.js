@@ -1496,6 +1496,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [usernameHandle, setUsernameHandle] = useState("");
   const [bio, setBio] = useState("");
   const [birthday, setBirthday] = useState("");
   const [avatar, setAvatar] = useState(null);
@@ -1595,6 +1596,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
         const finalName = displayName.trim() !== "" ? displayName.trim() : (googleUser.displayName || email.split('@')[0] || login);
         const finalBio = bio.trim() || "Я в Platina Messenger";
         const finalAvatar = avatar || avatarPreview || googleUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${login}`;
+        const finalHandle = usernameHandle.trim().startsWith("@") ? usernameHandle.trim() : (usernameHandle.trim() ? `@${usernameHandle.trim()}` : null);
 
         await setDoc(
           ref,
@@ -1604,6 +1606,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
             settings: {
               ...defaultSettings,
               username: finalName,
+              usernameHandle: finalHandle,
               bio: finalBio,
               birthday,
               avatar: finalAvatar,
@@ -1696,6 +1699,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           avatar ||
           avatarPreview ||
           `https://api.dicebear.com/7.x/avataaars/svg?seed=${login}`;
+        const finalHandle = usernameHandle.trim().startsWith("@") ? usernameHandle.trim() : (usernameHandle.trim() ? `@${usernameHandle.trim()}` : null);
 
         await setDoc(
           ref,
@@ -1705,6 +1709,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
             settings: {
               ...defaultSettings,
               username: finalName,
+              usernameHandle: finalHandle,
               bio: finalBio,
               birthday,
               avatar: finalAvatar,
@@ -1847,6 +1852,16 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                     placeholder={t("disp_name", lang)}
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
+                    className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
+                  />
+                </div>
+                <div className="relative group">
+                  <span className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5 font-bold">@</span>
+                  <input
+                    type="text"
+                    placeholder="USERNAME"
+                    value={usernameHandle}
+                    onChange={(e) => setUsernameHandle(e.target.value)}
                     className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
                   />
                 </div>
@@ -5792,16 +5807,16 @@ export default function App() {
 
                 {activeSettingsTab === "wallet" && (
                   <div className="space-y-6 sm:space-y-10 animate-fade-in">
-                    <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 p-6 sm:p-8 lg:p-12 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-[#2b3949] shadow-xl lg:shadow-lg relative overflow-hidden">
+                    <div className={`p-6 sm:p-8 lg:p-12 rounded-xl sm:rounded-2xl lg:rounded-2xl border ${currentTheme.border} shadow-xl lg:shadow-lg relative overflow-hidden ${settings.theme === "light" ? "bg-gradient-to-br from-white to-zinc-100" : "bg-gradient-to-br from-zinc-900 to-zinc-950"}`}>
                       <div className="absolute top-0 right-0 -mr-10 -mt-10 sm:-mr-20 sm:-mt-20 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-cyan-500/20 rounded-full blur-[40px] sm:blur-[80px] lg:blur-[100px] animate-pulse-slow"></div>
                       <div className="relative z-10 flex flex-col items-center text-center mb-8 sm:mb-10 lg:mb-12">
                         <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-2xl sm:rounded-xl lg:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 lg:mb-8 shadow-md lg:shadow-md animate-bounce-slow border border-white/20">
                           <Wallet className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-cyan-950" />
                         </div>
-                        <h3 className="text-zinc-500 tracking-[0.3em] text-[8px] sm:text-[9px] lg:text-[10px] font-medium mb-2 sm:mb-3 lg:mb-4">
+                        <h3 className={`${settings.theme === "light" ? "text-zinc-600" : "text-zinc-500"} tracking-[0.3em] text-[8px] sm:text-[9px] lg:text-[10px] font-medium mb-2 sm:mb-3 lg:mb-4`}>
                           {getText("balance")}
                         </h3>
-                        <div className="text-3xl sm:text-5xl lg:text-7xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-cyan-200 to-cyan-600 flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 drop-shadow-xl lg:drop-shadow-lg">
+                        <div className={`text-3xl sm:text-5xl lg:text-7xl font-medium ${settings.theme === "light" ? "text-zinc-900" : "text-transparent bg-clip-text bg-gradient-to-b from-cyan-200 to-cyan-600"} flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 drop-shadow-xl lg:drop-shadow-lg`}>
                           {settings.balance}
                           {""}
                           <Gem className="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 text-cyan-400 fill-cyan-400" />
@@ -7251,6 +7266,13 @@ export default function App() {
                 </p>
               )}
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-5">
+                <button
+                  type="button"
+                  onClick={() => setShowBindEmailModal(false)}
+                  className={`w-full py-3 sm:py-4 lg:py-6 rounded-xl sm:rounded-2xl lg:rounded-2xl font-medium bg-[#17212b] text-zinc-500 hover:text-white transition-colors text-[9px] sm:text-[10px] lg:text-xs`}
+                >
+                  СДЕЛАТЬ ПОЗЖЕ
+                </button>
                 <button
                   type="submit"
                   disabled={bindEmailForm.loading}

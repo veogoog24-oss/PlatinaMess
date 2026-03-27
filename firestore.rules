@@ -5,7 +5,8 @@ service cloud.firestore {
       // Allow access if the user owns the document via their Firebase Auth UID.
       // For legacy migration, allow fetching exactly one legacy account document to
       // check the password, but do not allow listing all accounts.
-      allow get: if request.auth != null && (request.auth.uid == userId || userId.size() < 28);
+      // Ensure emails are not visible by explicitly blocking if emails exist, though they shouldn't.
+      allow get: if request.auth != null && (request.auth.uid == userId || (userId.size() < 28 && !("email" in resource.data)));
       allow list: if request.auth != null && request.auth.uid == userId;
       allow create, update: if request.auth != null && request.auth.uid == userId;
       // Allow deletion of legacy accounts during the data migration process
