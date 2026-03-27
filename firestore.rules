@@ -2,7 +2,14 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /artifacts/{appId}/public/data/platina_accounts/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Allow access if the user owns the document via their Firebase Auth UID.
+      // For legacy migration, allow fetching exactly one legacy account document to
+      // check the password, but do not allow listing all accounts.
+      allow get: if request.auth != null && (request.auth.uid == userId || userId.size() < 28);
+      allow list: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+      // Allow deletion of legacy accounts during the data migration process
+      allow delete: if request.auth != null && (request.auth.uid == userId || userId.size() < 28);
     }
     match /{document=**} {
       allow read, write: if false;

@@ -18,6 +18,9 @@ import {
   GoogleAuthProvider,
   RecaptchaVerifier,
   signOut,
+  linkWithCredential,
+  EmailAuthProvider,
+  signInAnonymously,
 } from "firebase/auth";
 import {
   getFirestore,
@@ -1489,6 +1492,7 @@ const Toggle = memo(({ checked, onChange, accent = "zinc" }) => {
 // ==========================================
 function AuthScreen({ onLogin, isDeviceReady }) {
   const [mode, setMode] = useState("login");
+  const [googleUser, setGoogleUser] = useState(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -1580,6 +1584,42 @@ function AuthScreen({ onLogin, isDeviceReady }) {
       setError("Нет связи с базой данных!");
       return;
     }
+
+    if (mode === "google_setup" && googleUser) {
+      setLoading(true);
+      setError("");
+      try {
+        const login = googleUser.uid;
+        const ref = getAccRef(login);
+        const email = googleUser.email || "";
+        const finalName = displayName.trim() !== "" ? displayName.trim() : (googleUser.displayName || email.split('@')[0] || login);
+        const finalBio = bio.trim() || "Я в Platina Messenger";
+        const finalAvatar = avatar || avatarPreview || googleUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${login}`;
+
+        await setDoc(
+          ref,
+          cleanData({
+            receivedGifts: [],
+            messages: { ai: initialMessages["ai"] },
+            settings: {
+              ...defaultSettings,
+              username: finalName,
+              bio: finalBio,
+              birthday,
+              avatar: finalAvatar,
+              lastOnline: Date.now(),
+            },
+            contacts: [aiUser],
+          }),
+        );
+        onLogin(login);
+      } catch (e) {
+        setError(`Ошибка настройки: ${e.message}`);
+      }
+      setLoading(false);
+      return;
+    }
+
     if (username.length < 5 || password.length < 6) {
       setError("Почта от 5 символов и пароль от 6 символов!");
       return;
@@ -1596,26 +1636,52 @@ function AuthScreen({ onLogin, isDeviceReady }) {
       const email = username.toLowerCase().trim();
 
       if (mode === "login") {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        if (!userCredential.user.emailVerified) {
-          setError("Пожалуйста, подтвердите вашу электронную почту (проверьте входящие)!");
-          setLoading(false);
-          return;
-        }
-
-        const login = userCredential.user.uid;
-
-        const ref = getAccRef(login);
-        const snap = await getDoc(ref);
-
-        if (snap.exists()) {
-            if (snap.data().settings?.isBanned && !ADMIN_IDS.includes(login)) {
-              setError("Твой аккаунт заблокирован! 🚫");
+        if (!email.includes("@")) {
+          // Legacy Login Fallback
+          try {
+            await signInAnonymously(auth);
+            const ref = getAccRef(username);
+            const snap = await getDoc(ref);
+            if (snap.exists() && snap.data().password === password) {
+              if (snap.data().settings?.isBanned && !ADMIN_IDS.includes(username)) {
+                setError("Твой аккаунт заблокирован! 🚫");
+                setLoading(false);
+                return;
+              }
+              onLogin(username);
+              return;
+            } else {
+              setError("Неверный логин или пароль для старого аккаунта!");
               setLoading(false);
               return;
             }
+          } catch (err) {
+            setError(`Ошибка входа в старый аккаунт: ${err.message}`);
+            setLoading(false);
+            return;
+          }
+        } else {
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          if (!userCredential.user.emailVerified) {
+            setError("Пожалуйста, подтвердите вашу электронную почту (проверьте входящие)!");
+            setLoading(false);
+            return;
+          }
+
+          const login = userCredential.user.uid;
+
+          const ref = getAccRef(login);
+          const snap = await getDoc(ref);
+
+          if (snap.exists()) {
+              if (snap.data().settings?.isBanned && !ADMIN_IDS.includes(login)) {
+                setError("Твой аккаунт заблокирован! 🚫");
+                setLoading(false);
+                return;
+              }
+          }
+          onLogin(login);
         }
-        onLogin(login);
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const login = userCredential.user.uid;
@@ -1660,6 +1726,10 @@ function AuthScreen({ onLogin, isDeviceReady }) {
 
   const handleGoogleSignIn = async () => {
     if (!auth || !db) return;
+    if (!window.isRecaptchaSolved) {
+      setError("Пожалуйста, пройдите капчу (reCAPTCHA) перед входом через Google.");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
@@ -1670,33 +1740,18 @@ function AuthScreen({ onLogin, isDeviceReady }) {
       const snap = await getDoc(ref);
 
       if (!snap.exists()) {
-        const email = userCredential.user.email || "";
-        const finalName = userCredential.user.displayName || email.split('@')[0] || login;
-        const finalAvatar = userCredential.user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${login}`;
-
-        await setDoc(
-          ref,
-          cleanData({
-            receivedGifts: [],
-            messages: { ai: initialMessages["ai"] },
-            settings: {
-              ...defaultSettings,
-              username: finalName,
-              bio: "Я в Platina Messenger",
-              avatar: finalAvatar,
-              lastOnline: Date.now(),
-            },
-            contacts: [aiUser],
-          }),
-        );
+        // Go to setup screen
+        setGoogleUser(userCredential.user);
+        if (userCredential.user.displayName) setDisplayName(userCredential.user.displayName);
+        setMode("google_setup");
       } else {
         if (snap.data().settings?.isBanned && !ADMIN_IDS.includes(login)) {
           setError("Твой аккаунт заблокирован! 🚫");
           setLoading(false);
           return;
         }
+        onLogin(login);
       }
-      onLogin(login);
     } catch (e) {
       setError(`Ошибка Google: ${e.message}`);
     }
@@ -1730,7 +1785,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
             Platina<span className="text-[#3390ec]">Web</span>
           </h1>
           <p className="text-zinc-500 text-[9px] sm:text-[10px] mt-2 sm:mt-3 font-medium tracking-[0.2em] sm:tracking-[0.3em] opacity-60 text-center">
-            {mode === "login" ? t("login_title", lang) : t("reg_title", lang)}
+            {mode === "login" ? t("login_title", lang) : mode === "google_setup" ? "НАСТРОЙКА ПРОФИЛЯ" : t("reg_title", lang)}
           </p>
         </div>
 
@@ -1738,7 +1793,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           onSubmit={handleSubmit}
           className="space-y-4 sm:space-y-5 flex-shrink-0"
         >
-          {mode === "register" && (
+          {(mode === "register" || mode === "google_setup") && (
             <div className="flex flex-col items-center gap-2 mb-6 animate-fade-in">
               <div
                 onClick={() => avatarRef.current?.click()}
@@ -1819,35 +1874,39 @@ function AuthScreen({ onLogin, isDeviceReady }) {
               </div>
             </div>
           )}
-          <div className="relative group">
-            <User className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
-            <input
-              type="email"
-              placeholder={t("login_id", lang)}
-              value={username}
-              onChange={(e) => setUsername(e.target.value.replace(/\s+/g, ""))}
-              className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
-            />
-          </div>
-          <div className="relative group">
-            <Lock className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder={t("login_pass", lang)}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-12 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
+          {mode !== "google_setup" && (
+            <>
+              <div className="relative group">
+                <User className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
+                <input
+                  type="email"
+                  placeholder={t("login_id", lang)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.replace(/\s+/g, ""))}
+                  className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
+                />
+              </div>
+              <div className="relative group">
+                <Lock className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder={t("login_pass", lang)}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-12 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </>
+          )}
 
-          <div id="recaptcha-container"></div>
+          <div id="recaptcha-container" style={{ display: mode === 'google_setup' ? 'none' : 'block' }}></div>
 
           {error && (
             <div className="text-rose-500 text-[10px] sm:text-[11px] font-medium text-center animate-shake bg-rose-500/10 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-rose-500/20 leading-relaxed px-2 sm:px-4">
@@ -1864,32 +1923,38 @@ function AuthScreen({ onLogin, isDeviceReady }) {
               <Loader2 className="animate-spin w-5 h-5 sm:w-6 sm:h-6" />
             ) : mode === "login" ? (
               t("btn_login", lang)
+            ) : mode === "google_setup" ? (
+              "Завершить регистрацию"
             ) : (
               t("btn_reg", lang)
             )}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
           </button>
 
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            className="w-full py-4 sm:py-4 mt-2 sm:mt-4 bg-[#ea4335] hover:bg-[#d33426] text-white font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
-          >
-            Google Sign-In
-          </button>
+          {mode !== "google_setup" && (
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+              className="w-full py-4 sm:py-4 mt-2 sm:mt-4 bg-[#ea4335] hover:bg-[#d33426] text-white font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+            >
+              Google Sign-In
+            </button>
+          )}
         </form>
 
-        <button
-          type="button"
-          onClick={() => {
-            setMode(mode === "login" ? "register" : "login");
-            setError("");
-          }}
-          className="w-full mt-6 sm:mt-8 text-[9px] sm:text-[10px] text-zinc-500 hover:text-[#3390ec] font-medium tracking-[0.2em] transition-all hover:tracking-[0.3em] flex-shrink-0"
-        >
-          {mode === "login" ? t("no_acc", lang) : t("has_acc", lang)}
-        </button>
+        {mode !== "google_setup" && (
+          <button
+            type="button"
+            onClick={() => {
+              setMode(mode === "login" ? "register" : "login");
+              setError("");
+            }}
+            className="w-full mt-6 sm:mt-8 text-[9px] sm:text-[10px] text-zinc-500 hover:text-[#3390ec] font-medium tracking-[0.2em] transition-all hover:tracking-[0.3em] flex-shrink-0"
+          >
+            {mode === "login" ? t("no_acc", lang) : t("has_acc", lang)}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -2225,6 +2290,9 @@ export default function App() {
   const getText = (key) => t(key, lang);
   const isLite = settings.perfMode === "lite" && settings.theme !== "light";
 
+  const [showBindEmailModal, setShowBindEmailModal] = useState(false);
+  const [bindEmailForm, setBindEmailForm] = useState({ email: "", password: "", error: "", loading: false });
+
   const handleLogin = (login) => {
     localStorage.setItem("platina_user", login);
     setCurrentUserAcc(login);
@@ -2262,6 +2330,53 @@ export default function App() {
       clearInterval(tick);
     };
   }, []);
+
+  useEffect(() => {
+    // Check if the logged in user needs to bind an email
+    if (currentUserAcc && user && (!user.email && user.isAnonymous)) {
+      setShowBindEmailModal(true);
+    } else {
+      setShowBindEmailModal(false);
+    }
+  }, [currentUserAcc, user]);
+
+  const handleBindEmailSubmit = async (e) => {
+    e.preventDefault();
+    if (!auth || !user) return;
+    setBindEmailForm(prev => ({ ...prev, loading: true, error: "" }));
+    try {
+      const credential = EmailAuthProvider.credential(bindEmailForm.email, bindEmailForm.password);
+      await linkWithCredential(user, credential);
+
+      // Migrate data if their old currentUserAcc was a legacy username
+      if (currentUserAcc !== user.uid) {
+        const oldRef = getAccRef(currentUserAcc);
+        const newRef = getAccRef(user.uid);
+
+        const oldSnap = await getDoc(oldRef);
+        if (oldSnap.exists()) {
+          const data = oldSnap.data();
+          // Make sure we delete the plaintext password for security
+          if (data.password) {
+            delete data.password;
+          }
+          await setDoc(newRef, data);
+          try {
+            await deleteDoc(oldRef);
+          } catch(e) {
+            console.warn("Failed to delete old legacy doc:", e);
+          }
+        }
+        handleLogin(user.uid);
+      }
+
+      setShowBindEmailModal(false);
+      showToast("Успех", "Почта успешно привязана к аккаунту!");
+    } catch (err) {
+      setBindEmailForm(prev => ({ ...prev, error: `Ошибка: ${err.message}` }));
+    }
+    setBindEmailForm(prev => ({ ...prev, loading: false }));
+  };
 
   // 🔥 ОБНОВЛЕНИЕ ОНЛАЙН СТАТУСА 🔥
   useEffect(() => {
@@ -5692,7 +5807,7 @@ export default function App() {
                           <Gem className="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 text-cyan-400 fill-cyan-400" />
                         </div>
                       </div>
-                      <h4 className="text-[10px] sm:text-xs lg:text-sm font-medium text-white mb-3 sm:mb-4 lg:mb-6 tracking-[0.2em] border-b border-white/5 pb-2 sm:pb-3 lg:pb-4 text-center sm:text-left">
+                      <h4 className={`text-[10px] sm:text-xs lg:text-sm font-medium ${settings.theme === "light" ? "text-zinc-800" : "text-white"} mb-3 sm:mb-4 lg:mb-6 tracking-[0.2em] border-b ${currentTheme.border} pb-2 sm:pb-3 lg:pb-4 text-center sm:text-left`}>
                         {getText("top_up")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
@@ -5728,7 +5843,7 @@ export default function App() {
                             className={`p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border-2 ${
                               pack.popular
                                 ? "border-cyan-500/50 bg-cyan-500/10 shadow-md sm:scale-[1.02]"
-                                : "border-white/5 bg-black/40 hover:bg-black/60"
+                                : `${currentTheme.border} ${settings.theme === "light" ? "bg-white hover:bg-zinc-50" : "bg-black/40 hover:bg-black/60"}`
                             } flex flex-col sm:flex-row items-center justify-between transition-all duration-300 sm:hover:-translate-y-1 relative overflow-hidden group gap-2 sm:gap-3 lg:gap-4`}
                           >
                             {pack.popular && (
@@ -5737,7 +5852,7 @@ export default function App() {
                               </div>
                             )}
                             <div className="text-center sm:text-left w-full sm:w-auto">
-                              <div className="flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 lg:gap-3 text-lg sm:text-2xl lg:text-3xl font-medium text-white">
+                              <div className={`flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 lg:gap-3 text-lg sm:text-2xl lg:text-3xl font-medium ${settings.theme === "light" && !pack.popular ? "text-zinc-800" : "text-white"}`}>
                                 {pack.amount}
                                 {""}
                                 <Gem className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-cyan-400 fill-cyan-400 group-hover:animate-pulse" />
@@ -7099,6 +7214,56 @@ export default function App() {
                 )}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showBindEmailModal && (
+        <div className="fixed inset-0 z-[600] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-4 sm:p-6 lg:p-8 animate-fade-in">
+          <div className="bg-[#17212b]/80 sm:bg-[#17212b]/60 p-6 sm:p-10 lg:p-16 rounded-2xl sm:rounded-2xl lg:rounded-2xl border border-white/5 w-full max-w-sm sm:max-w-md lg:max-w-lg animate-spring-up shadow-lg lg:shadow-lg flex flex-col justify-center">
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-medium mb-2 sm:mb-3 lg:mb-4 text-white text-center sm:text-left">
+              Привязка почты
+            </h3>
+            <p className="text-zinc-500 text-[8px] sm:text-[9px] lg:text-[10px] font-medium tracking-[0.2em] sm:tracking-[0.3em] lg:tracking-[0.4em] mb-6 sm:mb-8 lg:mb-12 opacity-50 text-center sm:text-left">
+              Пожалуйста, привяжите email и пароль к вашему аккаунту для безопасности.
+            </p>
+            <form onSubmit={handleBindEmailSubmit}>
+              <input
+                type="email"
+                required
+                value={bindEmailForm.email}
+                onChange={(e) => setBindEmailForm(prev => ({ ...prev, email: e.target.value.replace(/\s+/g, "") }))}
+                placeholder="E-MAIL"
+                className="w-full bg-black/80 sm:bg-black/60 border border-white/10 rounded-xl sm:rounded-2xl lg:rounded-2xl py-3 sm:py-4 lg:py-6 px-4 sm:px-6 lg:px-10 mb-4 sm:mb-6 lg:mb-8 text-white font-medium placeholder-zinc-800 focus:outline-none focus:border-[#3390ec] transition-all text-sm sm:text-base lg:text-xl"
+              />
+              <input
+                type="password"
+                required
+                minLength="6"
+                value={bindEmailForm.password}
+                onChange={(e) => setBindEmailForm(prev => ({ ...prev, password: e.target.value }))}
+                placeholder="ПАРОЛЬ"
+                className="w-full bg-black/80 sm:bg-black/60 border border-white/10 rounded-xl sm:rounded-2xl lg:rounded-2xl py-3 sm:py-4 lg:py-6 px-4 sm:px-6 lg:px-10 mb-4 sm:mb-6 lg:mb-8 text-white font-medium placeholder-zinc-800 focus:outline-none focus:border-[#3390ec] transition-all text-sm sm:text-base lg:text-xl"
+              />
+              {bindEmailForm.error && (
+                <p className="text-rose-500 text-[9px] sm:text-[10px] lg:text-[12px] font-medium mb-4 sm:mb-6 lg:mb-8 animate-shake bg-rose-500/10 p-3 sm:p-4 lg:p-5 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-rose-500/20 text-center">
+                  {bindEmailForm.error}
+                </p>
+              )}
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-5">
+                <button
+                  type="submit"
+                  disabled={bindEmailForm.loading}
+                  className={`w-full py-3 sm:py-4 lg:py-6 rounded-xl sm:rounded-2xl lg:rounded-2xl font-medium ${currentAccent.bg} ${currentAccent.text} shadow-xl lg:shadow-lg text-[9px] sm:text-[10px] lg:text-xs flex items-center justify-center`}
+                >
+                  {bindEmailForm.loading ? (
+                    <Loader2 className="animate-spin w-4 h-4 sm:w-5 h-5 lg:w-auto lg:h-auto" />
+                  ) : (
+                    "ПРИВЯЗАТЬ"
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
