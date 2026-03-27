@@ -9,9 +9,15 @@ import React, {
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
-  signInAnonymously,
   onAuthStateChanged,
   signInWithCustomToken,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+  signInWithPopup,
+  GoogleAuthProvider,
+  RecaptchaVerifier,
+  signOut,
 } from "firebase/auth";
 import {
   getFirestore,
@@ -26,16 +32,6 @@ import {
   deleteDoc,
   arrayUnion,
 } from "firebase/firestore";
-
-// ==========================================
-// 🎨 АВТО-ЗАГРУЗКА ДИЗАЙНА (TAILWIND CSS)
-// ==========================================
-if (typeof window !== "undefined" && !document.getElementById("tailwind-cdn")) {
-  const script = document.createElement("script");
-  script.id = "tailwind-cdn";
-  script.src = "https://cdn.tailwindcss.com";
-  document.head.appendChild(script);
-}
 
 // ==========================================
 // 🎨 ИКОНКИ (LUCIDE-REACT)
@@ -155,7 +151,7 @@ const DICT = {
   ru: {
     login_title: "С возвращением.",
     reg_title: "Создай свой аккаунт.",
-    login_id: "ЛОГИН (ID)",
+    login_id: "E-MAIL",
     login_pass: "ПАРОЛЬ",
     btn_login: "ВОЙТИ В СЕТЬ",
     btn_reg: "РЕГИСТРАЦИЯ",
@@ -263,7 +259,7 @@ const DICT = {
   en: {
     login_title: "Welcome back.",
     reg_title: "Create your account.",
-    login_id: "LOGIN (ID)",
+    login_id: "E-MAIL",
     login_pass: "PASSWORD",
     btn_login: "LOGIN",
     btn_reg: "REGISTER",
@@ -1548,14 +1544,33 @@ function AuthScreen({ onLogin, isDeviceReady }) {
     reader.readAsDataURL(file);
   };
 
+  useEffect(() => {
+    if (!auth) return;
+    const initRecaptcha = () => {
+      try {
+        if (!window.recaptchaVerifier && document.getElementById('recaptcha-container')) {
+          window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            'size': 'invisible',
+            'callback': (response) => {
+              // reCAPTCHA solved
+            }
+          });
+        }
+      } catch (e) {
+        console.warn("Recaptcha error:", e);
+      }
+    };
+    initRecaptcha();
+  }, [auth, mode]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!db) {
+    if (!auth || !db) {
       setError("Нет связи с базой данных!");
       return;
     }
-    if (username.length < 3 || password.length < 3) {
-      setError("Логин и пароль от 3 символов!");
+    if (username.length < 5 || password.length < 6) {
+      setError("Почта от 5 символов и пароль от 6 символов!");
       return;
     }
 
@@ -1563,57 +1578,113 @@ function AuthScreen({ onLogin, isDeviceReady }) {
     setError("");
 
     try {
-      const login = username.toLowerCase().trim();
+      const email = username.toLowerCase().trim();
+
+      if (mode === "login") {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        if (!userCredential.user.emailVerified) {
+          setError("Пожалуйста, подтвердите вашу электронную почту (проверьте входящие)!");
+          setLoading(false);
+          return;
+        }
+
+        const login = userCredential.user.uid;
+
+        const ref = getAccRef(login);
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+            if (snap.data().settings?.isBanned && !ADMIN_IDS.includes(login)) {
+              setError("Твой аккаунт заблокирован! 🚫");
+              setLoading(false);
+              return;
+            }
+        }
+        onLogin(login);
+      } else {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const login = userCredential.user.uid;
+        await sendEmailVerification(userCredential.user);
+
+        const ref = getAccRef(login);
+
+        const finalName =
+          displayName.trim() !== "" ? displayName.trim() : email.split('@')[0];
+        const finalBio = bio.trim() || "Я в Platina Messenger";
+        const finalAvatar =
+          avatar ||
+          avatarPreview ||
+          `https://api.dicebear.com/7.x/avataaars/svg?seed=${login}`;
+
+        await setDoc(
+          ref,
+          cleanData({
+            receivedGifts: [],
+            messages: { ai: initialMessages["ai"] },
+            settings: {
+              ...defaultSettings,
+              username: finalName,
+              bio: finalBio,
+              birthday,
+              avatar: finalAvatar,
+              lastOnline: Date.now(),
+            },
+            contacts: [aiUser],
+          }),
+        );
+        await signOut(auth);
+        setError("Письмо отправлено. Подтвердите почту и войдите.");
+        setMode("login");
+      }
+    } catch (e) {
+      setError(`Ошибка: ${e.message}`);
+    }
+
+    setLoading(false);
+  };
+
+  const handleGoogleSignIn = async () => {
+    if (!auth || !db) return;
+    setLoading(true);
+    setError("");
+    try {
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      const login = userCredential.user.uid;
       const ref = getAccRef(login);
       const snap = await getDoc(ref);
 
-      if (mode === "login") {
-        if (snap.exists() && snap.data().password === password) {
-          if (snap.data().settings?.isBanned && !ADMIN_IDS.includes(login)) {
-            setError("Твой аккаунт заблокирован! 🚫");
-            setLoading(false);
-            return;
-          }
-          onLogin(login);
-        } else {
-          setError("Неверный логин или пароль ❌");
-        }
-      } else {
-        if (snap.exists()) {
-          setError("Логин уже занят 😢");
-        } else {
-          const finalName =
-            displayName.trim() !== "" ? displayName.trim() : login;
-          const finalBio = bio.trim() || "Я в Platina Messenger";
-          const finalAvatar =
-            avatar ||
-            avatarPreview ||
-            `https://api.dicebear.com/7.x/avataaars/svg?seed=${login}`;
+      if (!snap.exists()) {
+        const email = userCredential.user.email || "";
+        const finalName = userCredential.user.displayName || email.split('@')[0] || login;
+        const finalAvatar = userCredential.user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${login}`;
 
-          await setDoc(
-            ref,
-            cleanData({
-              password,
-              receivedGifts: [],
-              messages: { ai: initialMessages["ai"] },
-              settings: {
-                ...defaultSettings,
-                username: finalName,
-                bio: finalBio,
-                birthday,
-                avatar: finalAvatar,
-                lastOnline: Date.now(),
-              },
-              contacts: [aiUser],
-            }),
-          );
-          onLogin(login);
+        await setDoc(
+          ref,
+          cleanData({
+            receivedGifts: [],
+            messages: { ai: initialMessages["ai"] },
+            settings: {
+              ...defaultSettings,
+              username: finalName,
+              bio: "Я в Platina Messenger",
+              avatar: finalAvatar,
+              lastOnline: Date.now(),
+            },
+            contacts: [aiUser],
+          }),
+        );
+      } else {
+        if (snap.data().settings?.isBanned && !ADMIN_IDS.includes(login)) {
+          setError("Твой аккаунт заблокирован! 🚫");
+          setLoading(false);
+          return;
         }
       }
+      onLogin(login);
     } catch (e) {
-      setError("Ошибка Firebase! Проверьте подключение.");
+      setError(`Ошибка Google: ${e.message}`);
     }
-
     setLoading(false);
   };
 
@@ -1736,7 +1807,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           <div className="relative group">
             <User className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
             <input
-              type="text"
+              type="email"
               placeholder={t("login_id", lang)}
               value={username}
               onChange={(e) => setUsername(e.target.value.replace(/\s+/g, ""))}
@@ -1761,6 +1832,8 @@ function AuthScreen({ onLogin, isDeviceReady }) {
             </button>
           </div>
 
+          <div id="recaptcha-container"></div>
+
           {error && (
             <div className="text-rose-500 text-[10px] sm:text-[11px] font-medium text-center animate-shake bg-rose-500/10 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-rose-500/20 leading-relaxed px-2 sm:px-4">
               {error}
@@ -1780,6 +1853,15 @@ function AuthScreen({ onLogin, isDeviceReady }) {
               t("btn_reg", lang)
             )}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full py-4 sm:py-4 mt-2 sm:mt-4 bg-[#ea4335] hover:bg-[#d33426] text-white font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+          >
+            Google Sign-In
           </button>
         </form>
 
@@ -2151,7 +2233,6 @@ export default function App() {
       try {
         if (typeof __initial_auth_token !== "undefined" && __initial_auth_token)
           await signInWithCustomToken(auth, __initial_auth_token);
-        else await signInAnonymously(auth);
       } catch (e) {
         console.warn(e);
       } finally {
