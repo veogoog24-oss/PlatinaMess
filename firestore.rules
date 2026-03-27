@@ -6,11 +6,14 @@ service cloud.firestore {
       // For legacy migration, allow fetching exactly one legacy account document to
       // check the password, but do not allow listing all accounts.
       // Ensure emails are not visible by explicitly blocking if emails exist, though they shouldn't.
-      allow get: if request.auth != null && (request.auth.uid == userId || (userId.size() < 28 && !("email" in resource.data)));
+      allow get: if request.auth != null && (request.auth.uid == userId || (!("password" in resource.data) && !("email" in resource.data)) || (userId.size() < 28 && !("email" in resource.data)));
       allow list: if request.auth != null && request.auth.uid == userId;
       allow create, update: if request.auth != null && request.auth.uid == userId;
       // Allow deletion of legacy accounts during the data migration process
       allow delete: if request.auth != null && (request.auth.uid == userId || userId.size() < 28);
+    }
+    match /artifacts/{appId}/public/data/platina_calls/{callId} {
+      allow read, write: if request.auth != null;
     }
     match /{document=**} {
       allow read, write: if false;

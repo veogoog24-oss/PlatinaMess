@@ -19,6 +19,7 @@ import {
   RecaptchaVerifier,
   signOut,
   linkWithCredential,
+  linkWithPopup,
   EmailAuthProvider,
   signInAnonymously,
 } from "firebase/auth";
@@ -1758,7 +1759,11 @@ function AuthScreen({ onLogin, isDeviceReady }) {
         onLogin(login);
       }
     } catch (e) {
-      setError(`Ошибка Google: ${e.message}`);
+      if (e.code === 'auth/account-exists-with-different-credential' || e.code === 'auth/email-already-in-use') {
+        setError("Этот email уже зарегистрирован через почту/пароль. Пожалуйста, войдите обычным способом, а затем привяжите Google в настройках.");
+      } else {
+        setError(`Ошибка Google: ${e.message}`);
+      }
     }
     setLoading(false);
   };
@@ -6027,6 +6032,35 @@ export default function App() {
                             </button>
                           </div>
                         </div>
+
+                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5 shadow-inner">
+                          <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-zinc-500 ml-1 lg:ml-2 tracking-[0.2em]">
+                            ПРИВЯЗКА АККАУНТОВ
+                          </label>
+                          <div className="mt-1.5 sm:mt-2 lg:mt-3">
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (!auth.currentUser) return;
+                                try {
+                                  const provider = new GoogleAuthProvider();
+                                  await linkWithPopup(auth.currentUser, provider);
+                                  triggerToast("Успех", "Google аккаунт привязан!");
+                                } catch (error) {
+                                  if (error.code === 'auth/credential-already-in-use') {
+                                    triggerToast("Ошибка", "Этот Google аккаунт уже привязан к другому пользователю");
+                                  } else {
+                                    triggerToast("Ошибка", `Не удалось привязать: ${error.message}`);
+                                  }
+                                }
+                              }}
+                              className="w-full bg-[#ea4335] hover:bg-[#d33426] text-white text-xs sm:text-sm lg:text-base font-medium px-4 py-3 sm:py-4 rounded-lg sm:rounded-xl transition-colors active:scale-95 flex items-center justify-center shadow-md"
+                            >
+                              Привязать Google
+                            </button>
+                          </div>
+                        </div>
+
                       </div>
                     </div>
                   </div>
