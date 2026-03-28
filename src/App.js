@@ -1554,32 +1554,6 @@ function AuthScreen({ onLogin, isDeviceReady }) {
 
   useEffect(() => {
     if (!auth) return;
-    const initRecaptcha = () => {
-      try {
-        if (!window.recaptchaVerifier && document.getElementById('recaptcha-container')) {
-          window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'normal',
-            'callback': (response) => {
-              // reCAPTCHA solved
-              console.log("reCAPTCHA solved:", response);
-              window.isRecaptchaSolved = true;
-            },
-            'expired-callback': () => {
-              window.isRecaptchaSolved = false;
-            }
-          });
-          window.recaptchaVerifier.render().catch(e => {
-            console.warn("reCAPTCHA render error:", e);
-          });
-        }
-      } catch (e) {
-        console.warn("Recaptcha error:", e);
-      }
-    };
-
-    // Slight delay to ensure element is in DOM after any remounts
-    const t = setTimeout(initRecaptcha, 500);
-    return () => clearTimeout(t);
   }, [auth, mode]);
 
   const handleSubmit = async (e) => {
@@ -1629,10 +1603,6 @@ function AuthScreen({ onLogin, isDeviceReady }) {
 
     if (username.length < 5 || password.length < 6) {
       setError("Почта от 5 символов и пароль от 6 символов!");
-      return;
-    }
-    if (!window.isRecaptchaSolved) {
-      setError("Пожалуйста, пройдите капчу (reCAPTCHA) перед входом.");
       return;
     }
 
@@ -1757,10 +1727,6 @@ function AuthScreen({ onLogin, isDeviceReady }) {
 
   const handleGoogleSignIn = async () => {
     if (!auth || !db) return;
-    if (!window.isRecaptchaSolved) {
-      setError("Пожалуйста, пройдите капчу (reCAPTCHA) перед входом через Google.");
-      return;
-    }
     setLoading(true);
     setError("");
     try {
@@ -1951,7 +1917,6 @@ function AuthScreen({ onLogin, isDeviceReady }) {
             </>
           )}
 
-          <div id="recaptcha-container" style={{ display: mode === 'google_setup' ? 'none' : 'block' }}></div>
 
           {error && (
             <div className="text-rose-500 text-[10px] sm:text-[11px] font-medium text-center animate-shake bg-rose-500/10 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-rose-500/20 leading-relaxed px-2 sm:px-4">
@@ -2474,15 +2439,15 @@ export default function App() {
             triggerToast("ОЙ", "Твой аккаунт заблокирован! 🚫");
             return;
           }
-          if (data.settings.incomingCall && !callState) {
+          if (data.incomingCall && !callState) {
             if (
               !incomingCallData ||
-              incomingCallData.roomId !== data.settings.incomingCall.roomId
+              incomingCallData.roomId !== data.incomingCall.roomId
             ) {
-              setIncomingCallData(data.settings.incomingCall);
+              setIncomingCallData(data.incomingCall);
               // playNotificationSound() disabled;
             }
-          } else if (!data.settings.incomingCall && incomingCallData) {
+          } else if (!data.incomingCall && incomingCallData) {
             setIncomingCallData(null);
           }
         }
@@ -2980,7 +2945,7 @@ export default function App() {
 
       const peerRef = getAccRef(activeChat?.id);
       await updateDoc(peerRef, {
-        "settings.incomingCall": { roomId, callerId: currentUserAcc, type },
+        "incomingCall": { roomId, callerId: currentUserAcc, type },
       });
 
       callDocUnsubRef.current = onSnapshot(roomRef, async (snap) => {
@@ -3057,7 +3022,7 @@ export default function App() {
     iceCandidatesQueueRef.current = [];
 
     updateDoc(getAccRef(currentUserAcc), {
-      "settings.incomingCall": null,
+      "incomingCall": null,
     }).catch(() => {});
 
     try {
@@ -3205,7 +3170,7 @@ export default function App() {
       );
       updateDoc(roomRef, { status: "rejected" }).catch(() => {});
       updateDoc(getAccRef(currentUserAcc), {
-        "settings.incomingCall": null,
+        "incomingCall": null,
       }).catch(() => {});
       setIncomingCallData(null);
     }
@@ -3236,10 +3201,10 @@ export default function App() {
       updateDoc(roomRef, { status: "ended" }).catch(() => {});
       if (callState?.peer)
         updateDoc(getAccRef(callState.peer.id), {
-          "settings.incomingCall": null,
+          "incomingCall": null,
         }).catch(() => {});
       updateDoc(getAccRef(currentUserAcc), {
-        "settings.incomingCall": null,
+        "incomingCall": null,
       }).catch(() => {});
     }
     currentCallRoomIdRef.current = null;
