@@ -1228,33 +1228,20 @@ const initialMessages = {
 };
 
 const callGemini = async (prompt, systemInstruction) => {
-  const apiKey = myFirebaseConfig.apiKey;
-  if (!apiKey) return "API ключ не настроен 🔑";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-  const payload = {
-    contents: [{ parts: [{ text: prompt }] }],
-    systemInstruction: { parts: [{ text: systemInstruction }] },
-  };
+  // Use simple GET for pollinations to bypass strict CORS on POST for free web clients
+  const url = `https://text.pollinations.ai/${encodeURIComponent("System: " + systemInstruction + "\nUser: " + prompt)}`;
   try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      if (res.status === 403) {
-        return "Привет! Я ИИ-ассистент. Мой API-ключ временно заблокирован или недействителен. Но я всё равно с тобой на связи! 😉";
-      }
-      throw new Error(`API Error: ${res.status}`);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`API Error: ${res.status}`);
+    const text = await res.text();
+
+    // Ignore legacy deprecation warnings in their response if they show up
+    if (text && text.includes("IMPORTANT NOTICE")) {
+      return text.replace(/⚠️ \*\*IMPORTANT NOTICE\*\* ⚠️[\s\S]*Note: Anonymous requests to text\.pollinations\.ai are NOT affected and will continue to work normally\./, '').trim() || "Бро, нейросеть прилегла. Зайди позже. 💿";
     }
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    return (
-      data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Бро, нейросеть прилегла. Зайди позже. 💿"
-    );
+    return text || "Бро, нейросеть прилегла. Зайди позже. 💿";
   } catch (error) {
-    console.error("Gemini Error:", error);
+    console.error("AI Error:", error);
     return `Ошибка ИИ: ${error.message} 🔌`;
   }
 };
