@@ -1971,6 +1971,14 @@ export default function App() {
       .sort((a, b) => b.count - a.count)
       .slice(0, 3);
 
+    const bannedCount = adminUsersList.filter(u => u.settings?.isBanned).length;
+    const premiumCount = adminUsersList.filter(u => u.settings?.isPremium).length;
+
+    // Check for active calls across all users
+    const activeCallsCount = adminUsersList.filter(u => u.incomingCall !== undefined && u.incomingCall !== null).length;
+
+    const premiumConv = ((premiumCount / adminUsersList.length) * 100).toFixed(1);
+
     return {
       topGift: topGift ? `${topGift[0]} (${topGift[1]})` : "—",
       topSpender: topSpender ? `${topSpender[0]} (${topSpender[1]} 💎)` : "—",
@@ -2117,6 +2125,60 @@ export default function App() {
           "АДМИН",
           `Юзер ${targetId} ${value ? "ЗАБАНЕН 🚫" : "РАЗБАНЕН ✅"}`,
         );
+      } else if (action === "set_username_handle") {
+         await updateDoc(ref, { "settings.usernameHandle": value });
+         triggerToast("АДМИН", `Хэндл юзера ${targetId} изменен на ${value}`);
+      } else if (action === "send_system_gift") {
+         const giftMsg = {
+             id: Date.now(),
+             senderId: "ai",
+             type: "gift",
+             text: `Системный подарок: ${value.name}`,
+             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+             gift: value,
+             status: "read",
+         };
+         await updateDoc(ref, {
+             [`messages.ai`]: arrayUnion(giftMsg)
+         });
+         triggerToast("АДМИН", `Системный подарок отправлен ${targetId}`);
+      } else if (action === "clear_avatar") {
+         await updateDoc(ref, { "settings.avatar": null });
+         triggerToast("АДМИН", `Аватар ${targetId} удален`);
+      } else if (action === "edit_bio") {
+         await updateDoc(ref, { "settings.bio": value });
+         triggerToast("АДМИН", `Био ${targetId} изменено`);
+      } else if (action === "force_logout") {
+         // Implement a specific token flag or ban that logs them out based on client checks
+         await updateDoc(ref, { "settings.forceLogoutTimestamp": Date.now() });
+         triggerToast("АДМИН", `Сигнал выхода отправлен ${targetId}`);
+      } else if (action === "grant_premium_days") {
+         const days = parseInt(value) || 1;
+         const newExp = Date.now() + days * 24 * 60 * 60 * 1000;
+         await updateDoc(ref, {
+             "settings.isPremium": true,
+             "settings.premiumExpiresAt": newExp
+         });
+         triggerToast("АДМИН", `${targetId} получил Premium на ${days} дней`);
+      } else if (action === "clear_contacts") {
+         await updateDoc(ref, { contacts: [] });
+         triggerToast("АДМИН", `Контакты ${targetId} очищены`);
+      } else if (action === "send_system_message") {
+         const msg = {
+             id: Date.now(),
+             senderId: "ai",
+             text: value,
+             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+             status: "read",
+         };
+         await updateDoc(ref, { [`messages.ai`]: arrayUnion(msg) });
+         triggerToast("АДМИН", `Сообщение отправлено ${targetId}`);
+      } else if (action === "end_all_calls") {
+          for (const u of adminUsersList) {
+             const uRef = getAccRef(u.id);
+             await updateDoc(uRef, { incomingCall: null });
+          }
+          triggerToast("АДМИН", "Все звонки сброшены");
       }
       fetchAdminUsers();
     } catch (e) {
