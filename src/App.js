@@ -4661,14 +4661,14 @@ const startCall = async (type) => {
                           className="absolute top-0 right-0 w-24 h-24 sm:w-40 sm:h-40 rounded-full blur-3xl -mr-8 -mt-8 sm:-mr-12 sm:-mt-12"
                           style={{ backgroundColor: g.glow }}
                         ></div>
-                        <span className="text-6xl sm:text-8xl mb-4 sm:mb-6 animate-float drop-shadow-lg z-10">
+                        <span className="text-6xl sm:text-8xl mb-4 sm:mb-6 animate-float drop-shadow-lg z-10 relative">
                           {g.icon}
                         </span>
-                        <div className="z-10 flex flex-col items-center text-center">
+                        <div className="z-10 flex flex-col items-center text-center relative">
                           <p className="text-white/80 text-[8px] sm:text-[10px] font-medium mb-1 sm:mb-2">
                             {isMe
                               ? getText("sent_gift")
-                              : `${activeChat.name} ${getText("gets_gift")}`}
+                              : `${activeChat?.name || g.fromName || g.from || ""} ${getText("gets_gift")}`}
                           </p>
                           <p
                             className={`${g.text} font-medium text-lg sm:text-2xl drop-shadow-md mb-3 sm:mb-4 `}
@@ -4726,7 +4726,7 @@ const startCall = async (type) => {
                         </div>
                       )}
 
-                      <div className="relative flex flex-col w-full">
+                      <div className="relative flex flex-col w-fit max-w-full">
                         {/* Меню сообщения */}
                         <div
                           className={`absolute -top-6 sm:-top-8 z-50 ${
