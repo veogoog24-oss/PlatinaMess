@@ -156,7 +156,7 @@ const DICT = {
   ru: {
     login_title: "С возвращением.",
     reg_title: "Создай свой аккаунт.",
-    login_id: "ЮЗЕРНЕЙМ",
+    login_id: "E-MAIL",
     login_pass: "ПАРОЛЬ",
     btn_login: "ВОЙТИ В СЕТЬ",
     btn_reg: "РЕГИСТРАЦИЯ",
@@ -264,7 +264,7 @@ const DICT = {
   en: {
     login_title: "Welcome back.",
     reg_title: "Create your account.",
-    login_id: "USERNAME",
+    login_id: "E-MAIL",
     login_pass: "PASSWORD",
     btn_login: "LOGIN",
     btn_reg: "REGISTER",
@@ -1606,11 +1606,8 @@ function AuthScreen({ onLogin, isDeviceReady }) {
     }
 
     if (mode === "register") {
-      const requestedHandle = usernameHandle.replace('@', '').toLowerCase().trim();
-      if (requestedHandle.length < 3 || requestedHandle.includes(" ")) {
-        setError("Юзернейм должен быть от 3 символов без пробелов!");
-        return;
-      }
+      setError("Регистрация возможна только через Google.");
+      return;
     }
 
     if (username.length < 5 || password.length < 6) {
@@ -1622,98 +1619,29 @@ function AuthScreen({ onLogin, isDeviceReady }) {
     setError("");
 
     try {
-      const loginHandle = username.replace('@', '').toLowerCase().trim();
+      const email = username.toLowerCase().trim();
 
       if (mode === "login") {
-        const usernameRef = doc(db, "artifacts", appId, "public", "data", "platina_usernames", loginHandle);
-        const usernameSnap = await getDoc(usernameRef);
-
-        if (!usernameSnap.exists()) {
-          setError("Пользователь не найден!");
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        if (!userCredential.user.emailVerified) {
+          setError("Пожалуйста, подтвердите вашу электронную почту (проверьте входящие)!");
           setLoading(false);
           return;
         }
 
-        const login = usernameSnap.data().uid;
+        const login = userCredential.user.uid;
+
         const ref = getAccRef(login);
         const snap = await getDoc(ref);
 
-        if (!snap.exists()) {
-          setError("Аккаунт не найден!");
-          setLoading(false);
-          return;
+        if (snap.exists()) {
+            if (snap.data().settings?.isBanned && snap.data().settings?.usernameHandle !== "@levkkkaw") {
+              setError("Твой аккаунт заблокирован! 🚫");
+              setLoading(false);
+              return;
+            }
         }
-
-        const accountData = snap.data();
-        if (accountData.settings?.isBanned && accountData.settings?.usernameHandle !== "@levkkkaw") {
-          setError("Твой аккаунт заблокирован! 🚫");
-          setLoading(false);
-          return;
-        }
-
-        if (accountData.password) {
-          const isPasswordValid = bcrypt.compareSync(password, accountData.password);
-          if (!isPasswordValid) {
-            setError("Неверный пароль!");
-            setLoading(false);
-            return;
-          }
-        } else {
-            setError("Этот аккаунт привязан к Google. Войдите через Google.");
-            setLoading(false);
-            return;
-        }
-
-        await signInAnonymously(auth);
         onLogin(login);
-      } else {
-        const requestedHandle = usernameHandle.replace('@', '').toLowerCase().trim();
-        const usernameRef = doc(db, "artifacts", appId, "public", "data", "platina_usernames", requestedHandle);
-        const usernameSnap = await getDoc(usernameRef);
-        if (usernameSnap.exists()) {
-          setError("Этот юзернейм уже занят!");
-          setLoading(false);
-          return;
-        }
-
-        const userCredential = await signInAnonymously(auth);
-        const login = userCredential.user.uid;
-
-        await setDoc(usernameRef, { uid: login });
-
-        const ref = getAccRef(login);
-
-        const finalName =
-          displayName.trim() !== "" ? displayName.trim() : email.split('@')[0];
-        const finalBio = bio.trim() || "Я в Platina Messenger";
-        const finalAvatar =
-          avatar ||
-          avatarPreview ||
-          `https://api.dicebear.com/7.x/avataaars/svg?seed=${login}`;
-        const finalHandle = `@${requestedHandle}`;
-
-        await setDoc(
-          ref,
-          cleanData({
-            email: loginHandle,
-            password: bcrypt.hashSync(password, 10),
-            receivedGifts: [],
-            messages: { ai: initialMessages["ai"] },
-            settings: {
-              ...defaultSettings,
-              username: finalName,
-              usernameHandle: finalHandle,
-              bio: finalBio,
-              birthday,
-              avatar: finalAvatar,
-              lastOnline: Date.now(),
-            },
-            contacts: [aiUser],
-          }),
-        );
-        await signOut(auth);
-        setError("Аккаунт создан. Теперь вы можете войти.");
-        setMode("login");
       }
     } catch (e) {
       setError(`Ошибка: ${e.message}`);
@@ -1722,11 +1650,27 @@ function AuthScreen({ onLogin, isDeviceReady }) {
     setLoading(false);
   };
 
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier && auth) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response) => {
+          // reCAPTCHA solved
+        }
+      });
+    }
+  };
+
   const handleGoogleSignIn = async () => {
     if (!auth || !db) return;
     setLoading(true);
     setError("");
+
     try {
+      setupRecaptcha();
+      const appVerifier = window.recaptchaVerifier;
+      await appVerifier.verify(); // Verify reCAPTCHA before login
+
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
       const login = userCredential.user.uid;
@@ -1887,7 +1831,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
               <div className="relative group">
                 <User className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
                 <input
-                  type="text"
+                  type="email"
                   placeholder={t("login_id", lang)}
                   value={username}
                   onChange={(e) => setUsername(e.target.value.replace(/\s+/g, ""))}
@@ -1928,12 +1872,10 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           >
             {loading ? (
               <Loader2 className="animate-spin w-5 h-5 sm:w-6 sm:h-6" />
-            ) : mode === "login" ? (
-              t("btn_login", lang)
             ) : mode === "google_setup" ? (
               "Завершить регистрацию"
             ) : (
-              t("btn_reg", lang)
+              t("btn_login", lang)
             )}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
           </button>
@@ -1945,23 +1887,13 @@ function AuthScreen({ onLogin, isDeviceReady }) {
               disabled={loading}
               className="w-full py-4 sm:py-4 mt-2 sm:mt-4 bg-[#ea4335] hover:bg-[#d33426] text-white font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
             >
-              Google Sign-In
+            Войти через Google
             </button>
           )}
         </form>
 
-        {mode !== "google_setup" && (
-          <button
-            type="button"
-            onClick={() => {
-              setMode(mode === "login" ? "register" : "login");
-              setError("");
-            }}
-            className="w-full mt-6 sm:mt-8 text-[9px] sm:text-[10px] text-zinc-500 hover:text-[#3390ec] font-medium tracking-[0.2em] transition-all hover:tracking-[0.3em] flex-shrink-0"
-          >
-            {mode === "login" ? t("no_acc", lang) : t("has_acc", lang)}
-          </button>
-        )}
+        {/* Registration is forced through Google Sign-In, so we hide the toggle text and only leave the button */}
+        <div id="recaptcha-container"></div>
       </div>
     </div>
   );
@@ -2420,7 +2352,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Email/Password auth is disabled in Firebase, so do not prompt to bind email
+    // Email authentication disabled, do not show bind email
     setShowBindEmailModal(false);
   }, [currentUserAcc, user]);
 
