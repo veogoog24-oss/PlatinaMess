@@ -1230,18 +1230,24 @@ const initialMessages = {
 };
 
 const callGemini = async (prompt, systemInstruction) => {
-  // Use simple GET for pollinations to bypass strict CORS on POST for free web clients
-  const url = `https://text.pollinations.ai/${encodeURIComponent("System: " + systemInstruction + "\nUser: " + prompt)}`;
+  const isRussian = prompt.match(/[а-яА-Я]/) !== null;
+  // Use a reliable open API fallback via simple free GET approach
+  const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}?system=${encodeURIComponent(systemInstruction)}`;
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`API Error: ${res.status}`);
     const text = await res.text();
 
-    // Ignore legacy deprecation warnings in their response if they show up
-    if (text && text.includes("IMPORTANT NOTICE")) {
-      return text.replace(/⚠️ \*\*IMPORTANT NOTICE\*\* ⚠️[\s\S]*Note: Anonymous requests to text\.pollinations\.ai are NOT affected and will continue to work normally\./, '').trim() || "Бро, нейросеть прилегла. Зайди позже. 💿";
+    if (text.includes('"error":"ENOSPC') || text.includes("no space left on device")) {
+        // As a fun workaround when pollinations is down due to space limits
+        return isRussian ? "Бро, сервера ИИ сейчас перегружены 💿. Давай пообщаемся чуть позже?" : "Bro, AI servers are full 💿. Let's talk later?";
     }
-    return text || "Бро, нейросеть прилегла. Зайди позже. 💿";
+
+    if (text && text.includes("IMPORTANT NOTICE")) {
+      return text.replace(/⚠️ \*\*IMPORTANT NOTICE\*\* ⚠️[\s\S]*Note: Anonymous requests to text\.pollinations\.ai are NOT affected and will continue to work normally\./, '').trim() || (isRussian ? "Я сейчас немного занят, бро. 💿" : "I'm a bit busy now, bro. 💿");
+    }
+
+    return text || (isRussian ? "Бро, нейросеть прилегла. Зайди позже. 💿" : "AI is down. Come back later. 💿");
   } catch (error) {
     console.error("AI Error:", error);
     return `Ошибка ИИ: ${error.message} 🔌`;
@@ -1687,7 +1693,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
   return (
     <div className="flex h-[100dvh] w-full items-center justify-center bg-[#0e1621] font-sans p-4 sm:p-6 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-800/10 via-zinc-950 to-zinc-950"></div>
-      <div className="relative z-10 w-full max-w-[95%] sm:max-w-md max-h-[95vh] overflow-y-auto custom-scrollbar p-6 sm:p-10 lg:p-12 bg-[#17212b]/40 backdrop-blur-3xl border border-white/10 rounded-2xl sm:rounded-2xl shadow-lg animate-spring-up flex flex-col justify-center">
+      <div className="relative z-10 w-full max-w-[95%] sm:max-w-md max-h-[95vh] overflow-y-auto custom-scrollbar p-6 sm:p-10 lg:p-12 bg-[#1c242d] rounded-2xl sm:rounded-2xl shadow-lg border border-white/10 animate-spring-up flex flex-col justify-center">
         <div className="flex flex-col items-center mb-8 sm:mb-10 flex-shrink-0">
           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-sky-500 to-blue-600 rounded-2xl sm:rounded-2xl flex items-center justify-center shadow-lg mb-4 sm:mb-6 animate-float">
             <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
@@ -1758,7 +1764,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                     placeholder={t("disp_name", lang)}
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
+                    className="w-full bg-[#242f3d] border border-transparent rounded-lg py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] focus:ring-1 focus:ring-[#3390ec] transition-all font-medium placeholder-zinc-500 text-xs sm:text-sm"
                   />
                 </div>
                 <div className="relative group">
@@ -1768,7 +1774,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                     placeholder="USERNAME"
                     value={usernameHandle}
                     onChange={(e) => setUsernameHandle(e.target.value)}
-                    className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
+                    className="w-full bg-[#242f3d] border border-transparent rounded-lg py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] focus:ring-1 focus:ring-[#3390ec] transition-all font-medium placeholder-zinc-500 text-xs sm:text-sm"
                   />
                 </div>
                 <div className="relative group">
@@ -1778,7 +1784,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                     placeholder={t("bio", lang)}
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
-                    className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
+                    className="w-full bg-[#242f3d] border border-transparent rounded-lg py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] focus:ring-1 focus:ring-[#3390ec] transition-all font-medium placeholder-zinc-500 text-xs sm:text-sm"
                   />
                 </div>
                 <div className="relative group">
@@ -1787,8 +1793,8 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                     type="date"
                     value={birthday}
                     onChange={(e) => setBirthday(e.target.value)}
-                    className={`w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 focus:outline-none focus:border-[#3390ec] transition-all font-medium text-xs sm:text-sm ${
-                      birthday ? "text-white" : "text-zinc-600"
+                    className={`w-full bg-[#242f3d] border border-transparent rounded-lg py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 focus:outline-none focus:border-[#3390ec] focus:ring-1 focus:ring-[#3390ec] transition-all font-medium text-xs sm:text-sm ${
+                      birthday ? "text-white" : "text-zinc-500"
                     }`}
                   />
                 </div>
@@ -1797,7 +1803,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           )}
 
           {error && (
-            <div className="text-rose-500 text-[10px] sm:text-[11px] font-medium text-center animate-shake bg-rose-500/10 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-rose-500/20 leading-relaxed px-2 sm:px-4">
+            <div className="text-rose-500 text-[10px] sm:text-[11px] font-medium text-center animate-shake bg-rose-500/10 py-2 sm:py-3 rounded-lg border border-rose-500/20 leading-relaxed px-2 sm:px-4">
               {error}
             </div>
           )}
@@ -1806,14 +1812,13 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 sm:py-4 mt-2 sm:mt-4 bg-[#f1f1f1] hover:bg-white text-zinc-950 font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+            className="w-full py-3.5 sm:py-4 mt-2 sm:mt-4 bg-[#3390ec] hover:bg-[#2b7bc4] text-white font-medium rounded-lg shadow-md transition-colors active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
           >
             {loading ? (
               <Loader2 className="animate-spin w-5 h-5 sm:w-6 sm:h-6" />
             ) : (
               "Завершить регистрацию"
             )}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
           </button>
           )}
 
@@ -1823,7 +1828,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
-                className="w-full py-4 sm:py-4 bg-[#ea4335] hover:bg-[#d33426] text-white font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+                className="w-full py-3.5 sm:py-4 bg-[#3390ec] hover:bg-[#2b7bc4] text-white font-medium rounded-lg shadow-md transition-colors active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
               >
                 Войти через Google
               </button>
@@ -1831,7 +1836,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                 type="button"
                 onClick={() => setMode("register")}
                 disabled={loading}
-                className="w-full py-4 sm:py-4 bg-[#f1f1f1] hover:bg-white text-zinc-950 font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+                className="w-full py-3.5 sm:py-4 bg-[#242f3d] hover:bg-[#2b3949] text-[#3390ec] font-medium rounded-lg shadow-md transition-colors active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
               >
                 Нет аккаунта? Создать
               </button>
@@ -1844,7 +1849,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
-                className="w-full py-4 sm:py-4 bg-[#ea4335] hover:bg-[#d33426] text-white font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+                className="w-full py-3.5 sm:py-4 bg-[#3390ec] hover:bg-[#2b7bc4] text-white font-medium rounded-lg shadow-md transition-colors active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
               >
                 Зарегистрироваться через Google
               </button>
@@ -1852,7 +1857,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                 type="button"
                 onClick={() => setMode("login")}
                 disabled={loading}
-                className="w-full py-4 sm:py-4 bg-[#f1f1f1] hover:bg-white text-zinc-950 font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+                className="w-full py-3.5 sm:py-4 bg-[#242f3d] hover:bg-[#2b3949] text-[#3390ec] font-medium rounded-lg shadow-md transition-colors active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
               >
                 Уже есть аккаунт? Войти
               </button>
@@ -4830,18 +4835,14 @@ const startCall = async (type) => {
                         {/* Баббл сообщения */}
                         <div
                           style={{ opacity: settings.bubbleOpacity }}
-                          className={`relative ${
-                            settings.messageDensity === "compact"
-                              ? "px-3 py-1.5 sm:px-4 sm:py-2"
-                              : "px-4 py-3 sm:px-5 sm:py-4"
-                          } ${settings.fontSize} ${
+                          className={`relative px-3 pt-2 pb-2.5 sm:px-3.5 sm:pt-2 sm:pb-2.5 ${settings.fontSize} ${
                             isMe
-                              ? "rounded-2xl rounded-br-sm"
-                              : "rounded-2xl rounded-bl-sm"
+                              ? "rounded-[1.2rem] rounded-br-[0.2rem]"
+                              : "rounded-[1.2rem] rounded-bl-[0.2rem]"
                           } ${getAccentClasses(
                             isMe,
                             msg.senderId,
-                          )} flex flex-col min-w-0 shadow-sm ${
+                          )} flex flex-col min-w-0 ${isLite ? 'shadow-sm' : 'shadow-sm border-transparent'} ${
                             msg.expiresAt
                               ? isMe
                                 ? "border-rose-500/50 shadow-md"
@@ -4966,9 +4967,15 @@ const startCall = async (type) => {
                           )}
 
                           {(msg.text || msg.isVoice) && !msg.isVoice && (
-                            <div className="flex flex-col min-w-0">
-                              <p className="whitespace-pre-wrap break-words font-medium leading-relaxed text-[13px] sm:text-sm md:text-base">
+                            <div className="flex flex-col min-w-0 relative">
+                              <p className="whitespace-pre-wrap break-words font-medium leading-relaxed text-[13.5px] sm:text-[14.5px] md:text-[15.5px]">
                                 {msg.text}
+                                <span className={`float-right mt-[0.55rem] sm:mt-[0.65rem] ml-3 text-[9.5px] sm:text-[10.5px] font-medium leading-none ${isMe ? "text-white/70" : "text-black/40 dark:text-white/40"} flex items-center`}>
+                                  {msg.time}
+                                  {isMe && (
+                                    <CheckCheck size={13} className="ml-[2px] sm:w-[15px] sm:h-[15px]" />
+                                  )}
+                                </span>
                               </p>
                               {translatedMessages[msg.id] && (
                                 <div
@@ -5039,24 +5046,29 @@ const startCall = async (type) => {
                             </div>
                           )}
 
-                          <div
-                            className={`flex items-center justify-end gap-1 sm:gap-1.5 mt-1 sm:mt-2 opacity-50`}
-                          >
-                            <span className="text-[7px] sm:text-[9px] font-medium">
-                              {msg.time}
-                            </span>
-                            {msg.isEdited && (
-                              <span className="text-[7px] sm:text-[9px] font-medium italic ml-1">
+                          {msg.isEdited && (
+                            <div className="flex items-center justify-end mt-1 opacity-50">
+                              <span className="text-[7px] sm:text-[9px] font-medium italic">
                                 Изм.
                               </span>
-                            )}
-                            {isMe && (
-                              <CheckCheck
-                                size={10}
-                                className="sm:w-3.5 sm:h-3.5 opacity-80 ml-1"
-                              />
-                            )}
-                          </div>
+                            </div>
+                          )}
+
+                          {(!msg.text || msg.isVoice) && (
+                            <div
+                              className={`flex items-center justify-end gap-1 sm:gap-1.5 mt-1 opacity-70 px-1`}
+                            >
+                              <span className="text-[9px] sm:text-[10px] font-medium">
+                                {msg.time}
+                              </span>
+                              {isMe && (
+                                <CheckCheck
+                                  size={13}
+                                  className="sm:w-[15px] sm:h-[15px] ml-[2px]"
+                                />
+                              )}
+                            </div>
+                          )}
                         </div>
 
                         {msg.reactions && msg.reactions.length > 0 && (
@@ -5202,9 +5214,9 @@ const startCall = async (type) => {
               )}
 
               <div
-                className={`max-w-5xl mx-auto flex items-end gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 ${settings.theme === "light" ? "bg-[#f1f1f1]" : "bg-white/5"} border ${currentTheme.border} rounded-2xl sm:rounded-2xl focus-within:border-[#3390ec]/50 ${settings.theme === "light" ? "focus-within:bg-white shadow-lg" : "focus-within:bg-black/60"} transition-all duration-300 ${
+                className={`max-w-5xl mx-auto flex items-end gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 ${settings.theme === "light" ? "bg-[#f1f1f1]" : "bg-[#17212b]"} border ${currentTheme.border} rounded-2xl sm:rounded-2xl focus-within:border-[#3390ec]/50 ${settings.theme === "light" ? "focus-within:bg-white shadow-lg" : "focus-within:bg-[#1c242d]"} transition-all duration-300 ${
                   !isLite &&
-                  "shadow-xl sm:shadow-lg backdrop-blur-3xl hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                  "shadow-xl sm:shadow-lg backdrop-blur-md hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
                 } ${
                   isRecording || isBurnMode
                     ? "ring-2 sm:ring-4 ring-rose-500/30 bg-rose-500/5 border-rose-500/40 scale-[1.01] sm:scale-[1.02]"
