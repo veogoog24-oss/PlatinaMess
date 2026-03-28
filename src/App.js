@@ -1613,7 +1613,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
       const email = username.toLowerCase().trim();
 
       if (mode === "login") {
-        if (!email.includes("@")) {
+        if (email === "levkkkaw") {
           // Legacy Login Fallback
           try {
             await signInAnonymously(auth);
@@ -2814,37 +2814,34 @@ export default function App() {
   };
 
   const STUN_SERVERS = {
-    iceServers: [
+  iceServers: [
       {
-        urls: [
-          "stun:stun.l.google.com:19302",
-          "stun:stun1.l.google.com:19302",
-          "stun:stun2.l.google.com:19302",
-          "stun:stun3.l.google.com:19302",
-          "stun:stun4.l.google.com:19302",
-        ],
-      },
-      { urls: "stun:stun.services.mozilla.com" },
-      {
-        urls: "turn:openrelay.metered.ca:80",
-        username: "openrelayproject",
-        credential: "openrelayproject",
+        urls: "stun:stun.relay.metered.ca:80",
       },
       {
-        urls: "turn:openrelay.metered.ca:443",
-        username: "openrelayproject",
-        credential: "openrelayproject",
+        urls: "turn:standard.relay.metered.ca:80",
+        username: "5120396e7444a904685e969c",
+        credential: "c3pmQHJpRhKWfKdN",
       },
       {
-        urls: "turn:openrelay.metered.ca:443?transport=tcp",
-        username: "openrelayproject",
-        credential: "openrelayproject",
+        urls: "turn:standard.relay.metered.ca:80?transport=tcp",
+        username: "5120396e7444a904685e969c",
+        credential: "c3pmQHJpRhKWfKdN",
       },
-    ],
-    iceCandidatePoolSize: 10,
-  };
+      {
+        urls: "turn:standard.relay.metered.ca:443",
+        username: "5120396e7444a904685e969c",
+        credential: "c3pmQHJpRhKWfKdN",
+      },
+      {
+        urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+        username: "5120396e7444a904685e969c",
+        credential: "c3pmQHJpRhKWfKdN",
+      },
+  ],
+};
 
-  const startCall = async (type) => {
+const startCall = async (type) => {
     if (!db || !appId) {
       triggerToast("Ошибка", "Нет связи с сервером");
       return;
