@@ -156,7 +156,7 @@ const DICT = {
   ru: {
     login_title: "С возвращением.",
     reg_title: "Создай свой аккаунт.",
-    login_id: "E-MAIL",
+    login_id: "ЮЗЕРНЕЙМ",
     login_pass: "ПАРОЛЬ",
     btn_login: "ВОЙТИ В СЕТЬ",
     btn_reg: "РЕГИСТРАЦИЯ",
@@ -264,7 +264,7 @@ const DICT = {
   en: {
     login_title: "Welcome back.",
     reg_title: "Create your account.",
-    login_id: "E-MAIL",
+    login_id: "USERNAME",
     login_pass: "PASSWORD",
     btn_login: "LOGIN",
     btn_reg: "REGISTER",
@@ -1622,28 +1622,49 @@ function AuthScreen({ onLogin, isDeviceReady }) {
     setError("");
 
     try {
-      const email = username.toLowerCase().trim();
+      const loginHandle = username.replace('@', '').toLowerCase().trim();
 
       if (mode === "login") {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        if (!userCredential.user.emailVerified) {
-          setError("Пожалуйста, подтвердите вашу электронную почту (проверьте входящие)!");
+        const usernameRef = doc(db, "artifacts", appId, "public", "data", "platina_usernames", loginHandle);
+        const usernameSnap = await getDoc(usernameRef);
+
+        if (!usernameSnap.exists()) {
+          setError("Пользователь не найден!");
           setLoading(false);
           return;
         }
 
-        const login = userCredential.user.uid;
-
+        const login = usernameSnap.data().uid;
         const ref = getAccRef(login);
         const snap = await getDoc(ref);
 
-        if (snap.exists()) {
-            if (snap.data().settings?.isBanned && snap.data().settings?.usernameHandle !== "@levkkkaw") {
-              setError("Твой аккаунт заблокирован! 🚫");
-              setLoading(false);
-              return;
-            }
+        if (!snap.exists()) {
+          setError("Аккаунт не найден!");
+          setLoading(false);
+          return;
         }
+
+        const accountData = snap.data();
+        if (accountData.settings?.isBanned && accountData.settings?.usernameHandle !== "@levkkkaw") {
+          setError("Твой аккаунт заблокирован! 🚫");
+          setLoading(false);
+          return;
+        }
+
+        if (accountData.password) {
+          const isPasswordValid = bcrypt.compareSync(password, accountData.password);
+          if (!isPasswordValid) {
+            setError("Неверный пароль!");
+            setLoading(false);
+            return;
+          }
+        } else {
+            setError("Этот аккаунт привязан к Google. Войдите через Google.");
+            setLoading(false);
+            return;
+        }
+
+        await signInAnonymously(auth);
         onLogin(login);
       } else {
         const requestedHandle = usernameHandle.replace('@', '').toLowerCase().trim();
@@ -1655,12 +1676,10 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           return;
         }
 
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInAnonymously(auth);
         const login = userCredential.user.uid;
 
         await setDoc(usernameRef, { uid: login });
-
-        await sendEmailVerification(userCredential.user);
 
         const ref = getAccRef(login);
 
@@ -1676,6 +1695,8 @@ function AuthScreen({ onLogin, isDeviceReady }) {
         await setDoc(
           ref,
           cleanData({
+            email: loginHandle,
+            password: bcrypt.hashSync(password, 10),
             receivedGifts: [],
             messages: { ai: initialMessages["ai"] },
             settings: {
@@ -1691,7 +1712,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           }),
         );
         await signOut(auth);
-        setError("Письмо отправлено. Подтвердите почту и войдите.");
+        setError("Аккаунт создан. Теперь вы можете войти.");
         setMode("login");
       }
     } catch (e) {
@@ -1866,7 +1887,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
               <div className="relative group">
                 <User className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
                 <input
-                  type="email"
+                  type="text"
                   placeholder={t("login_id", lang)}
                   value={username}
                   onChange={(e) => setUsername(e.target.value.replace(/\s+/g, ""))}
@@ -2399,12 +2420,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Check if the logged in user needs to bind an email
-    if (currentUserAcc && user && (!user.email && user.isAnonymous)) {
-      setShowBindEmailModal(true);
-    } else {
-      setShowBindEmailModal(false);
-    }
+    // Email/Password auth is disabled in Firebase, so do not prompt to bind email
+    setShowBindEmailModal(false);
   }, [currentUserAcc, user]);
 
   const handleBindEmailSubmit = async (e) => {
