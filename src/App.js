@@ -1606,11 +1606,8 @@ function AuthScreen({ onLogin, isDeviceReady }) {
     }
 
     if (mode === "register") {
-      const requestedHandle = usernameHandle.replace('@', '').toLowerCase().trim();
-      if (requestedHandle.length < 3 || requestedHandle.includes(" ")) {
-        setError("Юзернейм должен быть от 3 символов без пробелов!");
-        return;
-      }
+      setError("Регистрация возможна только через Google.");
+      return;
     }
 
     if (username.length < 5 || password.length < 6) {
@@ -1645,54 +1642,6 @@ function AuthScreen({ onLogin, isDeviceReady }) {
             }
         }
         onLogin(login);
-      } else {
-        const requestedHandle = usernameHandle.replace('@', '').toLowerCase().trim();
-        const usernameRef = doc(db, "artifacts", appId, "public", "data", "platina_usernames", requestedHandle);
-        const usernameSnap = await getDoc(usernameRef);
-        if (usernameSnap.exists()) {
-          setError("Этот юзернейм уже занят!");
-          setLoading(false);
-          return;
-        }
-
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const login = userCredential.user.uid;
-
-        await setDoc(usernameRef, { uid: login });
-
-        await sendEmailVerification(userCredential.user);
-
-        const ref = getAccRef(login);
-
-        const finalName =
-          displayName.trim() !== "" ? displayName.trim() : email.split('@')[0];
-        const finalBio = bio.trim() || "Я в Platina Messenger";
-        const finalAvatar =
-          avatar ||
-          avatarPreview ||
-          `https://api.dicebear.com/7.x/avataaars/svg?seed=${login}`;
-        const finalHandle = `@${requestedHandle}`;
-
-        await setDoc(
-          ref,
-          cleanData({
-            receivedGifts: [],
-            messages: { ai: initialMessages["ai"] },
-            settings: {
-              ...defaultSettings,
-              username: finalName,
-              usernameHandle: finalHandle,
-              bio: finalBio,
-              birthday,
-              avatar: finalAvatar,
-              lastOnline: Date.now(),
-            },
-            contacts: [aiUser],
-          }),
-        );
-        await signOut(auth);
-        setError("Письмо отправлено. Подтвердите почту и войдите.");
-        setMode("login");
       }
     } catch (e) {
       setError(`Ошибка: ${e.message}`);
@@ -1701,11 +1650,27 @@ function AuthScreen({ onLogin, isDeviceReady }) {
     setLoading(false);
   };
 
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier && auth) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response) => {
+          // reCAPTCHA solved
+        }
+      });
+    }
+  };
+
   const handleGoogleSignIn = async () => {
     if (!auth || !db) return;
     setLoading(true);
     setError("");
+
     try {
+      setupRecaptcha();
+      const appVerifier = window.recaptchaVerifier;
+      await appVerifier.verify(); // Verify reCAPTCHA before login
+
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
       const login = userCredential.user.uid;
@@ -1907,12 +1872,10 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           >
             {loading ? (
               <Loader2 className="animate-spin w-5 h-5 sm:w-6 sm:h-6" />
-            ) : mode === "login" ? (
-              t("btn_login", lang)
             ) : mode === "google_setup" ? (
               "Завершить регистрацию"
             ) : (
-              t("btn_reg", lang)
+              t("btn_login", lang)
             )}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
           </button>
@@ -1924,23 +1887,13 @@ function AuthScreen({ onLogin, isDeviceReady }) {
               disabled={loading}
               className="w-full py-4 sm:py-4 mt-2 sm:mt-4 bg-[#ea4335] hover:bg-[#d33426] text-white font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
             >
-              Google Sign-In
+            Войти через Google
             </button>
           )}
         </form>
 
-        {mode !== "google_setup" && (
-          <button
-            type="button"
-            onClick={() => {
-              setMode(mode === "login" ? "register" : "login");
-              setError("");
-            }}
-            className="w-full mt-6 sm:mt-8 text-[9px] sm:text-[10px] text-zinc-500 hover:text-[#3390ec] font-medium tracking-[0.2em] transition-all hover:tracking-[0.3em] flex-shrink-0"
-          >
-            {mode === "login" ? t("no_acc", lang) : t("has_acc", lang)}
-          </button>
-        )}
+        {/* Registration is forced through Google Sign-In, so we hide the toggle text and only leave the button */}
+        <div id="recaptcha-container"></div>
       </div>
     </div>
   );
@@ -2399,12 +2352,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Check if the logged in user needs to bind an email
-    if (currentUserAcc && user && (!user.email && user.isAnonymous)) {
-      setShowBindEmailModal(true);
-    } else {
-      setShowBindEmailModal(false);
-    }
+    // Email authentication disabled, do not show bind email
+    setShowBindEmailModal(false);
   }, [currentUserAcc, user]);
 
   const handleBindEmailSubmit = async (e) => {
