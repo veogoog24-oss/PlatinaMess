@@ -156,7 +156,7 @@ const DICT = {
   ru: {
     login_title: "С возвращением.",
     reg_title: "Создай свой аккаунт.",
-    login_id: "E-MAIL",
+    login_id: "ЮЗЕРНЕЙМ",
     login_pass: "ПАРОЛЬ",
     btn_login: "ВОЙТИ В СЕТЬ",
     btn_reg: "РЕГИСТРАЦИЯ",
@@ -264,7 +264,7 @@ const DICT = {
   en: {
     login_title: "Welcome back.",
     reg_title: "Create your account.",
-    login_id: "E-MAIL",
+    login_id: "USERNAME",
     login_pass: "PASSWORD",
     btn_login: "LOGIN",
     btn_reg: "REGISTER",
@@ -1605,49 +1605,17 @@ function AuthScreen({ onLogin, isDeviceReady }) {
       return;
     }
 
+    if (mode === "login") {
+      setError("Вход через юзернейм/пароль отключен. Пожалуйста, используйте вход через Google.");
+      setLoading(false);
+      return;
+    }
+
     if (mode === "register") {
       setError("Регистрация возможна только через Google.");
+      setLoading(false);
       return;
     }
-
-    if (username.length < 5 || password.length < 6) {
-      setError("Почта от 5 символов и пароль от 6 символов!");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-
-    try {
-      const email = username.toLowerCase().trim();
-
-      if (mode === "login") {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        if (!userCredential.user.emailVerified) {
-          setError("Пожалуйста, подтвердите вашу электронную почту (проверьте входящие)!");
-          setLoading(false);
-          return;
-        }
-
-        const login = userCredential.user.uid;
-
-        const ref = getAccRef(login);
-        const snap = await getDoc(ref);
-
-        if (snap.exists()) {
-            if (snap.data().settings?.isBanned && snap.data().settings?.usernameHandle !== "@levkkkaw") {
-              setError("Твой аккаунт заблокирован! 🚫");
-              setLoading(false);
-              return;
-            }
-        }
-        onLogin(login);
-      }
-    } catch (e) {
-      setError(`Ошибка: ${e.message}`);
-    }
-
-    setLoading(false);
   };
 
   const setupRecaptcha = () => {
@@ -1735,7 +1703,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           onSubmit={handleSubmit}
           className="space-y-4 sm:space-y-5 flex-shrink-0"
         >
-          {(mode === "register" || mode === "google_setup") && (
+          {mode === "google_setup" && (
             <div className="flex flex-col items-center gap-2 mb-6 animate-fade-in">
               <div
                 onClick={() => avatarRef.current?.click()}
@@ -1826,38 +1794,6 @@ function AuthScreen({ onLogin, isDeviceReady }) {
               </div>
             </div>
           )}
-          {mode !== "google_setup" && (
-            <>
-              <div className="relative group">
-                <User className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
-                <input
-                  type="email"
-                  placeholder={t("login_id", lang)}
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value.replace(/\s+/g, ""))}
-                  className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
-                />
-              </div>
-              <div className="relative group">
-                <Lock className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder={t("login_pass", lang)}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-black/50 border border-white/5 rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-11 sm:pl-14 pr-12 text-white focus:outline-none focus:border-[#3390ec] transition-all font-medium placeholder-zinc-700 text-xs sm:text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </>
-          )}
-
 
           {error && (
             <div className="text-rose-500 text-[10px] sm:text-[11px] font-medium text-center animate-shake bg-rose-500/10 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-rose-500/20 leading-relaxed px-2 sm:px-4">
@@ -1865,6 +1801,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
             </div>
           )}
 
+          {mode === "google_setup" && (
           <button
             type="submit"
             disabled={loading}
@@ -1872,13 +1809,12 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           >
             {loading ? (
               <Loader2 className="animate-spin w-5 h-5 sm:w-6 sm:h-6" />
-            ) : mode === "google_setup" ? (
-              "Завершить регистрацию"
             ) : (
-              t("btn_login", lang)
+              "Завершить регистрацию"
             )}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
           </button>
+          )}
 
           {mode !== "google_setup" && (
             <button
@@ -2797,10 +2733,12 @@ export default function App() {
   const STUN_SERVERS = {
   iceServers: [
       {
-        urls: "stun:stun.relay.metered.ca:80",
+        urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+        username: "5120396e7444a904685e969c",
+        credential: "c3pmQHJpRhKWfKdN",
       },
       {
-        urls: "turn:standard.relay.metered.ca:80",
+        urls: "turn:standard.relay.metered.ca:443?transport=tcp",
         username: "5120396e7444a904685e969c",
         credential: "c3pmQHJpRhKWfKdN",
       },
@@ -2815,9 +2753,7 @@ export default function App() {
         credential: "c3pmQHJpRhKWfKdN",
       },
       {
-        urls: "turns:standard.relay.metered.ca:443?transport=tcp",
-        username: "5120396e7444a904685e969c",
-        credential: "c3pmQHJpRhKWfKdN",
+        urls: "stun:stun.relay.metered.ca:80",
       },
   ],
 };
