@@ -105,10 +105,12 @@ import {
   Eye,
   EyeOff,
   Zap,
+  Download,
   ShieldAlert,
   Users,
   Megaphone,
   CalendarDays,
+  ImageOff,
 } from "lucide-react";
 
 // ==========================================
@@ -1621,7 +1623,6 @@ function AuthScreen({ onLogin, isDeviceReady }) {
   const setupRecaptcha = () => {
     if (!window.recaptchaVerifier && auth) {
       window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
         'callback': (response) => {
           // reCAPTCHA solved
         }
@@ -1816,20 +1817,50 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           </button>
           )}
 
-          {mode !== "google_setup" && (
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-              className="w-full py-4 sm:py-4 mt-2 sm:mt-4 bg-[#ea4335] hover:bg-[#d33426] text-white font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
-            >
-            Войти через Google
-            </button>
+          {mode === "login" && (
+            <div className="flex flex-col gap-3 mt-4">
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+                className="w-full py-4 sm:py-4 bg-[#ea4335] hover:bg-[#d33426] text-white font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+              >
+                Войти через Google
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("register")}
+                disabled={loading}
+                className="w-full py-4 sm:py-4 bg-[#f1f1f1] hover:bg-white text-zinc-950 font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+              >
+                Нет аккаунта? Создать
+              </button>
+            </div>
+          )}
+
+          {mode === "register" && (
+            <div className="flex flex-col gap-3 mt-4">
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+                className="w-full py-4 sm:py-4 bg-[#ea4335] hover:bg-[#d33426] text-white font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+              >
+                Зарегистрироваться через Google
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("login")}
+                disabled={loading}
+                className="w-full py-4 sm:py-4 bg-[#f1f1f1] hover:bg-white text-zinc-950 font-medium rounded-xl sm:rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+              >
+                Уже есть аккаунт? Войти
+              </button>
+            </div>
           )}
         </form>
 
-        {/* Registration is forced through Google Sign-In, so we hide the toggle text and only leave the button */}
-        <div id="recaptcha-container"></div>
+        <div id="recaptcha-container" className="mt-4 flex justify-center"></div>
       </div>
     </div>
   );
@@ -1868,6 +1899,7 @@ export default function App() {
   const [addContactLogin, setAddContactLogin] = useState("");
   const [addContactError, setAddContactError] = useState("");
   const [isSearchingUser, setIsSearchingUser] = useState(false);
+  const [fullscreenImage, setFullscreenImage] = useState(null);
   const [chatToDelete, setChatToDelete] = useState(null);
 
   // 🔥 НОВЫЕ СТЕЙТЫ ПРОФИЛЯ
@@ -1982,17 +2014,19 @@ export default function App() {
     return {
       topGift: topGift ? `${topGift[0]} (${topGift[1]})` : "—",
       topSpender: topSpender ? `${topSpender[0]} (${topSpender[1]} 💎)` : "—",
-      avgMsgs: Math.round(totalMsgs / adminUsersList.length),
+      avgMsgs: Math.round(totalMsgs / adminUsersList.length) || 0,
+      totalGifts,
+      voiceMsgs,
+      imagesSent,
+      totalFiles,
+      premiumConv,
+      bannedCount,
+      activeCallsCount,
+
+      // kept for UI compatibility
       topAccents,
       langRatio: `RU: ${ru} | EN: ${en}`,
       themeRatio: `🌙 ${dark} | ☀️ ${light}`,
-      totalMsgs,
-      totalGifts,
-      premiumConv: Math.round(
-        (adminUsersList.filter((u) => u.settings?.isPremium).length /
-          adminUsersList.length) *
-          100,
-      ),
       msgLeaderboard,
       giftLeaderboard,
     };
@@ -2179,6 +2213,24 @@ export default function App() {
              await updateDoc(uRef, { incomingCall: null });
           }
           triggerToast("АДМИН", "Все звонки сброшены");
+      } else if (action === "reset_balance") {
+         await updateDoc(ref, { "settings.balance": 0 });
+         triggerToast("АДМИН", `Баланс ${targetId} обнулен`);
+      } else if (action === "remove_all_gifts") {
+         await updateDoc(ref, { receivedGifts: [] });
+         triggerToast("АДМИН", `Подарки ${targetId} удалены`);
+      } else if (action === "clear_username") {
+         await updateDoc(ref, { "settings.username": "Без имени" });
+         triggerToast("АДМИН", `Имя ${targetId} сброшено`);
+      } else if (action === "clear_avatar") {
+         await updateDoc(ref, { "settings.avatar": null });
+         triggerToast("АДМИН", `Аватар ${targetId} удален`);
+      } else if (action === "force_logout") {
+         await updateDoc(ref, { "settings.forceLogoutTimestamp": Date.now() });
+         triggerToast("АДМИН", `Сигнал выхода отправлен ${targetId}`);
+      } else if (action === "clear_contacts") {
+         await updateDoc(ref, { contacts: [] });
+         triggerToast("АДМИН", `Контакты ${targetId} очищены`);
       }
       fetchAdminUsers();
     } catch (e) {
@@ -3297,11 +3349,25 @@ const startCall = async (type) => {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const sizeStr =
-      file.size > 1024 * 1024
-        ? (file.size / (1024 * 1024)).toFixed(1) + "MB"
-        : (file.size / 1024).toFixed(1) + "KB";
-    handleSendMessage({ type: "file", fileName: file.name, fileSize: sizeStr });
+
+    const MAX_VIDEO_SIZE = 1 * 1024 * 1024; // 1 MB strict limit for Base64
+
+    if (file.type.startsWith("video/")) {
+      if (file.size > MAX_VIDEO_SIZE) {
+        triggerToast("Ошибка", "Видео слишком большое (макс. 1МБ) ⛔");
+      } else {
+        const reader = new FileReader();
+        reader.onload = (ev) =>
+          handleSendMessage({ type: "video", url: ev.target.result });
+        reader.readAsDataURL(file);
+      }
+    } else {
+      const sizeStr =
+        file.size > 1024 * 1024
+          ? (file.size / (1024 * 1024)).toFixed(1) + "MB"
+          : (file.size / 1024).toFixed(1) + "KB";
+      handleSendMessage({ type: "file", fileName: file.name, fileSize: sizeStr });
+    }
     setShowAttachmentMenu(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -4815,6 +4881,7 @@ const startCall = async (type) => {
                           {msg.type === "image" && (
                             <div
                               className={`mt-1 mb-2 sm:mb-3 relative group/img overflow-hidden rounded-xl sm:rounded-2xl ${settings.theme === "light" ? "bg-zinc-200" : "bg-black/50"} shadow-inner cursor-pointer border ${currentTheme.border}`}
+                              onClick={() => setFullscreenImage(msg.url)}
                             >
                               <img
                                 src={msg.url}
@@ -4823,6 +4890,17 @@ const startCall = async (type) => {
                               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">
                                 <Search className="text-white drop-shadow-lg transform scale-50 group-hover/img:scale-100 transition-transform duration-300 w-8 h-8 sm:w-10 sm:h-10" />
                               </div>
+                            </div>
+                          )}
+                          {msg.type === "video" && (
+                            <div
+                              className={`mt-1 mb-2 sm:mb-3 overflow-hidden rounded-xl sm:rounded-2xl ${settings.theme === "light" ? "bg-zinc-200" : "bg-black/50"} shadow-inner border ${currentTheme.border}`}
+                            >
+                              <video
+                                src={msg.url}
+                                controls
+                                className="w-full max-h-[200px] sm:max-h-[300px] object-contain"
+                              />
                             </div>
                           )}
                           {msg.type === "file" && (
@@ -6865,6 +6943,22 @@ const startCall = async (type) => {
                                 {adminStats.premiumConv}%
                               </span>
                             </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-[10px] font-medium text-zinc-400">
+                                ЗАБЛОКИРОВАННЫЕ ПОЛЬЗОВАТЕЛИ
+                              </span>
+                              <span className="text-sm font-medium text-rose-400">
+                                {adminStats.bannedCount}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-[10px] font-medium text-zinc-400">
+                                АКТИВНЫЕ ЗВОНКИ СЕЙЧАС
+                              </span>
+                              <span className="text-sm font-medium text-amber-400">
+                                {adminStats.activeCallsCount}
+                              </span>
+                            </div>
                           </div>
                         </div>
 
@@ -7223,8 +7317,52 @@ const startCall = async (type) => {
                                       adminAction(u.id, "delete");
                                   }}
                                   className="px-3 py-3 rounded-xl text-[10px] font-medium bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-500/20 transition-all flex justify-center active:scale-95 group-hover:border-rose-500/50"
+                                  title="Удалить юзера"
                                 >
                                   <Trash2 size={16} />
+                                </button>
+
+                                <button
+                                  onClick={() => adminAction(u.id, "reset_balance")}
+                                  className="px-3 py-3 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white border border-amber-500/20 transition-all active:scale-95 flex items-center justify-center"
+                                  title="Сбросить баланс"
+                                >
+                                  0 💎
+                                </button>
+                                <button
+                                  onClick={() => adminAction(u.id, "remove_all_gifts")}
+                                  className="px-3 py-3 rounded-xl bg-orange-500/10 text-orange-500 hover:bg-orange-500 hover:text-white border border-orange-500/20 transition-all active:scale-95 flex items-center justify-center"
+                                  title="Удалить все подарки"
+                                >
+                                  <Gift size={16} />
+                                </button>
+                                <button
+                                  onClick={() => adminAction(u.id, "clear_username")}
+                                  className="px-3 py-3 rounded-xl bg-slate-500/10 text-slate-500 hover:bg-slate-500 hover:text-white border border-slate-500/20 transition-all active:scale-95 flex items-center justify-center"
+                                  title="Сбросить имя"
+                                >
+                                  <UserCircle size={16} />
+                                </button>
+                                <button
+                                  onClick={() => adminAction(u.id, "clear_avatar")}
+                                  className="px-3 py-3 rounded-xl bg-pink-500/10 text-pink-500 hover:bg-pink-500 hover:text-white border border-pink-500/20 transition-all active:scale-95 flex items-center justify-center"
+                                  title="Удалить аватар"
+                                >
+                                  <ImageOff size={16} />
+                                </button>
+                                <button
+                                  onClick={() => adminAction(u.id, "force_logout")}
+                                  className="px-3 py-3 rounded-xl bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white border border-indigo-500/20 transition-all active:scale-95 flex items-center justify-center"
+                                  title="Принудительный выход"
+                                >
+                                  <LogOut size={16} />
+                                </button>
+                                <button
+                                  onClick={() => adminAction(u.id, "clear_contacts")}
+                                  className="px-3 py-3 rounded-xl bg-fuchsia-500/10 text-fuchsia-500 hover:bg-fuchsia-500 hover:text-white border border-fuchsia-500/20 transition-all active:scale-95 flex items-center justify-center"
+                                  title="Очистить контакты"
+                                >
+                                  <Users size={16} />
                                 </button>
                               </div>
 
@@ -7386,6 +7524,35 @@ const startCall = async (type) => {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {fullscreenImage && (
+        <div
+          className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4"
+          onClick={() => setFullscreenImage(null)}
+        >
+          <div className="absolute top-4 right-4 flex gap-4">
+            <a
+              href={fullscreenImage}
+              download="image.png"
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white/20 hover:bg-white/30 p-2 rounded-full text-white backdrop-blur-md transition-colors flex items-center justify-center"
+            >
+              <Download size={24} />
+            </a>
+            <button
+              onClick={() => setFullscreenImage(null)}
+              className="bg-white/20 hover:bg-white/30 p-2 rounded-full text-white backdrop-blur-md transition-colors"
+            >
+              <X size={24} />
+            </button>
+          </div>
+          <img
+            src={fullscreenImage}
+            className="max-w-full max-h-full object-contain cursor-default select-none shadow-2xl rounded-sm"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
 
