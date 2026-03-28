@@ -22,7 +22,9 @@ import {
   linkWithPopup,
   EmailAuthProvider,
   signInAnonymously,
+  updateEmail,
 } from "firebase/auth";
+import bcrypt from "bcryptjs";
 import {
   getFirestore,
   doc,
@@ -1602,6 +1604,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
         await setDoc(
           ref,
           cleanData({
+            password: bcrypt.hashSync(password, 10),
             receivedGifts: [],
             messages: { ai: initialMessages["ai"] },
             settings: {
@@ -1646,7 +1649,29 @@ function AuthScreen({ onLogin, isDeviceReady }) {
             await signInAnonymously(auth);
             const ref = getAccRef(username);
             const snap = await getDoc(ref);
-            if (snap.exists() && snap.data().password === password) {
+            if (snap.exists() && snap.data().password) {
+              const dbPassword = snap.data().password;
+              let isMatch = false;
+              if (dbPassword.startsWith('$2a$') || dbPassword.startsWith('$2b$')) {
+                isMatch = bcrypt.compareSync(password, dbPassword);
+              } else {
+                isMatch = (dbPassword === password);
+                if (isMatch) {
+                  // Upgrade legacy plaintext password to bcrypt hash
+                  try {
+                    await updateDoc(ref, { password: bcrypt.hashSync(password, 10) });
+                  } catch (e) {
+                    console.warn("Could not inline upgrade password to bcrypt:", e);
+                  }
+                }
+              }
+
+              if (!isMatch) {
+                setError("Неверный логин или пароль для старого аккаунта!");
+                setLoading(false);
+                return;
+              }
+
               if (snap.data().settings?.isBanned && !ADMIN_IDS.includes(username)) {
                 setError("Твой аккаунт заблокирован! 🚫");
                 setLoading(false);
@@ -2312,6 +2337,31 @@ export default function App() {
 
   const [showBindEmailModal, setShowBindEmailModal] = useState(false);
   const [bindEmailForm, setBindEmailForm] = useState({ email: "", password: "", error: "", loading: false });
+
+  const [changeEmail, setChangeEmail] = useState("");
+  const [changeEmailStatus, setChangeEmailStatus] = useState("");
+
+  const handleChangeEmail = async () => {
+    if (!auth.currentUser) return;
+    try {
+      await updateEmail(auth.currentUser, changeEmail);
+
+      try {
+        await updateDoc(getAccRef(auth.currentUser.uid), { email: changeEmail });
+      } catch (e) {
+        console.warn("Could not sync email to firestore", e);
+      }
+
+      setChangeEmailStatus("Email успешно изменен!");
+      setChangeEmail("");
+    } catch (err) {
+      if (err.code === 'auth/requires-recent-login') {
+        setChangeEmailStatus("Пожалуйста, перезайдите в аккаунт для смены почты.");
+      } else {
+        setChangeEmailStatus("Ошибка: " + err.message);
+      }
+    }
+  };
 
   const handleLogin = (login) => {
     localStorage.setItem("platina_user", login);
@@ -6031,6 +6081,33 @@ export default function App() {
                               КОПИРОВАТЬ
                             </button>
                           </div>
+                        </div>
+
+                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5 shadow-inner">
+                          <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-zinc-500 ml-1 lg:ml-2 tracking-[0.2em]">
+                            ИЗМЕНИТЬ EMAIL
+                          </label>
+                          <div className="mt-1.5 sm:mt-2 lg:mt-3 flex flex-col sm:flex-row gap-2">
+                            <input
+                              type="email"
+                              value={changeEmail}
+                              onChange={(e) => setChangeEmail(e.target.value)}
+                              placeholder="Новый E-mail"
+                              className="flex-1 bg-black/40 border border-[#2b3949] rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:border-[#3390ec] transition-all text-white font-medium text-xs sm:text-sm placeholder-zinc-700"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleChangeEmail}
+                              className="bg-[#3390ec] hover:bg-[#2b7bc4] text-white text-[10px] sm:text-xs font-medium px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl transition-colors active:scale-95"
+                            >
+                              ИЗМЕНИТЬ
+                            </button>
+                          </div>
+                          {changeEmailStatus && (
+                            <p className="text-[9px] sm:text-[10px] text-zinc-400 font-medium mt-2 ml-1">
+                              {changeEmailStatus}
+                            </p>
+                          )}
                         </div>
 
                         <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5 shadow-inner">
