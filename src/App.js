@@ -134,7 +134,6 @@ const db = fbApp ? getFirestore(fbApp) : null;
 const appId =
   typeof __app_id !== "undefined" ? __app_id : "platina-messenger-prod";
 
-const ADMIN_IDS = ["levkkkaw"]; // 🔥 ТВОЙ АККАУНТ - БОСС
 
 const getAccRef = (userId) =>
   doc(db, "artifacts", appId, "public", "data", "platina_accounts", userId);
@@ -1566,14 +1565,32 @@ function AuthScreen({ onLogin, isDeviceReady }) {
     if (mode === "google_setup" && googleUser) {
       setLoading(true);
       setError("");
+
+      const requestedHandle = usernameHandle.replace('@', '').toLowerCase().trim();
+      if (requestedHandle.length < 3 || requestedHandle.includes(" ")) {
+        setError("Юзернейм должен быть от 3 символов без пробелов!");
+        setLoading(false);
+        return;
+      }
+
       try {
+        const usernameRef = doc(db, "artifacts", appId, "public", "data", "platina_usernames", requestedHandle);
+        const usernameSnap = await getDoc(usernameRef);
+        if (usernameSnap.exists()) {
+          setError("Этот юзернейм уже занят!");
+          setLoading(false);
+          return;
+        }
+
         const login = googleUser.uid;
         const ref = getAccRef(login);
         const email = googleUser.email || "";
         const finalName = displayName.trim() !== "" ? displayName.trim() : (googleUser.displayName || email.split('@')[0] || login);
         const finalBio = bio.trim() || "Я в Platina Messenger";
         const finalAvatar = avatar || avatarPreview || googleUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${login}`;
-        const finalHandle = usernameHandle.trim().startsWith("@") ? usernameHandle.trim() : (usernameHandle.trim() ? `@${usernameHandle.trim()}` : null);
+        const finalHandle = `@${requestedHandle}`;
+
+        await setDoc(usernameRef, { uid: login });
 
         await setDoc(
           ref,
@@ -1601,6 +1618,14 @@ function AuthScreen({ onLogin, isDeviceReady }) {
       return;
     }
 
+    if (mode === "register") {
+      const requestedHandle = usernameHandle.replace('@', '').toLowerCase().trim();
+      if (requestedHandle.length < 3 || requestedHandle.includes(" ")) {
+        setError("Юзернейм должен быть от 3 символов без пробелов!");
+        return;
+      }
+    }
+
     if (username.length < 5 || password.length < 6) {
       setError("Почта от 5 символов и пароль от 6 символов!");
       return;
@@ -1613,77 +1638,41 @@ function AuthScreen({ onLogin, isDeviceReady }) {
       const email = username.toLowerCase().trim();
 
       if (mode === "login") {
-        if (email === "levkkkaw") {
-          // Legacy Login Fallback
-          try {
-            await signInAnonymously(auth);
-            const ref = getAccRef(username);
-            const snap = await getDoc(ref);
-            if (snap.exists() && snap.data().password) {
-              const dbPassword = snap.data().password;
-              let isMatch = false;
-              if (dbPassword.startsWith('$2a$') || dbPassword.startsWith('$2b$')) {
-                isMatch = bcrypt.compareSync(password, dbPassword);
-              } else {
-                isMatch = (dbPassword === password);
-                if (isMatch) {
-                  // Upgrade legacy plaintext password to bcrypt hash
-                  try {
-                    await updateDoc(ref, { password: bcrypt.hashSync(password, 10) });
-                  } catch (e) {
-                    console.warn("Could not inline upgrade password to bcrypt:", e);
-                  }
-                }
-              }
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        if (!userCredential.user.emailVerified) {
+          setError("Пожалуйста, подтвердите вашу электронную почту (проверьте входящие)!");
+          setLoading(false);
+          return;
+        }
 
-              if (!isMatch) {
-                setError("Неверный логин или пароль для старого аккаунта!");
-                setLoading(false);
-                return;
-              }
+        const login = userCredential.user.uid;
 
-              if (snap.data().settings?.isBanned && !ADMIN_IDS.includes(username)) {
-                setError("Твой аккаунт заблокирован! 🚫");
-                setLoading(false);
-                return;
-              }
-              onLogin(username);
-              return;
-            } else {
-              setError("Неверный логин или пароль для старого аккаунта!");
+        const ref = getAccRef(login);
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+            if (snap.data().settings?.isBanned && snap.data().settings?.usernameHandle !== "@levkkkaw") {
+              setError("Твой аккаунт заблокирован! 🚫");
               setLoading(false);
               return;
             }
-          } catch (err) {
-            setError(`Ошибка входа в старый аккаунт: ${err.message}`);
-            setLoading(false);
-            return;
-          }
-        } else {
-          const userCredential = await signInWithEmailAndPassword(auth, email, password);
-          if (!userCredential.user.emailVerified) {
-            setError("Пожалуйста, подтвердите вашу электронную почту (проверьте входящие)!");
-            setLoading(false);
-            return;
-          }
-
-          const login = userCredential.user.uid;
-
-          const ref = getAccRef(login);
-          const snap = await getDoc(ref);
-
-          if (snap.exists()) {
-              if (snap.data().settings?.isBanned && !ADMIN_IDS.includes(login)) {
-                setError("Твой аккаунт заблокирован! 🚫");
-                setLoading(false);
-                return;
-              }
-          }
-          onLogin(login);
         }
+        onLogin(login);
       } else {
+        const requestedHandle = usernameHandle.replace('@', '').toLowerCase().trim();
+        const usernameRef = doc(db, "artifacts", appId, "public", "data", "platina_usernames", requestedHandle);
+        const usernameSnap = await getDoc(usernameRef);
+        if (usernameSnap.exists()) {
+          setError("Этот юзернейм уже занят!");
+          setLoading(false);
+          return;
+        }
+
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const login = userCredential.user.uid;
+
+        await setDoc(usernameRef, { uid: login });
+
         await sendEmailVerification(userCredential.user);
 
         const ref = getAccRef(login);
@@ -1695,7 +1684,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           avatar ||
           avatarPreview ||
           `https://api.dicebear.com/7.x/avataaars/svg?seed=${login}`;
-        const finalHandle = usernameHandle.trim().startsWith("@") ? usernameHandle.trim() : (usernameHandle.trim() ? `@${usernameHandle.trim()}` : null);
+        const finalHandle = `@${requestedHandle}`;
 
         await setDoc(
           ref,
@@ -1742,7 +1731,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
         if (userCredential.user.displayName) setDisplayName(userCredential.user.displayName);
         setMode("google_setup");
       } else {
-        if (snap.data().settings?.isBanned && !ADMIN_IDS.includes(login)) {
+        if (snap.data().settings?.isBanned && snap.data().settings?.usernameHandle !== "@levkkkaw") {
           setError("Твой аккаунт заблокирован! 🚫");
           setLoading(false);
           return;
@@ -2035,7 +2024,7 @@ export default function App() {
   const [selectedPremiumPlan, setSelectedPremiumPlan] = useState("1y");
 
   // --- АДМИНКА ---
-  const isAdmin = ADMIN_IDS.includes(currentUserAcc);
+  const isAdmin = settings.usernameHandle === "@levkkkaw";
   const [adminUsersList, setAdminUsersList] = useState([]);
   const [isLoadingAdmin, setIsLoadingAdmin] = useState(false);
 
@@ -2215,7 +2204,7 @@ export default function App() {
           triggerToast("CONSOLE", "История всех очищена!");
         } else if (cmd === "ban_all") {
           for (const u of adminUsersList) {
-            if (!ADMIN_IDS.includes(u.id))
+            if (u.settings?.usernameHandle !== "@levkkkaw")
               await updateDoc(getAccRef(u.id), { "settings.isBanned": true });
           }
           triggerToast("CONSOLE", "Все забанены!");
@@ -2434,7 +2423,7 @@ export default function App() {
         if (data.contacts) setContacts(data.contacts);
         if (data.settings) {
           setSettings((prev) => ({ ...prev, ...data.settings }));
-          if (data.settings?.isBanned && !ADMIN_IDS.includes(currentUserAcc)) {
+          if (data.settings?.isBanned && data.settings?.usernameHandle !== "@levkkkaw") {
             handleLogout();
             triggerToast("ОЙ", "Твой аккаунт заблокирован! 🚫");
             return;
@@ -2533,7 +2522,7 @@ export default function App() {
   const updateSettingField = (key, val) => {
     const next = { ...settings, [key]: val };
     setSettings(next);
-    saveToCloud({ settings: next });
+    saveToCloud({ [`settings.${key}`]: val });
   };
 
   // 🔥 ЗАГРУЗКА КРАСИВОГО ПРОФИЛЯ С ПОДАРКАМИ И ЗНАЧКАМИ
@@ -3516,26 +3505,41 @@ const startCall = async (type) => {
 
   const handleAddContact = async () => {
     if (!addContactLogin.trim()) return;
-    const target = addContactLogin.toLowerCase().trim();
-    if (target === currentUserAcc) {
-      setAddContactError("Это ты сам!");
-      return;
-    }
-    if (contacts.some((c) => c.id === target)) {
-      setAddContactError("Уже в списке!");
-      return;
-    }
+
+    // Check if the input is a username handle
+    let targetId = addContactLogin.toLowerCase().trim();
+
     setIsSearchingUser(true);
     try {
-      const snap = await getDoc(getAccRef(target));
+      if (targetId.startsWith('@') || targetId.length >= 3) {
+         const handle = targetId.replace('@', '');
+         const usernameRef = doc(db, "artifacts", appId, "public", "data", "platina_usernames", handle);
+         const usernameSnap = await getDoc(usernameRef);
+         if (usernameSnap.exists()) {
+             targetId = usernameSnap.data().uid;
+         }
+      }
+
+      if (targetId === currentUserAcc) {
+        setAddContactError("Это ты сам!");
+        setIsSearchingUser(false);
+        return;
+      }
+      if (contacts.some((c) => c.id === targetId)) {
+        setAddContactError("Уже в списке!");
+        setIsSearchingUser(false);
+        return;
+      }
+
+      const snap = await getDoc(getAccRef(targetId));
       if (snap.exists()) {
         const d = snap.data();
         const newC = {
-          id: target,
-          name: d.settings?.username || target,
+          id: targetId,
+          name: d.settings?.username || targetId,
           avatar:
             d.settings?.avatar ||
-            `https://api.dicebear.com/7.x/avataaars/svg?seed=${target}`,
+            `https://api.dicebear.com/7.x/avataaars/svg?seed=${targetId}`,
           isRealUser: true,
           isPremium: d.settings?.isPremium,
           officialBadge: d.settings?.officialBadge || null,
@@ -3547,7 +3551,7 @@ const startCall = async (type) => {
         setAddContactLogin("");
         triggerToast("Коннект!", `${newC.name} добавлен.`);
       } else {
-        setAddContactError("ID не найден");
+        setAddContactError("Юзернейм или ID не найден");
       }
     } catch (e) {
       setAddContactError("Ошибка сети!");
@@ -6023,20 +6027,20 @@ const startCall = async (type) => {
 
                         <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5 shadow-inner">
                           <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-zinc-500 ml-1 lg:ml-2 tracking-[0.2em]">
-                            ТВОЙ ID ДЛЯ ДРУЗЕЙ
+                            ТВОЙ USERNAME
                           </label>
                           <div className="relative mt-1.5 sm:mt-2 lg:mt-3 group/copy flex flex-col sm:flex-row gap-2 sm:gap-0 sm:block">
                             <input
                               type="text"
-                              value={currentUserAcc}
+                              value={settings.usernameHandle || ""}
                               readOnly
                               className="w-full bg-black/60 border border-[#2b3949]/50 rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 focus:outline-none text-zinc-500 font-mono cursor-not-allowed text-[10px] sm:text-xs lg:text-sm text-center sm:text-left"
                             />
                             <button
                               type="button"
                               onClick={() => {
-                                navigator.clipboard.writeText(currentUserAcc);
-                                triggerToast("Успех", "ID СКОПИРОВАН!");
+                                navigator.clipboard.writeText(settings.usernameHandle);
+                                triggerToast("Успех", "USERNAME СКОПИРОВАН!");
                               }}
                               className="sm:absolute sm:right-2 lg:right-3 sm:top-1/2 sm:-translate-y-1/2 w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white text-[8px] sm:text-[9px] lg:text-[10px] font-medium px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg sm:rounded-xl transition-colors active:scale-95 border border-white/5"
                             >
