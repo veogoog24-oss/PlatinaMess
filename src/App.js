@@ -2295,6 +2295,10 @@ export default function App() {
   const [changeEmail, setChangeEmail] = useState("");
   const [changeEmailStatus, setChangeEmailStatus] = useState("");
 
+  const [changeHandle, setChangeHandle] = useState("");
+  const [changeHandleStatus, setChangeHandleStatus] = useState("");
+  const [isChangingHandle, setIsChangingHandle] = useState(false);
+
   const handleChangeEmail = async () => {
     if (!auth.currentUser) return;
     try {
@@ -2315,6 +2319,58 @@ export default function App() {
         setChangeEmailStatus("Ошибка: " + err.message);
       }
     }
+  };
+
+  const handleChangeUsernameHandle = async () => {
+    if (!auth.currentUser || !changeHandle.trim()) return;
+
+    if (settings.hasChangedUsername) {
+      setChangeHandleStatus("Вы уже меняли юзернейм один раз.");
+      return;
+    }
+
+    const requestedHandle = changeHandle.replace('@', '').toLowerCase().trim();
+    if (requestedHandle.length < 3 || requestedHandle.includes(" ")) {
+      setChangeHandleStatus("Юзернейм от 3 символов без пробелов!");
+      return;
+    }
+
+    setIsChangingHandle(true);
+    setChangeHandleStatus("");
+
+    try {
+      const usernameRef = doc(db, "artifacts", appId, "public", "data", "platina_usernames", requestedHandle);
+      const usernameSnap = await getDoc(usernameRef);
+      if (usernameSnap.exists()) {
+        setChangeHandleStatus("Этот юзернейм уже занят!");
+        setIsChangingHandle(false);
+        return;
+      }
+
+      // If user had an old handle, delete it
+      const oldHandle = settings.usernameHandle ? settings.usernameHandle.replace('@', '').toLowerCase().trim() : null;
+      if (oldHandle) {
+        const oldUsernameRef = doc(db, "artifacts", appId, "public", "data", "platina_usernames", oldHandle);
+        await deleteDoc(oldUsernameRef);
+      }
+
+      // Claim new handle
+      await setDoc(usernameRef, { uid: auth.currentUser.uid });
+
+      // Update user document
+      const newHandleFormatted = `@${requestedHandle}`;
+      await updateDoc(getAccRef(auth.currentUser.uid), {
+        "settings.usernameHandle": newHandleFormatted,
+        "settings.hasChangedUsername": true
+      });
+
+      setSettings(prev => ({ ...prev, usernameHandle: newHandleFormatted, hasChangedUsername: true }));
+      setChangeHandleStatus("Юзернейм успешно изменен!");
+      setChangeHandle("");
+    } catch (err) {
+      setChangeHandleStatus("Ошибка: " + err.message);
+    }
+    setIsChangingHandle(false);
   };
 
   const handleLogin = (login) => {
@@ -3229,6 +3285,14 @@ const startCall = async (type) => {
       const oldTrack = callStreamRef.current.getVideoTracks()[0];
       if (oldTrack) callStreamRef.current.removeTrack(oldTrack);
       callStreamRef.current.addTrack(newTrack);
+
+      // Update WebRTC Sender Track
+      if (pcRef.current) {
+        const videoSender = pcRef.current.getSenders().find(s => s.track && s.track.kind === 'video');
+        if (videoSender) {
+          await videoSender.replaceTrack(newTrack);
+        }
+      }
     } catch (e) {}
   };
 
@@ -3799,7 +3863,7 @@ const startCall = async (type) => {
                 )}
 
               <p className="text-zinc-500 font-mono text-xs mt-2">
-                ID: {viewingProfile.id}
+                {viewingProfile.usernameHandle || `@${viewingProfile.username}`}
               </p>
             </div>
 
@@ -3951,11 +4015,11 @@ const startCall = async (type) => {
             </div>
           </div>
           <h2 className="text-3xl sm:text-5xl font-medium text-white mb-3 text-center drop-shadow-lg">
-            Входящий{""}
+            Входящий {""}
             {incomingCallData.type === "video" ? "видеозвонок" : "звонок"}
           </h2>
           <p className="text-green-400 font-medium text-lg sm:text-2xl tracking-[0.2em] mb-16 shadow-black drop-shadow-md">
-            {incomingCallData.callerId}
+            {contacts.find(c => c.id === incomingCallData.callerId)?.name || incomingCallData.callerId}
           </p>
           <div className="flex items-center gap-10 sm:gap-16 z-10">
             <button
@@ -6047,11 +6111,35 @@ const startCall = async (type) => {
                               КОПИРОВАТЬ
                             </button>
                           </div>
+                          {!settings.hasChangedUsername && (
+                            <div className="mt-4 flex flex-col sm:flex-row gap-2 pt-4 border-t border-white/5">
+                              <input
+                                type="text"
+                                value={changeHandle}
+                                onChange={(e) => setChangeHandle(e.target.value)}
+                                placeholder="Новый Username"
+                                className="flex-1 bg-black/40 border border-[#2b3949] rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:border-[#3390ec] transition-all text-white font-medium text-xs sm:text-sm placeholder-zinc-700"
+                              />
+                              <button
+                                type="button"
+                                onClick={handleChangeUsernameHandle}
+                                disabled={isChangingHandle}
+                                className="bg-[#3390ec] hover:bg-[#2b7bc4] text-white text-[10px] sm:text-xs font-medium px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl transition-colors active:scale-95 disabled:opacity-50 flex items-center justify-center min-w-[120px]"
+                              >
+                                {isChangingHandle ? <Loader2 size={16} className="animate-spin" /> : "ИЗМЕНИТЬ (1 РАЗ)"}
+                              </button>
+                            </div>
+                          )}
+                          {changeHandleStatus && (
+                            <p className="text-[9px] sm:text-[10px] text-zinc-400 font-medium mt-2 ml-1">
+                              {changeHandleStatus}
+                            </p>
+                          )}
                         </div>
 
                         <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5 shadow-inner">
                           <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-zinc-500 ml-1 lg:ml-2 tracking-[0.2em]">
-                            ИЗМЕНИТЬ EMAIL
+                            ИЗМЕНИТЬ EMAIL (ТЕКУЩИЙ: {user?.email || "НЕТ"})
                           </label>
                           <div className="mt-1.5 sm:mt-2 lg:mt-3 flex flex-col sm:flex-row gap-2">
                             <input
@@ -7072,7 +7160,7 @@ const startCall = async (type) => {
                                   />
                                 </p>
                                 <p className="text-[11px] text-zinc-500 font-mono truncate mt-0.5">
-                                  ID: {u.id} •{" "}
+                                  {u.settings?.usernameHandle || `@${u.id.substring(0, 6)}`} •{" "}
                                   {u.settings?.lastOnline
                                     ? `Был: ${new Date(u.settings.lastOnline).toLocaleString()}`
                                     : "Оффлайн"}
