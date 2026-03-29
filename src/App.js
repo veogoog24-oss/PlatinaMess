@@ -3821,7 +3821,7 @@ const startCall = async (type) => {
               >
                 <img
                   src={viewingProfile.avatar}
-                  className={`w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover relative z-10 transition-all duration-300 ease-in-out duration-500 group-hover:scale-105 ${
+                  className={`w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover relative z-10 transition-all duration-300 ease-in-out group-hover:scale-105 ${
                     viewingProfile.isPremium
                       ? "border-4 border-[#3390ec] shadow-md"
                       : "border-4 border-[#2b3949] shadow-sm"
@@ -4181,7 +4181,7 @@ const startCall = async (type) => {
                       `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUserAcc}`
                     }
                     alt="me"
-                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#242f3d] transition-all duration-300 ease-in-out duration-500 group-hover:scale-110 object-cover ${
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#242f3d] transition-all duration-300 ease-in-out group-hover:scale-110 object-cover ${
                       settings.isPremium
                         ? "ring-2 ring-sky-400 ring-offset-2 ring-offset-zinc-900 shadow-md"
                         : ""
@@ -4432,7 +4432,7 @@ const startCall = async (type) => {
       <div
         className={`absolute md:relative inset-0 w-full flex-1 flex flex-col ${
           currentTheme.panel
-        } z-30 md:z-10 overflow-hidden transition-all duration-300 ease-in-out duration-500 ${
+        } z-30 md:z-10 overflow-hidden transition-all duration-300 ease-in-out ${
           activeChat ? "translate-x-0" : "translate-x-full md:translate-x-0"
         }`}
       >
@@ -5606,7 +5606,11 @@ const startCall = async (type) => {
                               type="button"
                               key={gift.id}
                               onClick={() => handleSendGift(gift)}
-                              className="relative bg-[#17212b] border border-white/5 rounded-2xl p-5 flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 group overflow-hidden"
+                              className={`relative border rounded-2xl p-5 flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 group overflow-hidden ${
+                                settings.theme === "light"
+                                  ? "bg-white border-[#e2e8f0] shadow-sm"
+                                  : "bg-[#242f3d] border-white/5 shadow-md"
+                              }`}
                               style={{
                                 boxShadow: `0 8px 25px rgba(0,0,0,0.3)`,
                               }}
@@ -5621,9 +5625,9 @@ const startCall = async (type) => {
                               }}
                             >
                               <div
-                                className={`absolute inset-0 ${gift.grad} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+                                className={`absolute inset-0 bg-gradient-to-br ${gift.grad} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
                               ></div>
-                              <span className="text-5xl mb-3 relative z-10 group-hover: drop-shadow-md">
+                              <span className="text-5xl mb-3 relative z-10 drop-shadow-md">
                                 {gift.icon}
                               </span>
                               <span
@@ -5797,7 +5801,7 @@ const startCall = async (type) => {
                             className="sm:w-10 sm:h-10 lg:w-14 lg:h-14 text-white"
                           />
                         </div>
-                        <h3 className="text-2xl sm:text-4xl lg:text-6xl font-medium text-transparent bg-clip-text bg-[#17212b] mb-3 sm:mb-4 lg:mb-6 drop-shadow-md lg:drop-shadow-sm leading-none">
+                        <h3 className={`text-2xl sm:text-4xl lg:text-6xl font-medium ${settings.theme === "light" ? "text-black" : "text-white"} mb-3 sm:mb-4 lg:mb-6 drop-shadow-md lg:drop-shadow-sm leading-none`}>
                           Platina
                           <br />
                           Premium
@@ -5888,7 +5892,7 @@ const startCall = async (type) => {
                           </>
                         ) : (
                           <div className="bg-[#1c242d] p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-[#3390ec]/50 w-full max-w-xl  shadow-md lg:shadow-md animate-spring-up mt-6">
-                            <h4 className="text-xl sm:text-2xl lg:text-4xl font-medium text-transparent bg-clip-text bg-[#17212b] mb-3 sm:mb-4 lg:mb-6">
+                            <h4 className="text-xl sm:text-2xl lg:text-4xl font-medium text-white mb-3 sm:mb-4 lg:mb-6">
                               СТАТУС АКТИВЕН
                             </h4>
                             <p className="text-[10px] sm:text-xs lg:text-base text-zinc-300 mb-6 sm:mb-8 lg:mb-10 font-medium leading-relaxed">
@@ -5922,7 +5926,7 @@ const startCall = async (type) => {
                         <h3 className={`${settings.theme === "light" ? "text-zinc-600" : "text-zinc-500"} tracking-[0.3em] text-[8px] sm:text-[9px] lg:text-[10px] font-medium mb-2 sm:mb-3 lg:mb-4`}>
                           {getText("balance")}
                         </h3>
-                        <div className={`text-3xl sm:text-5xl lg:text-7xl font-medium ${settings.theme === "light" ? "text-zinc-900" : "text-transparent bg-clip-text bg-[#17212b]"} flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 drop-shadow-md lg:drop-shadow-sm`}>
+                        <div className={`text-3xl sm:text-5xl lg:text-7xl font-medium ${settings.theme === "light" ? "text-black" : "text-white"} flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 drop-shadow-md lg:drop-shadow-sm`}>
                           {settings.balance}
                           {""}
                           <Gem className="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 text-cyan-400 fill-cyan-400" />
@@ -6325,7 +6329,7 @@ const startCall = async (type) => {
                                 </div>
                               )}
                               <div
-                                className={`w-full h-12 sm:h-16 lg:h-24 rounded-[24px] sm:rounded-2xl lg:rounded-[24px] mb-2 sm:mb-3 lg:mb-4 border border-white/10 flex items-center justify-center shadow-inner transition-all duration-300 ease-in-out duration-500 group-hover:scale-105 ${t.base}`}
+                                className={`w-full h-12 sm:h-16 lg:h-24 rounded-[24px] sm:rounded-2xl lg:rounded-[24px] mb-2 sm:mb-3 lg:mb-4 border border-white/10 flex items-center justify-center shadow-inner transition-all duration-300 ease-in-out group-hover:scale-105 ${t.base}`}
                               >
                                 {settings.theme === t.id && (
                                   <Check
@@ -6745,22 +6749,46 @@ const startCall = async (type) => {
                 )}
 
                 {activeSettingsTab === "ai" && (
-                  <div className="space-y-8 sm:space-y-10 lg:space-y-12 animate-fade-in">
-                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 lg:mb-10 text-center sm:text-left bg-black/20 p-5 sm:p-6 lg:p-8 rounded-[24px] sm:rounded-[24px] lg:rounded-[24px] border border-white/5">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 bg-[#17212b] rounded-2xl sm:rounded-[24px] lg:rounded-[24px] flex items-center justify-center shadow-md lg:shadow-md  border border-white/20 flex-shrink-0">
-                        <Bot className="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 text-white" />
+                  <div className="space-y-6 sm:space-y-8 lg:space-y-10 animate-fade-in">
+                    <div
+                      className={`flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 lg:mb-10 text-center sm:text-left p-5 sm:p-6 lg:p-8 rounded-[24px] sm:rounded-[24px] lg:rounded-[24px] border transition-colors duration-300 ${
+                        settings.theme === "light"
+                          ? "bg-[#f1f5f9] border-[#e2e8f0]"
+                          : "bg-[#1c242d] border-[#2b3949]"
+                      }`}
+                    >
+                      <div
+                        className={`w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] flex items-center justify-center flex-shrink-0 transition-colors duration-300 ${
+                          settings.theme === "light"
+                            ? "bg-white border border-[#cbd5e1] shadow-sm"
+                            : "bg-[#242f3d] border border-white/10 shadow-md"
+                        }`}
+                      >
+                        <Bot
+                          className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 transition-colors duration-300 ${
+                            settings.theme === "light"
+                              ? "text-black"
+                              : "text-white"
+                          }`}
+                        />
                       </div>
                       <div className="min-w-0">
-                        <h3 className="text-2xl sm:text-3xl lg:text-5xl font-medium bg-clip-text text-transparent bg-[#17212b] mb-1 sm:mb-2 leading-none truncate">
+                        <h3
+                          className={`text-2xl sm:text-3xl lg:text-5xl font-semibold mb-1 sm:mb-2 leading-none truncate transition-colors duration-300 ${
+                            settings.theme === "light"
+                              ? "text-black"
+                              : "text-white"
+                          }`}
+                        >
                           PLATINA AI
                         </h3>
-                        <p className="text-zinc-400 font-medium text-[8px] sm:text-[10px] lg:text-xs tracking-[0.2em] mt-1 sm:mt-2 lg:mt-0 truncate">
+                        <p className="text-zinc-500 font-medium text-[10px] sm:text-xs lg:text-sm tracking-wide mt-1 sm:mt-2 lg:mt-0 truncate">
                           Нейросеть Google Gemini внутри чата.
                         </p>
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-6 tracking-[0.3em] font-medium text-center sm:text-left lg:ml-2">
+                      <h4 className="text-[10px] sm:text-xs lg:text-sm text-zinc-500 mb-3 sm:mb-4 lg:mb-6 tracking-wide font-medium text-center sm:text-left lg:ml-2 uppercase">
                         {getText("ai_tone")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
@@ -6782,19 +6810,27 @@ const startCall = async (type) => {
                             onClick={() =>
                               updateSettingField("aiTone", tone.id)
                             }
-                            className={`p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border-2 cursor-pointer transition-all duration-300 hover:-translate-y-1 sm:hover:-translate-y-2 flex flex-col items-center text-center ${
+                            className={`p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border cursor-pointer transition-all duration-300 flex flex-col items-center text-center ${
                               settings.aiTone === tone.id
-                                ? "border-indigo-500 bg-indigo-500/10 shadow-[0_10px_20px_rgba(99,102,241,0.2)] lg:shadow-[0_20px_40px_rgba(99,102,241,0.2)] scale-[1.02]"
-                                : "border-white/5 bg-[#1c242d] hover:bg-[#1c242d]"
+                                ? settings.theme === "light"
+                                  ? "border-[#3390ec] bg-[#3390ec]/10 shadow-sm"
+                                  : "border-[#3390ec] bg-[#3390ec]/20 shadow-md"
+                                : settings.theme === "light"
+                                ? "border-[#cbd5e1] bg-white hover:bg-zinc-50"
+                                : "border-white/5 bg-[#1c242d] hover:bg-[#242f3d]"
                             }`}
                           >
                             <span className="text-3xl sm:text-4xl lg:text-5xl mb-3 sm:mb-4 lg:mb-6 drop-shadow-sm">
                               {tone.icon}
                             </span>
                             <p
-                              className={`font-medium text-[10px] sm:text-xs lg:text-sm mb-1.5 sm:mb-2 lg:mb-3 ${
+                              className={`font-semibold text-xs sm:text-sm lg:text-base mb-1.5 sm:mb-2 lg:mb-3 transition-colors duration-300 ${
                                 settings.aiTone === tone.id
-                                  ? "text-indigo-400"
+                                  ? settings.theme === "light"
+                                    ? "text-[#3390ec]"
+                                    : "text-[#3390ec]"
+                                  : settings.theme === "light"
+                                  ? "text-black"
                                   : "text-white"
                               }`}
                             >
@@ -7165,7 +7201,7 @@ const startCall = async (type) => {
                             className={`${settings.theme === "light" ? "bg-white border-zinc-200 shadow-md" : "bg-[#17212b] border-white/5 hover:border-rose-500/30"} border transition-all duration-300 ease-in-out p-5 rounded-[24px] flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-sm group`}
                           >
                             <div className="flex items-center gap-5 relative z-10">
-                              <div className="relative flex-shrink-0 group-hover:scale-110 transition-all duration-300 ease-in-out duration-500">
+                              <div className="relative flex-shrink-0 group-hover:scale-110 transition-all duration-300 ease-in-out">
                                 <img
                                   src={
                                     u.settings?.avatar ||
