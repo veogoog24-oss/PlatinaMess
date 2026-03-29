@@ -414,7 +414,7 @@ const themesMap = {
     name: "Тёмная",
     base: "bg-[#0e1621]",
     panel: "bg-[#17212b]",
-    glass: "bg-[#17212b]/90",
+    glass: "bg-[#17212b]",
     border: "border-[#2b3949]",
     litePanel: "bg-[#17212b]",
     text: "text-white",
@@ -423,14 +423,14 @@ const themesMap = {
   light: {
     id: "light",
     name: "Белая",
-    base: "bg-[#f1f1f1]",
+    base: "bg-white",
     panel: "bg-white",
     glass: "bg-white/90",
-    border: "border-[#e4e4e4]",
+    border: "border-zinc-200",
     litePanel: "bg-white",
     text: "text-zinc-800",
-    subText: "text-zinc-400",
-    bubble: "bg-white shadow-sm border border-zinc-100",
+    subText: "text-zinc-500",
+    bubble: "bg-white shadow-sm border border-zinc-200",
   },
   oled: {
     id: "oled",
@@ -1355,7 +1355,7 @@ const VideoRenderer = memo(({ localStream, remoteStream, facingMode }) => {
         autoPlay
         playsInline
         muted
-        className={`absolute bottom-32 sm:bottom-40 right-4 sm:right-8 w-24 sm:w-32 h-36 sm:h-48 rounded-2xl shadow-md border-2 border-white/20 object-cover z-20 ${
+        className={`absolute bottom-32 sm:bottom-40 right-4 sm:right-8 w-24 sm:w-32 h-36 sm:h-48 rounded-[24px] shadow-md border-2 border-white/20 object-cover z-20 ${
           facingMode === "user" ? "scale-x-[-1]" : ""
         }`}
       />
@@ -1407,7 +1407,7 @@ const CustomAudioPlayer = memo(({ src, isMe, durationText }) => {
 
   return (
     <div
-      className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 pr-4 sm:pr-5 rounded-2xl w-full max-w-[220px] sm:max-w-[280px] shadow-lg backdrop-blur-xl transition-all hover:scale-[1.02] ${
+      className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 pr-4 sm:pr-5 rounded-[24px] w-full max-w-[220px] sm:max-w-[280px] shadow-sm  transition-all duration-300 ease-in-out hover:scale-[1.02] ${
         isMe
           ? "bg-black/30 border border-white/10"
           : "bg-[#242f3d]/90 border border-[#2b3949]/50"
@@ -1415,7 +1415,7 @@ const CustomAudioPlayer = memo(({ src, isMe, durationText }) => {
     >
       <button
         onClick={togglePlay}
-        className={`w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 flex items-center justify-center rounded-full transition-all active:scale-90 hover:scale-105 shadow-md ${
+        className={`w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 flex items-center justify-center rounded-full transition-all duration-300 ease-in-out active:scale-90 hover:scale-105 shadow-md ${
           isMe ? "bg-white text-zinc-950" : "bg-[#3390ec] text-amber-950"
         }`}
       >
@@ -1679,8 +1679,8 @@ function AuthScreen({ onLogin, isDeviceReady }) {
     return (
       <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-[#0e1621] font-sans p-4">
         <div className="w-20 h-20 sm:w-24 sm:h-24 relative mb-6 sm:mb-8">
-          <div className="absolute inset-0 bg-[#3390ec] rounded-2xl animate-ping opacity-20"></div>
-          <div className="absolute inset-0 bg-gradient-to-br from-sky-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="absolute inset-0 bg-[#3390ec] rounded-[24px] animate-ping opacity-20"></div>
+          <div className="absolute inset-0 bg-[#17212b] rounded-[24px] flex items-center justify-center shadow-sm">
             <Crown className="w-10 h-10 sm:w-12 sm:h-12 text-white animate-pulse" />
           </div>
         </div>
@@ -1692,10 +1692,10 @@ function AuthScreen({ onLogin, isDeviceReady }) {
 
   return (
     <div className="flex h-[100dvh] w-full items-center justify-center bg-[#0e1621] font-sans p-4 sm:p-6 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-800/10 via-zinc-950 to-zinc-950"></div>
-      <div className="relative z-10 w-full max-w-[95%] sm:max-w-md max-h-[95vh] overflow-y-auto custom-scrollbar p-6 sm:p-10 lg:p-12 bg-[#1c242d] rounded-2xl sm:rounded-2xl shadow-lg border border-white/10 animate-spring-up flex flex-col justify-center">
+      <div className="absolute inset-0 bg-[#0e1621]"></div>
+      <div className="relative z-10 w-full max-w-[95%] sm:max-w-md max-h-[95vh] overflow-y-auto custom-scrollbar p-6 sm:p-10 lg:p-12 bg-[#1c242d] rounded-[24px] sm:rounded-[24px] shadow-sm border border-white/10 animate-spring-up flex flex-col justify-center">
         <div className="flex flex-col items-center mb-8 sm:mb-10 flex-shrink-0">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-sky-500 to-blue-600 rounded-2xl sm:rounded-2xl flex items-center justify-center shadow-lg mb-4 sm:mb-6 animate-float">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#17212b] rounded-[24px] sm:rounded-[24px] flex items-center justify-center shadow-sm mb-4 sm:mb-6 ">
             <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
           <h1 className="text-3xl sm:text-4xl font-medium text-white leading-none">
@@ -1714,7 +1714,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
             <div className="flex flex-col items-center gap-2 mb-6 animate-fade-in">
               <div
                 onClick={() => avatarRef.current?.click()}
-                className="relative w-24 h-24 rounded-full bg-black/50 border-[3px] border-[#2b3949] flex items-center justify-center cursor-pointer hover:border-[#3390ec] transition-colors overflow-hidden group shadow-xl"
+                className="relative w-24 h-24 rounded-full bg-[#242f3d] border-[3px] border-[#2b3949] flex items-center justify-center cursor-pointer hover:border-[#3390ec] transition-all duration-300 ease-in-out overflow-hidden group shadow-md"
               >
                 {avatar || avatarPreview ? (
                   <img
@@ -1724,10 +1724,10 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                 ) : (
                   <Camera
                     size={32}
-                    className="text-zinc-600 group-hover:text-[#3390ec] transition-colors"
+                    className="text-zinc-600 group-hover:text-[#3390ec] transition-all duration-300 ease-in-out"
                   />
                 )}
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute inset-0 bg-[#242f3d] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <span className="text-[9px] font-medium text-white">
                     {t("photo", lang)}
                   </span>
@@ -1743,7 +1743,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                       setAvatarPreview(url);
                       setAvatar(null);
                     }}
-                    className={`w-10 h-10 rounded-full cursor-pointer border-2 transition-all flex-shrink-0 hover:scale-110 ${avatarPreview === url ? "border-[#3390ec] scale-110 shadow-lg" : "border-[#2b3949] opacity-60"}`}
+                    className={`w-10 h-10 rounded-full cursor-pointer border-2 transition-all duration-300 ease-in-out flex-shrink-0 hover:scale-110 ${avatarPreview === url ? "border-[#3390ec] scale-110 shadow-sm" : "border-[#2b3949] opacity-60"}`}
                   >
                     <img src={url} className="w-full h-full rounded-full" />
                   </div>
@@ -1758,42 +1758,42 @@ function AuthScreen({ onLogin, isDeviceReady }) {
               />
               <div className="w-full space-y-4 sm:space-y-5 mt-4">
                 <div className="relative group">
-                  <UserCircle className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
+                  <UserCircle className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-all duration-300 ease-in-out w-4 h-4 sm:w-5 sm:h-5" />
                   <input
                     type="text"
                     placeholder={t("disp_name", lang)}
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="w-full bg-[#242f3d] border border-transparent rounded-lg py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] focus:ring-1 focus:ring-[#3390ec] transition-all font-medium placeholder-zinc-500 text-xs sm:text-sm"
+                    className="w-full bg-[#242f3d] border border-transparent rounded-[24px] py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] focus:ring-1 focus:ring-[#3390ec] transition-all duration-300 ease-in-out font-medium placeholder-zinc-500 text-xs sm:text-sm"
                   />
                 </div>
                 <div className="relative group">
-                  <span className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5 font-bold">@</span>
+                  <span className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-all duration-300 ease-in-out w-4 h-4 sm:w-5 sm:h-5 font-bold">@</span>
                   <input
                     type="text"
                     placeholder="USERNAME"
                     value={usernameHandle}
                     onChange={(e) => setUsernameHandle(e.target.value)}
-                    className="w-full bg-[#242f3d] border border-transparent rounded-lg py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] focus:ring-1 focus:ring-[#3390ec] transition-all font-medium placeholder-zinc-500 text-xs sm:text-sm"
+                    className="w-full bg-[#242f3d] border border-transparent rounded-[24px] py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] focus:ring-1 focus:ring-[#3390ec] transition-all duration-300 ease-in-out font-medium placeholder-zinc-500 text-xs sm:text-sm"
                   />
                 </div>
                 <div className="relative group">
-                  <Info className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
+                  <Info className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-all duration-300 ease-in-out w-4 h-4 sm:w-5 sm:h-5" />
                   <input
                     type="text"
                     placeholder={t("bio", lang)}
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
-                    className="w-full bg-[#242f3d] border border-transparent rounded-lg py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] focus:ring-1 focus:ring-[#3390ec] transition-all font-medium placeholder-zinc-500 text-xs sm:text-sm"
+                    className="w-full bg-[#242f3d] border border-transparent rounded-[24px] py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 text-white focus:outline-none focus:border-[#3390ec] focus:ring-1 focus:ring-[#3390ec] transition-all duration-300 ease-in-out font-medium placeholder-zinc-500 text-xs sm:text-sm"
                   />
                 </div>
                 <div className="relative group">
-                  <CalendarDays className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-colors w-4 h-4 sm:w-5 sm:h-5" />
+                  <CalendarDays className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#3390ec] transition-all duration-300 ease-in-out w-4 h-4 sm:w-5 sm:h-5" />
                   <input
                     type="date"
                     value={birthday}
                     onChange={(e) => setBirthday(e.target.value)}
-                    className={`w-full bg-[#242f3d] border border-transparent rounded-lg py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 focus:outline-none focus:border-[#3390ec] focus:ring-1 focus:ring-[#3390ec] transition-all font-medium text-xs sm:text-sm ${
+                    className={`w-full bg-[#242f3d] border border-transparent rounded-[24px] py-3.5 sm:py-4 pl-11 sm:pl-14 pr-4 sm:pr-6 focus:outline-none focus:border-[#3390ec] focus:ring-1 focus:ring-[#3390ec] transition-all duration-300 ease-in-out font-medium text-xs sm:text-sm ${
                       birthday ? "text-white" : "text-zinc-500"
                     }`}
                   />
@@ -1803,7 +1803,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           )}
 
           {error && (
-            <div className="text-rose-500 text-[10px] sm:text-[11px] font-medium text-center animate-shake bg-rose-500/10 py-2 sm:py-3 rounded-lg border border-rose-500/20 leading-relaxed px-2 sm:px-4">
+            <div className="text-rose-500 text-[10px] sm:text-[11px] font-medium text-center animate-shake bg-rose-500/10 py-2 sm:py-3 rounded-[24px] border border-rose-500/20 leading-relaxed px-2 sm:px-4">
               {error}
             </div>
           )}
@@ -1812,7 +1812,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 sm:py-4 mt-2 sm:mt-4 bg-[#3390ec] hover:bg-[#2b7bc4] text-white font-medium rounded-lg shadow-md transition-colors active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+            className="w-full py-3.5 sm:py-4 mt-2 sm:mt-4 bg-[#3390ec] hover:bg-[#2b7bc4] text-white font-medium rounded-[24px] shadow-md transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
           >
             {loading ? (
               <Loader2 className="animate-spin w-5 h-5 sm:w-6 sm:h-6" />
@@ -1828,7 +1828,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
-                className="w-full py-3.5 sm:py-4 bg-[#3390ec] hover:bg-[#2b7bc4] text-white font-medium rounded-lg shadow-md transition-colors active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+                className="w-full py-3.5 sm:py-4 bg-[#3390ec] hover:bg-[#2b7bc4] text-white font-medium rounded-[24px] shadow-md transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
               >
                 Войти через Google
               </button>
@@ -1836,7 +1836,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                 type="button"
                 onClick={() => setMode("register")}
                 disabled={loading}
-                className="w-full py-3.5 sm:py-4 bg-[#242f3d] hover:bg-[#2b3949] text-[#3390ec] font-medium rounded-lg shadow-md transition-colors active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+                className="w-full py-3.5 sm:py-4 bg-[#242f3d] hover:bg-[#2b3949] text-[#3390ec] font-medium rounded-[24px] shadow-md transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
               >
                 Нет аккаунта? Создать
               </button>
@@ -1849,7 +1849,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
-                className="w-full py-3.5 sm:py-4 bg-[#3390ec] hover:bg-[#2b7bc4] text-white font-medium rounded-lg shadow-md transition-colors active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+                className="w-full py-3.5 sm:py-4 bg-[#3390ec] hover:bg-[#2b7bc4] text-white font-medium rounded-[24px] shadow-md transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
               >
                 Зарегистрироваться через Google
               </button>
@@ -1857,7 +1857,7 @@ function AuthScreen({ onLogin, isDeviceReady }) {
                 type="button"
                 onClick={() => setMode("login")}
                 disabled={loading}
-                className="w-full py-3.5 sm:py-4 bg-[#242f3d] hover:bg-[#2b3949] text-[#3390ec] font-medium rounded-lg shadow-md transition-colors active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
+                className="w-full py-3.5 sm:py-4 bg-[#242f3d] hover:bg-[#2b3949] text-[#3390ec] font-medium rounded-[24px] shadow-md transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center text-sm sm:text-base group overflow-hidden relative"
               >
                 Уже есть аккаунт? Войти
               </button>
@@ -3792,14 +3792,14 @@ const startCall = async (type) => {
       {/* --- КАРТОЧКА ПРОФИЛЯ (МОДАЛЬНОЕ ОКНО) --- */}
       {viewingProfile && (
         <div
-          className="fixed inset-0 z-[2000] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fade-in"
+          className="fixed inset-0 z-[2000] bg-[#242f3d]  flex items-center justify-center p-4 sm:p-6 animate-fade-in"
           onClick={() => {
             setViewingProfile(null);
             setGiftActionMenu(null);
           }}
         >
           <div
-            className={`${currentTheme.panel} border ${currentTheme.border} rounded-2xl sm:rounded-2xl w-full max-w-md shadow-lg overflow-hidden relative`}
+            className={`${currentTheme.panel} border ${currentTheme.border} rounded-[24px] sm:rounded-[24px] w-full max-w-md shadow-sm overflow-hidden relative`}
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -3808,27 +3808,27 @@ const startCall = async (type) => {
                 setViewingProfile(null);
                 setGiftActionMenu(null);
               }}
-              className="absolute top-4 right-4 z-50 p-2 bg-black/50 hover:bg-white/20 rounded-full text-white transition-all hover:rotate-90"
+              className="absolute top-4 right-4 z-50 p-2 bg-[#242f3d] hover:bg-white/20 rounded-full text-white transition-all duration-300 ease-in-out hover:rotate-90"
             >
               <X size={20} />
             </button>
 
             <div className="p-6 sm:p-8 flex flex-col items-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-b from-sky-500/10 to-transparent pointer-events-none"></div>
+              <div className="absolute inset-0 bg-[#17212b] pointer-events-none"></div>
               <div
                 className="relative group cursor-pointer"
                 onClick={() => window.open(viewingProfile.avatar, "_blank")}
               >
                 <img
                   src={viewingProfile.avatar}
-                  className={`w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover relative z-10 transition-transform duration-500 group-hover:scale-105 ${
+                  className={`w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover relative z-10 transition-all duration-300 ease-in-out duration-500 group-hover:scale-105 ${
                     viewingProfile.isPremium
                       ? "border-4 border-[#3390ec] shadow-md"
-                      : "border-4 border-[#2b3949] shadow-lg"
+                      : "border-4 border-[#2b3949] shadow-sm"
                   } ${viewingProfile.profileBlur ? "blur-xl grayscale" : ""}`}
                 />
                 {viewingProfile.isPremium && (
-                  <div className="absolute -bottom-2 -right-2 bg-[#17212b] rounded-full p-2 z-20 shadow-xl border border-[#3390ec]/30">
+                  <div className="absolute -bottom-2 -right-2 bg-[#17212b] rounded-full p-2 z-20 shadow-md border border-[#3390ec]/30">
                     <Crown size={20} className="text-sky-400 fill-amber-400" />
                   </div>
                 )}
@@ -3846,7 +3846,7 @@ const startCall = async (type) => {
                   className="text-3xl"
                 />
                 {viewingProfile.activeBadge && (
-                  <span className="text-3xl animate-bounce-slow drop-shadow-lg ml-1">
+                  <span className="text-3xl  drop-shadow-sm ml-1">
                     {viewingProfile.activeBadge}
                   </span>
                 )}
@@ -3859,7 +3859,7 @@ const startCall = async (type) => {
                       OFFICIAL_BADGES[viewingProfile.officialBadge].bg
                     } ${
                       OFFICIAL_BADGES[viewingProfile.officialBadge].color
-                    } border border-current/20 shadow-lg flex items-center gap-1.5`}
+                    } border border-current/20 shadow-sm flex items-center gap-1.5`}
                   >
                     {OFFICIAL_BADGES[viewingProfile.officialBadge].icon}
                     {""}
@@ -3874,7 +3874,7 @@ const startCall = async (type) => {
 
             <div className="px-6 pb-6 sm:px-8 sm:pb-8 space-y-3 sm:space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar relative z-10">
               <div
-                className={`${settings.theme === "light" ? "bg-[#f1f1f1]" : "bg-black/50"} p-4 sm:p-5 rounded-2xl sm:rounded-xl border ${currentTheme.border} shadow-inner`}
+                className={`${settings.theme === "light" ? "bg-white" : "bg-[#242f3d]"} p-4 sm:p-5 rounded-[24px] sm:rounded-2xl border ${currentTheme.border} shadow-inner`}
               >
                 <p className="text-[9px] sm:text-[10px] text-zinc-500 font-medium tracking-[0.2em] mb-1 sm:mb-1.5 flex items-center gap-1.5">
                   <Info size={12} /> {getText("bio")}
@@ -3888,9 +3888,9 @@ const startCall = async (type) => {
 
               {viewingProfile.birthday && (
                 <div
-                  className={`${settings.theme === "light" ? "bg-[#f1f1f1]" : "bg-black/50"} p-4 sm:p-5 rounded-2xl sm:rounded-xl border ${currentTheme.border} shadow-inner flex items-center gap-3 sm:gap-4`}
+                  className={`${settings.theme === "light" ? "bg-white" : "bg-[#242f3d]"} p-4 sm:p-5 rounded-[24px] sm:rounded-2xl border ${currentTheme.border} shadow-inner flex items-center gap-3 sm:gap-4`}
                 >
-                  <div className="bg-[#3390ec]/20 p-2 sm:p-3 rounded-xl border border-[#3390ec]/30">
+                  <div className="bg-[#3390ec]/20 p-2 sm:p-3 rounded-2xl border border-[#3390ec]/30">
                     <CalendarDays className="text-[#3390ec] sm:w-6 sm:h-6" />
                   </div>
                   <div>
@@ -3906,7 +3906,7 @@ const startCall = async (type) => {
                 </div>
               )}
 
-              <div className="bg-black/50 p-4 sm:p-5 rounded-2xl sm:rounded-xl border border-white/5 shadow-inner">
+              <div className="bg-[#242f3d] p-4 sm:p-5 rounded-[24px] sm:rounded-2xl border border-white/5 shadow-inner">
                 <p className="text-[9px] sm:text-[10px] text-zinc-500 font-medium tracking-[0.2em] mb-3 flex items-center justify-between">
                   <span>
                     <Gift size={12} className="inline mr-1 mb-0.5" />
@@ -3914,7 +3914,7 @@ const startCall = async (type) => {
                     {getText("gifts_received")}
                   </span>
                   {""}
-                  <span className="bg-[#242f3d] text-zinc-300 px-2 py-0.5 rounded-md">
+                  <span className="bg-[#242f3d] text-zinc-300 px-2 py-0.5 rounded-2xl">
                     {viewingProfile.receivedGifts?.length || 0}
                   </span>
                 </p>
@@ -3927,26 +3927,26 @@ const startCall = async (type) => {
                           viewingProfile.id === currentUserAcc &&
                           setGiftActionMenu({ gift: g, index: i })
                         }
-                        className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-br ${
+                        className={`p-3 sm:p-4 rounded-2xl sm:rounded-[24px] ${
                           g.grad
                         } border ${
                           g.border
-                        } flex flex-col items-center justify-center min-w-[70px] sm:min-w-[80px] transition-transform group relative ${
+                        } flex flex-col items-center justify-center min-w-[70px] sm:min-w-[80px] transition-all duration-300 ease-in-out group relative ${
                           viewingProfile.id === currentUserAcc
                             ? "cursor-pointer hover:scale-110 hover:shadow-md"
                             : ""
                         }`}
                       >
-                        <span className="text-3xl sm:text-4xl drop-shadow-xl group-hover:animate-bounce-slow">
+                        <span className="text-3xl sm:text-4xl drop-shadow-md group-hover:">
                           {g.icon}
                         </span>
-                        <div className="absolute -top-2 -right-2 bg-black/80 px-2 py-0.5 rounded-md text-[8px] font-medium text-white border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity z-20 whitespace-nowrap">
+                        <div className="absolute -top-2 -right-2 bg-black/80 px-2 py-0.5 rounded-2xl text-[8px] font-medium text-white border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity z-20 whitespace-nowrap">
                           от {g.fromName || g.from}
                         </div>
                       </div>
                     ))
                   ) : (
-                    <p className="text-xs sm:text-sm text-zinc-600 font-medium text-center w-full py-4 bg-white/5 rounded-xl border border-dashed border-white/10">
+                    <p className="text-xs sm:text-sm text-zinc-600 font-medium text-center w-full py-4 bg-white/5 rounded-2xl border border-dashed border-white/10">
                       {getText("empty_gifts")}
                     </p>
                   )}
@@ -3957,14 +3957,14 @@ const startCall = async (type) => {
             {/* МЕНЮ ДЕЙСТВИЙ С ПОДАРКОМ (Только для себя) */}
             {giftActionMenu && (
               <div
-                className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-6 animate-fade-in"
+                className="absolute inset-0 z-50 bg-black/80  flex items-center justify-center p-6 animate-fade-in"
                 onClick={() => setGiftActionMenu(null)}
               >
                 <div
-                  className="bg-[#17212b] border border-[#3390ec]/30 p-6 rounded-2xl shadow-lg w-full max-w-xs flex flex-col items-center animate-spring-up"
+                  className="bg-[#17212b] border border-[#3390ec]/30 p-6 rounded-[24px] shadow-sm w-full max-w-xs flex flex-col items-center animate-spring-up"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <span className="text-6xl mb-4 drop-shadow-lg animate-float">
+                  <span className="text-6xl mb-4 drop-shadow-sm ">
                     {giftActionMenu.gift.icon}
                   </span>
                   <h3 className="text-white font-medium text-xl mb-1">
@@ -3978,13 +3978,13 @@ const startCall = async (type) => {
                   <div className="w-full space-y-2">
                     <button
                       onClick={handlePinGiftBadge}
-                      className="w-full py-3 bg-[#3390ec]/20 hover:bg-[#3390ec] text-[#3390ec] hover:text-black font-medium text-xs rounded-xl transition-all border border-[#3390ec]/30 flex items-center justify-center gap-2"
+                      className="w-full py-3 bg-[#3390ec]/20 hover:bg-[#3390ec] text-[#3390ec] hover:text-black font-medium text-xs rounded-2xl transition-all duration-300 ease-in-out border border-[#3390ec]/30 flex items-center justify-center gap-2"
                     >
                       <UserCircle size={16} /> {getText("pin_badge")}
                     </button>
                     <button
                       onClick={handleSellGift}
-                      className="w-full py-3 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-medium text-xs rounded-xl transition-all border border-cyan-500/20 flex items-center justify-center gap-2"
+                      className="w-full py-3 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-medium text-xs rounded-2xl transition-all duration-300 ease-in-out border border-cyan-500/20 flex items-center justify-center gap-2"
                     >
                       <Wallet size={16} /> {getText("sell_gift")} (+
                       {Math.floor(giftActionMenu.gift.price * 0.5) || 1}
@@ -3993,7 +3993,7 @@ const startCall = async (type) => {
                     </button>
                     <button
                       onClick={() => setGiftActionMenu(null)}
-                      className="w-full py-3 mt-2 bg-[#242f3d] hover:bg-[#2b3949] text-zinc-300 font-medium text-xs rounded-xl transition-all"
+                      className="w-full py-3 mt-2 bg-[#242f3d] hover:bg-[#2b3949] text-zinc-300 font-medium text-xs rounded-2xl transition-all duration-300 ease-in-out"
                     >
                       ОТМЕНА
                     </button>
@@ -4007,11 +4007,11 @@ const startCall = async (type) => {
 
       {/* --- ВХОДЯЩИЙ ЗВОНОК (MODAL) --- */}
       {incomingCallData && !callState && (
-        <div className="fixed inset-0 z-[1100] bg-black/95 backdrop-blur-3xl flex flex-col items-center justify-center animate-fade-in p-6 overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-green-500/10 to-transparent pointer-events-none"></div>
-          <div className="relative mb-12 animate-bounce-slow">
+        <div className="fixed inset-0 z-[1100] bg-black/95  flex flex-col items-center justify-center animate-fade-in p-6 overflow-hidden">
+          <div className="absolute inset-0 bg-transparent pointer-events-none"></div>
+          <div className="relative mb-12 ">
             <div className="absolute inset-0 bg-green-500/30 rounded-full animate-ping shadow-md"></div>
-            <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-[#17212b] border-[4px] border-green-500 relative z-10 flex items-center justify-center shadow-lg">
+            <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-[#17212b] border-[4px] border-green-500 relative z-10 flex items-center justify-center shadow-sm">
               {incomingCallData.type === "video" ? (
                 <Video className="w-12 h-12 sm:w-16 sm:h-16 text-green-400 animate-pulse" />
               ) : (
@@ -4019,7 +4019,7 @@ const startCall = async (type) => {
               )}
             </div>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-medium text-white mb-3 text-center drop-shadow-lg">
+          <h2 className="text-3xl sm:text-5xl font-medium text-white mb-3 text-center drop-shadow-sm">
             Входящий {""}
             {incomingCallData.type === "video" ? "видеозвонок" : "звонок"}
           </h2>
@@ -4029,13 +4029,13 @@ const startCall = async (type) => {
           <div className="flex items-center gap-10 sm:gap-16 z-10">
             <button
               onClick={rejectCall}
-              className="w-20 h-20 sm:w-24 sm:h-24 bg-rose-600 hover:bg-rose-500 rounded-full flex items-center justify-center shadow-md active:scale-90 transition-transform"
+              className="w-20 h-20 sm:w-24 sm:h-24 bg-rose-600 hover:bg-rose-500 rounded-full flex items-center justify-center shadow-md active:scale-90 transition-all duration-300 ease-in-out"
             >
               <PhoneOff size={32} className="text-white sm:w-10 sm:h-10" />
             </button>
             <button
               onClick={answerCall}
-              className="w-20 h-20 sm:w-24 sm:h-24 bg-green-500 hover:bg-green-400 rounded-full flex items-center justify-center shadow-md active:scale-90 transition-transform animate-pulse"
+              className="w-20 h-20 sm:w-24 sm:h-24 bg-green-500 hover:bg-green-400 rounded-full flex items-center justify-center shadow-md active:scale-90 transition-all duration-300 ease-in-out animate-pulse"
             >
               <Phone size={32} className="text-white sm:w-10 sm:h-10" />
             </button>
@@ -4054,7 +4054,7 @@ const startCall = async (type) => {
             />
           )}
           {callState.type === "video" && (
-            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/20 to-black/90 pointer-events-none"></div>
+            <div className="absolute inset-0 bg-[#17212b] pointer-events-none"></div>
           )}
           <div className="relative z-10 flex flex-col items-center mt-16 sm:mt-24 pointer-events-none">
             {callState.type === "audio" && (
@@ -4076,10 +4076,10 @@ const startCall = async (type) => {
             {callState.type === "video" && (
               <img
                 src={callState.peer.avatar}
-                className="w-16 h-16 rounded-full border-[3px] border-white/20 relative z-10 object-cover mb-4 shadow-lg"
+                className="w-16 h-16 rounded-full border-[3px] border-white/20 relative z-10 object-cover mb-4 shadow-sm"
               />
             )}
-            <h2 className="text-2xl sm:text-3xl font-medium text-white drop-shadow-xl">
+            <h2 className="text-2xl sm:text-3xl font-medium text-white drop-shadow-md">
               {callState.peer.name}
             </h2>
             <div className="text-sky-400 font-mono text-sm sm:text-lg mt-3 font-medium tracking-[0.2em] drop-shadow-md">
@@ -4093,12 +4093,12 @@ const startCall = async (type) => {
             </div>
           </div>
           <audio ref={remoteAudioRef} autoPlay playsInline className="hidden" />
-          <div className="relative z-10 flex items-center justify-center gap-4 sm:gap-6 mb-10 sm:mb-16 bg-black/60 backdrop-blur-2xl p-4 sm:p-6 rounded-2xl sm:rounded-2xl border border-white/10 shadow-lg">
+          <div className="relative z-10 flex items-center justify-center gap-4 sm:gap-6 mb-10 sm:mb-16 bg-[#1c242d]  p-4 sm:p-6 rounded-[24px] sm:rounded-[24px] border border-white/10 shadow-sm">
             {callState.type === "video" && (
               <button
                 type="button"
                 onClick={toggleCameraFlip}
-                className="p-3 sm:p-4 bg-white/10 hover:bg-white/20 rounded-full transition-all active:scale-90 text-white"
+                className="p-3 sm:p-4 bg-white/10 hover:bg-white/20 rounded-full transition-all duration-300 ease-in-out active:scale-90 text-white"
               >
                 <RefreshCw size={24} className="sm:w-7 sm:h-7" />
               </button>
@@ -4107,7 +4107,7 @@ const startCall = async (type) => {
               <button
                 type="button"
                 onClick={toggleCallVideo}
-                className={`p-3 sm:p-4 rounded-full transition-all active:scale-90 ${
+                className={`p-3 sm:p-4 rounded-full transition-all duration-300 ease-in-out active:scale-90 ${
                   isCallVideoOff
                     ? "bg-white text-zinc-900"
                     : "bg-white/10 hover:bg-white/20 text-white"
@@ -4123,7 +4123,7 @@ const startCall = async (type) => {
             <button
               type="button"
               onClick={toggleCallMute}
-              className={`p-3 sm:p-4 rounded-full transition-all active:scale-90 ${
+              className={`p-3 sm:p-4 rounded-full transition-all duration-300 ease-in-out active:scale-90 ${
                 isCallMuted
                   ? "bg-white text-zinc-900"
                   : "bg-white/10 hover:bg-white/20 text-white"
@@ -4138,7 +4138,7 @@ const startCall = async (type) => {
             <button
               type="button"
               onClick={() => endCall(true)}
-              className="p-4 sm:p-5 bg-rose-600 hover:bg-rose-500 rounded-full shadow-md transition-all active:scale-90 text-white transform hover:rotate-[135deg] duration-300 ml-2 sm:ml-4"
+              className="p-4 sm:p-5 bg-rose-600 hover:bg-rose-500 rounded-full shadow-md transition-all duration-300 ease-in-out active:scale-90 text-white transform hover:rotate-[135deg] duration-300 ml-2 sm:ml-4"
             >
               <PhoneOff size={28} className="sm:w-8 sm:h-8" />
             </button>
@@ -4150,25 +4150,25 @@ const startCall = async (type) => {
       <div
         className={`absolute md:relative inset-0 md:inset-auto w-full md:w-[320px] lg:w-[380px] xl:w-[420px] flex-shrink-0 border-r ${
           currentTheme.border
-        } flex flex-col z-30 md:z-20 transition-transform duration-300 ${
+        } flex flex-col z-30 md:z-20 transition-all duration-300 ease-in-out ${
           activeChat ? "-translate-x-full md:translate-x-0" : "translate-x-0"
         } ${
           isLite
             ? currentTheme.litePanel
-            : `${settings.theme === "light" ? "bg-white/40" : "bg-black/20"} backdrop-blur-3xl shadow-xl`
+            : `${settings.theme === "light" ? "bg-white/40" : "bg-black/20"}  shadow-md`
         }`}
       >
         {isMainMenuOpen && (
           <>
             <div
-              className="absolute inset-0 z-40 bg-black/50"
+              className="absolute inset-0 z-40 bg-[#242f3d]"
               onClick={() => setIsMainMenuOpen(false)}
             />
             <div
-              className={`absolute top-14 sm:top-16 left-4 sm:left-6 w-64 sm:w-72 ${currentTheme.base} border ${currentTheme.border} rounded-2xl shadow-lg z-50 p-2 sm:p-3 animate-spring-up origin-top-left flex flex-col`}
+              className={`absolute top-14 sm:top-16 left-4 sm:left-6 w-64 sm:w-72 ${currentTheme.base} border ${currentTheme.border} rounded-[24px] shadow-sm z-50 p-2 sm:p-3 animate-spring-up origin-top-left flex flex-col`}
             >
               <div
-                className={`px-3 py-3 sm:px-4 sm:py-4 border-b ${currentTheme.border} mb-2 sm:mb-3 flex items-center gap-3 sm:gap-4 group cursor-pointer hover:bg-white/5 rounded-2xl transition-all`}
+                className={`px-3 py-3 sm:px-4 sm:py-4 border-b ${currentTheme.border} mb-2 sm:mb-3 flex items-center gap-3 sm:gap-4 group cursor-pointer hover:bg-white/5 rounded-[24px] transition-all duration-300 ease-in-out`}
                 onClick={() => {
                   setIsMainMenuOpen(false);
                   loadProfile(currentUserAcc);
@@ -4181,7 +4181,7 @@ const startCall = async (type) => {
                       `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUserAcc}`
                     }
                     alt="me"
-                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#242f3d] transition-transform duration-500 group-hover:scale-110 object-cover ${
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#242f3d] transition-all duration-300 ease-in-out duration-500 group-hover:scale-110 object-cover ${
                       settings.isPremium
                         ? "ring-2 ring-sky-400 ring-offset-2 ring-offset-zinc-900 shadow-md"
                         : ""
@@ -4220,7 +4220,7 @@ const startCall = async (type) => {
                   setIsMainMenuOpen(false);
                   setShowSettings(true);
                 }}
-                className="w-full text-left flex items-center gap-3 sm:gap-4 px-3 py-3 sm:px-4 sm:py-3.5 hover:bg-white/5 rounded-2xl transition-all active:scale-95 text-[11px] sm:text-xs font-medium text-zinc-300 hover:text-white"
+                className="w-full text-left flex items-center gap-3 sm:gap-4 px-3 py-3 sm:px-4 sm:py-3.5 hover:bg-white/5 rounded-[24px] transition-all duration-300 ease-in-out active:scale-95 text-[11px] sm:text-xs font-medium text-zinc-300 hover:text-white"
               >
                 <Settings size={18} className="text-zinc-500 flex-shrink-0" />
                 {""}
@@ -4232,7 +4232,7 @@ const startCall = async (type) => {
                   setIsMainMenuOpen(false);
                   setShowAddContact(true);
                 }}
-                className="w-full text-left flex items-center gap-3 sm:gap-4 px-3 py-3 sm:px-4 sm:py-3.5 hover:bg-white/5 rounded-2xl transition-all active:scale-95 text-[11px] sm:text-xs font-medium text-zinc-300 hover:text-white"
+                className="w-full text-left flex items-center gap-3 sm:gap-4 px-3 py-3 sm:px-4 sm:py-3.5 hover:bg-white/5 rounded-[24px] transition-all duration-300 ease-in-out active:scale-95 text-[11px] sm:text-xs font-medium text-zinc-300 hover:text-white"
               >
                 <UserPlus size={18} className="text-zinc-500 flex-shrink-0" />
                 {""}
@@ -4242,11 +4242,11 @@ const startCall = async (type) => {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full text-left flex items-center gap-3 sm:gap-4 px-3 py-3 sm:px-4 sm:py-3.5 hover:bg-rose-500/10 hover:text-rose-400 text-zinc-500 rounded-2xl transition-all active:scale-95 text-[11px] sm:text-xs font-medium group"
+                className="w-full text-left flex items-center gap-3 sm:gap-4 px-3 py-3 sm:px-4 sm:py-3.5 hover:bg-rose-500/10 hover:text-rose-400 text-zinc-500 rounded-[24px] transition-all duration-300 ease-in-out active:scale-95 text-[11px] sm:text-xs font-medium group"
               >
                 <LogOut
                   size={18}
-                  className="group-hover:translate-x-1 transition-transform flex-shrink-0"
+                  className="group-hover:translate-x-1 transition-all duration-300 ease-in-out flex-shrink-0"
                 />
                 {""}
                 <span className="truncate">{getText("logout")}</span>
@@ -4256,12 +4256,12 @@ const startCall = async (type) => {
         )}
 
         <div
-          className={`p-3 sm:p-4 md:p-6 flex items-center gap-2 sm:gap-4 border-b ${currentTheme.border} ${settings.theme === "light" ? "bg-[#f1f1f1]" : "bg-white/5"}`}
+          className={`p-3 sm:p-4 md:p-6 flex items-center gap-2 sm:gap-4 border-b ${currentTheme.border} ${settings.theme === "light" ? "bg-white" : "bg-white/5"}`}
         >
           <button
             type="button"
             onClick={() => setIsMainMenuOpen(true)}
-            className={`p-2 sm:p-3 ${settings.theme === "light" ? "hover:bg-black/5" : "hover:bg-white/10"} rounded-xl transition-all active:scale-90 flex-shrink-0`}
+            className={`p-2 sm:p-3 ${settings.theme === "light" ? "hover:bg-black/5" : "hover:bg-white/10"} rounded-2xl transition-all duration-300 ease-in-out active:scale-90 flex-shrink-0`}
           >
             <Menu
               size={24}
@@ -4272,7 +4272,7 @@ const startCall = async (type) => {
           </button>
           <div className="relative flex-1 group min-w-0">
             <Search
-              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-[#3390ec] transition-colors"
+              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-[#3390ec] transition-all duration-300 ease-in-out"
               size={16}
             />
             <input
@@ -4280,13 +4280,13 @@ const startCall = async (type) => {
               placeholder={getText("search")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full ${settings.theme === "light" ? "bg-[#f1f1f1] text-zinc-900" : "bg-black/40 text-white"} border ${currentTheme.border} rounded-xl sm:rounded-2xl py-2.5 sm:py-3.5 pl-9 sm:pl-12 pr-3 sm:pr-4 text-[10px] sm:text-[11px] md:text-xs focus:outline-none transition-all font-medium placeholder-zinc-500 truncate`}
+              className={`w-full ${settings.theme === "light" ? "bg-white text-zinc-900" : "bg-[#1c242d] text-white"} border ${currentTheme.border} rounded-2xl sm:rounded-[24px] py-2.5 sm:py-3.5 pl-9 sm:pl-12 pr-3 sm:pr-4 text-[10px] sm:text-[11px] md:text-xs focus:outline-none transition-all duration-300 ease-in-out font-medium placeholder-zinc-500 truncate`}
             />
           </div>
           <button
             type="button"
             onClick={() => setShowAddContact(true)}
-            className={`p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl ${currentAccent.bg} ${currentAccent.text} shadow-md active:scale-90 transition-transform hover:rotate-90 flex-shrink-0`}
+            className={`p-2.5 sm:p-3.5 rounded-2xl sm:rounded-[24px] ${currentAccent.bg} ${currentAccent.text} shadow-md active:scale-90 transition-all duration-300 ease-in-out hover:rotate-90 flex-shrink-0`}
           >
             <UserPlus size={18} className="sm:w-5 sm:h-5" />
           </button>
@@ -4316,10 +4316,10 @@ const startCall = async (type) => {
                     setEditingMsg(null);
                     setShowChatMenu(false);
                   }}
-                  className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl cursor-pointer transition-all duration-300 ${
+                  className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-[24px] cursor-pointer transition-all duration-300 ${
                     isActive
-                      ? `${settings.theme === "light" ? "bg-zinc-200" : "bg-white/10"} shadow-lg ring-1 ${settings.theme === "light" ? "ring-zinc-300" : "ring-white/10"}`
-                      : `${settings.theme === "light" ? "hover:bg-[#f1f1f1]" : "hover:bg-white/5"} hover:scale-[1.01]`
+                      ? `${settings.theme === "light" ? "bg-zinc-200" : "bg-white/10"} shadow-sm ring-1 ${settings.theme === "light" ? "ring-zinc-300" : "ring-white/10"}`
+                      : `${settings.theme === "light" ? "hover:bg-white" : "hover:bg-white/5"} hover:scale-[1.01]`
                   }`}
                 >
                   <div className="relative flex-shrink-0">
@@ -4419,7 +4419,7 @@ const startCall = async (type) => {
               <button
                 type="button"
                 onClick={() => setShowAddContact(true)}
-                className={`text-[9px] sm:text-[10px] font-medium px-4 py-3 sm:px-6 sm:py-4 rounded-full transition-transform active:scale-95 shadow-md ${currentAccent.bg} ${currentAccent.text}`}
+                className={`text-[9px] sm:text-[10px] font-medium px-4 py-3 sm:px-6 sm:py-4 rounded-full transition-all duration-300 ease-in-out active:scale-95 shadow-md ${currentAccent.bg} ${currentAccent.text}`}
               >
                 {getText("find_bros")}
               </button>
@@ -4432,13 +4432,13 @@ const startCall = async (type) => {
       <div
         className={`absolute md:relative inset-0 w-full flex-1 flex flex-col ${
           currentTheme.panel
-        } z-30 md:z-10 overflow-hidden transition-transform duration-500 ${
+        } z-30 md:z-10 overflow-hidden transition-all duration-300 ease-in-out duration-500 ${
           activeChat ? "translate-x-0" : "translate-x-full md:translate-x-0"
         }`}
       >
         {!isLite && (
           <div
-            className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay"
+            className="absolute inset-0 opacity-10 pointer-events-none "
             style={getWallpaperStyle()}
           ></div>
         )}
@@ -4446,18 +4446,16 @@ const startCall = async (type) => {
         {!activeChat ? (
           <div className="hidden md:flex flex-1 flex-col items-center justify-center text-zinc-500 relative z-10 p-4">
             <div
-              className={`w-24 h-24 mb-6 rounded-2xl flex items-center justify-center border border-[#2b3949]/30 ${
-                isLite
-                  ? "bg-[#242f3d]"
-                  : "bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 backdrop-blur-xl animate-float shadow-xl"
+              className={`w-24 h-24 mb-6 rounded-full flex items-center justify-center border ${
+                settings.theme === "light" ? "bg-white border-zinc-200" : "bg-[#17212b] border-[#2b3949]/30 shadow-md"
               }`}
             >
-              <div className="w-12 h-12 rounded-xl bg-[#2b3949]/50 flex items-center justify-center animate-pulse">
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${settings.theme === "light" ? "bg-zinc-100" : "bg-[#2b3949]/50"}`}>
                 <Search size={24} className="text-zinc-500" />
               </div>
             </div>
-            <h3 className="text-xl font-medium text-zinc-300 mb-2 drop-shadow-md">
-              PLATINA WEB
+            <h3 className={`text-xl font-medium mb-2 ${settings.theme === "light" ? "text-zinc-800" : "text-zinc-300"}`}>
+              PLATINA MESSENGER
             </h3>
             <p className="text-[10px] text-zinc-500 max-w-xs text-center font-medium">
               Выбери чат слева или найди друга.
@@ -4470,7 +4468,7 @@ const startCall = async (type) => {
               className={`h-16 sm:h-20 flex items-center justify-between px-3 sm:px-6 md:px-8 border-b ${currentTheme.border} z-20 shadow-sm flex-shrink-0 ${
                 isLite
                   ? currentTheme.litePanel
-                  : `${settings.theme === "light" ? "bg-white/60" : "bg-black/40"} backdrop-blur-3xl`
+                  : `${settings.theme === "light" ? "bg-white" : "bg-[#1c242d]"}`
               }`}
             >
               <div
@@ -4483,14 +4481,14 @@ const startCall = async (type) => {
                     e.stopPropagation();
                     setActiveChat(null);
                   }}
-                  className={`md:hidden p-2 -ml-2 ${settings.theme === "light" ? "text-zinc-600 hover:text-zinc-900" : "text-zinc-400 hover:text-white"} active:scale-90 transition-all flex-shrink-0`}
+                  className={`md:hidden p-2 -ml-2 ${settings.theme === "light" ? "text-zinc-600 hover:text-zinc-900" : "text-zinc-400 hover:text-white"} active:scale-90 transition-all duration-300 ease-in-out flex-shrink-0`}
                 >
                   <ChevronLeft size={26} />
                 </button>
-                <div className="relative flex-shrink-0 group-hover:scale-110 transition-transform">
+                <div className="relative flex-shrink-0 group-hover:scale-110 transition-all duration-300 ease-in-out">
                   <img
                     src={chatUser.avatar || activeChat.avatar}
-                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full shadow-lg object-cover ${
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full shadow-sm object-cover ${
                       chatUser.isPremium
                         ? "ring-2 ring-sky-400"
                         : "ring-1 sm:ring-2 ring-white/5"
@@ -4517,7 +4515,7 @@ const startCall = async (type) => {
                       className="text-lg"
                     />
                     {chatUser.activeBadge && (
-                      <span className="text-lg drop-shadow-lg">
+                      <span className="text-lg drop-shadow-sm">
                         {chatUser.activeBadge}
                       </span>
                     )}
@@ -4540,14 +4538,14 @@ const startCall = async (type) => {
                     <button
                       type="button"
                       onClick={() => startCall("audio")}
-                      className={`p-2 sm:p-3 ${settings.theme === "light" ? "text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-[#f1f1f1]" : "text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20"} rounded-xl transition-all active:scale-90 shadow-sm`}
+                      className={`p-2 sm:p-3 ${settings.theme === "light" ? "text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-white" : "text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20"} rounded-2xl transition-all duration-300 ease-in-out active:scale-90 shadow-sm`}
                     >
                       <Phone size={18} className="sm:w-[20px] sm:h-[20px]" />
                     </button>
                     <button
                       type="button"
                       onClick={() => startCall("video")}
-                      className={`p-2 sm:p-3 ${settings.theme === "light" ? "text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-[#f1f1f1]" : "text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20"} rounded-xl transition-all active:scale-90 shadow-sm`}
+                      className={`p-2 sm:p-3 ${settings.theme === "light" ? "text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-white" : "text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20"} rounded-2xl transition-all duration-300 ease-in-out active:scale-90 shadow-sm`}
                     >
                       <Video size={18} className="sm:w-[20px] sm:h-[20px]" />
                     </button>
@@ -4557,7 +4555,7 @@ const startCall = async (type) => {
                   <button
                     type="button"
                     onClick={() => setShowChatMenu(!showChatMenu)}
-                    className={`p-2 sm:p-3 ${settings.theme === "light" ? "text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-[#f1f1f1]" : "text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20"} rounded-xl transition-all active:scale-90 shadow-sm ml-1 sm:ml-2`}
+                    className={`p-2 sm:p-3 ${settings.theme === "light" ? "text-zinc-600 hover:text-zinc-900 hover:bg-black/5 bg-white" : "text-zinc-500 hover:text-white hover:bg-white/10 bg-black/20"} rounded-2xl transition-all duration-300 ease-in-out active:scale-90 shadow-sm ml-1 sm:ml-2`}
                   >
                     <MoreVertical
                       size={18}
@@ -4565,11 +4563,11 @@ const startCall = async (type) => {
                     />
                   </button>
                   {showChatMenu && (
-                    <div className="absolute top-full right-0 mt-2 w-48 bg-[#17212b]/95 backdrop-blur-3xl border border-white/10 rounded-2xl shadow-lg p-2 z-50 animate-spring-up origin-top-right">
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-[#17212b]  border border-white/10 rounded-[24px] shadow-sm p-2 z-50 animate-spring-up origin-top-right">
                       <button
                         type="button"
                         onClick={handleClearHistory}
-                        className="flex items-center gap-2 px-3 py-3 text-[10px] font-medium text-rose-500 hover:bg-rose-500/10 rounded-xl transition-colors w-full text-left"
+                        className="flex items-center gap-2 px-3 py-3 text-[10px] font-medium text-rose-500 hover:bg-rose-500/10 rounded-2xl transition-all duration-300 ease-in-out w-full text-left"
                       >
                         <Trash size={14} /> {getText("clear_history")}
                       </button>
@@ -4580,7 +4578,7 @@ const startCall = async (type) => {
                           setIsBurnMode(!isBurnMode);
                           setShowChatMenu(false);
                         }}
-                        className={`flex items-center gap-2 px-3 py-3 text-[10px] font-medium rounded-xl transition-colors w-full text-left ${
+                        className={`flex items-center gap-2 px-3 py-3 text-[10px] font-medium rounded-2xl transition-all duration-300 ease-in-out w-full text-left ${
                           isBurnMode
                             ? "text-sky-400 bg-[#3390ec]/10"
                             : "text-zinc-300 hover:bg-white/10"
@@ -4595,7 +4593,7 @@ const startCall = async (type) => {
                           setActiveSettingsTab("appearance");
                           setShowChatMenu(false);
                         }}
-                        className="flex items-center gap-2 px-3 py-3 text-[10px] font-medium text-zinc-300 hover:bg-white/10 rounded-xl transition-colors w-full text-left"
+                        className="flex items-center gap-2 px-3 py-3 text-[10px] font-medium text-zinc-300 hover:bg-white/10 rounded-2xl transition-all duration-300 ease-in-out w-full text-left"
                       >
                         <Wallpaper size={14} /> {getText("change_bg")}
                       </button>
@@ -4606,7 +4604,7 @@ const startCall = async (type) => {
                             setChatToDelete(activeChat);
                             setShowChatMenu(false);
                           }}
-                          className="flex items-center gap-2 px-3 py-3 text-[10px] font-medium text-rose-500 hover:bg-rose-500/10 rounded-xl transition-colors w-full text-left mt-1"
+                          className="flex items-center gap-2 px-3 py-3 text-[10px] font-medium text-rose-500 hover:bg-rose-500/10 rounded-2xl transition-all duration-300 ease-in-out w-full text-left mt-1"
                         >
                           <Trash2 size={14} /> {getText("delete")} чат
                         </button>
@@ -4631,7 +4629,7 @@ const startCall = async (type) => {
             >
               <div className="text-center w-full my-2 sm:my-4">
                 <div
-                  className={`text-[8px] sm:text-[9px] font-medium text-zinc-400 tracking-[0.3em] ${settings.theme === "light" ? "bg-zinc-200" : "bg-black/50"} inline-block px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border ${currentTheme.border}`}
+                  className={`text-[8px] sm:text-[9px] font-medium text-zinc-400 tracking-[0.3em] ${settings.theme === "light" ? "bg-zinc-200" : "bg-[#242f3d]"} inline-block px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border ${currentTheme.border}`}
                 >
                   {getText("today")}
                 </div>
@@ -4651,7 +4649,7 @@ const startCall = async (type) => {
                       } mb-4 sm:mb-6 animate-fade-in`}
                     >
                       <div
-                        className={`px-4 py-2 rounded-2xl flex items-center gap-2 text-[10px] sm:text-xs font-medium border border-dashed ${
+                        className={`px-4 py-2 rounded-[24px] flex items-center gap-2 text-[10px] sm:text-xs font-medium border border-dashed ${
                           isMe
                             ? "border-rose-500/30 text-rose-500/50 bg-rose-500/5"
                             : "border-zinc-500/30 text-zinc-500/50 bg-[#242f3d]/20"
@@ -4671,15 +4669,15 @@ const startCall = async (type) => {
                       className="flex justify-center my-6 sm:my-10 w-full animate-message-pop origin-center"
                     >
                       <div
-                        className={`bg-gradient-to-br ${g.grad} border ${g.border} rounded-2xl sm:rounded-2xl p-6 sm:p-8 flex flex-col items-center relative overflow-hidden backdrop-blur-xl min-w-[200px] sm:min-w-[260px] transition-transform hover:scale-105 shadow-xl`}
+                        className={`${g.grad} border ${g.border} rounded-[24px] sm:rounded-[24px] p-6 sm:p-8 flex flex-col items-center relative overflow-hidden  min-w-[200px] sm:min-w-[260px] transition-all duration-300 ease-in-out hover:scale-105 shadow-md`}
                         style={{ boxShadow: `0 0 40px ${g.glow}` }}
                       >
-                        <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay pointer-events-none"></div>
+                        <div className="absolute inset-0 bg-white/5 opacity-50  pointer-events-none"></div>
                         <div
                           className="absolute top-0 right-0 w-24 h-24 sm:w-40 sm:h-40 rounded-full blur-3xl -mr-8 -mt-8 sm:-mr-12 sm:-mt-12"
                           style={{ backgroundColor: g.glow }}
                         ></div>
-                        <span className="text-6xl sm:text-8xl mb-4 sm:mb-6 animate-float drop-shadow-lg z-10 relative">
+                        <span className="text-6xl sm:text-8xl mb-4 sm:mb-6  drop-shadow-sm z-10 relative">
                           {g.icon}
                         </span>
                         <div className="z-10 flex flex-col items-center text-center relative">
@@ -4693,7 +4691,7 @@ const startCall = async (type) => {
                           >
                             {g.name}
                           </p>
-                          <div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2 bg-black/50 px-3 sm:px-4 py-1 sm:py-2 rounded-full border border-white/10 shadow-inner">
+                          <div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-2 bg-[#242f3d] px-3 sm:px-4 py-1 sm:py-2 rounded-full border border-white/10 shadow-inner">
                             <span className="text-[10px] sm:text-xs text-[#3390ec] font-medium">
                               {g.price}
                             </span>
@@ -4737,7 +4735,7 @@ const startCall = async (type) => {
                           {showAvatar && (
                             <img
                               src={chatUser.avatar || activeChat.avatar}
-                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-md object-cover animate-fade-in cursor-pointer hover:scale-110 transition-transform"
+                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-md object-cover animate-fade-in cursor-pointer hover:scale-110 transition-all duration-300 ease-in-out"
                               onClick={() => loadProfile(activeChat?.id)}
                             />
                           )}
@@ -4760,12 +4758,12 @@ const startCall = async (type) => {
                               );
                               setActiveReactionMsg(null);
                             }}
-                            className="text-zinc-400 hover:text-white p-1.5 sm:p-2 rounded-full bg-[#17212b]/90 backdrop-blur-xl border border-white/10 shadow-lg hover:scale-110 active:scale-90"
+                            className="text-zinc-400 hover:text-white p-1.5 sm:p-2 rounded-full bg-[#17212b]  border border-white/10 shadow-sm hover:scale-110 active:scale-90"
                           >
                             <MoreVertical size={14} className="sm:w-4 sm:h-4" />
                           </button>
                           {activeMessageMenu === msg.id && (
-                            <div className="absolute top-full mt-2 left-0 sm:left-auto sm:right-0 bg-[#17212b]/95 backdrop-blur-3xl border border-white/10 rounded-xl p-2 shadow-lg flex flex-col min-w-[150px] animate-spring-up z-50">
+                            <div className="absolute top-full mt-2 left-0 sm:left-auto sm:right-0 bg-[#17212b]  border border-white/10 rounded-2xl p-2 shadow-sm flex flex-col min-w-[150px] animate-spring-up z-50">
                               <button
                                 type="button"
                                 onClick={(e) => {
@@ -4773,7 +4771,7 @@ const startCall = async (type) => {
                                   setReplyingTo(msg);
                                   setActiveMessageMenu(null);
                                 }}
-                                className="flex items-center gap-2 px-3 py-2.5 text-[10px] sm:text-xs font-medium text-zinc-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors w-full text-left"
+                                className="flex items-center gap-2 px-3 py-2.5 text-[10px] sm:text-xs font-medium text-zinc-300 hover:text-white hover:bg-white/10 rounded-2xl transition-all duration-300 ease-in-out w-full text-left"
                               >
                                 <Reply size={14} /> {getText("reply")}
                               </button>
@@ -4784,7 +4782,7 @@ const startCall = async (type) => {
                                     e.stopPropagation();
                                     readAloud(msg.text);
                                   }}
-                                  className="flex items-center gap-2 px-3 py-2.5 text-[10px] sm:text-xs font-medium text-zinc-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors w-full text-left mt-1"
+                                  className="flex items-center gap-2 px-3 py-2.5 text-[10px] sm:text-xs font-medium text-zinc-300 hover:text-white hover:bg-white/10 rounded-2xl transition-all duration-300 ease-in-out w-full text-left mt-1"
                                 >
                                   <Volume2 size={14} /> {getText("read_aloud")}
                                 </button>
@@ -4796,7 +4794,7 @@ const startCall = async (type) => {
                                     e.stopPropagation();
                                     startEditing(msg);
                                   }}
-                                  className="flex items-center gap-2 px-3 py-2.5 text-[10px] sm:text-xs font-medium text-zinc-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors w-full text-left mt-1"
+                                  className="flex items-center gap-2 px-3 py-2.5 text-[10px] sm:text-xs font-medium text-zinc-300 hover:text-white hover:bg-white/10 rounded-2xl transition-all duration-300 ease-in-out w-full text-left mt-1"
                                 >
                                   <Edit3 size={14} /> {getText("edit_msg")}
                                 </button>
@@ -4808,7 +4806,7 @@ const startCall = async (type) => {
                                     e.stopPropagation();
                                     translateMessage(msg.id, msg.text);
                                   }}
-                                  className="flex items-center gap-2 px-3 py-2.5 text-[10px] sm:text-xs font-medium text-sky-400 hover:text-amber-300 hover:bg-[#3390ec]/10 rounded-xl transition-colors w-full text-left mt-1"
+                                  className="flex items-center gap-2 px-3 py-2.5 text-[10px] sm:text-xs font-medium text-sky-400 hover:text-amber-300 hover:bg-[#3390ec]/10 rounded-2xl transition-all duration-300 ease-in-out w-full text-left mt-1"
                                 >
                                   <Languages size={14} /> {getText("translate")}
                                 </button>
@@ -4822,7 +4820,7 @@ const startCall = async (type) => {
                                       e.stopPropagation();
                                       deleteSingleMessage(msg.id);
                                     }}
-                                    className="flex items-center gap-2 px-3 py-2.5 text-[10px] sm:text-xs font-medium text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors w-full text-left"
+                                    className="flex items-center gap-2 px-3 py-2.5 text-[10px] sm:text-xs font-medium text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-2xl transition-all duration-300 ease-in-out w-full text-left"
                                   >
                                     <Trash2 size={14} /> {getText("delete_msg")}
                                   </button>
@@ -4837,8 +4835,8 @@ const startCall = async (type) => {
                           style={{ opacity: settings.bubbleOpacity }}
                           className={`relative px-3 pt-2 pb-2.5 sm:px-3.5 sm:pt-2 sm:pb-2.5 ${settings.fontSize} ${
                             isMe
-                              ? "rounded-[1.2rem] rounded-br-[0.2rem]"
-                              : "rounded-[1.2rem] rounded-bl-[0.2rem]"
+                              ? "rounded-[1.5rem] rounded-br-[0.5rem]"
+                              : "rounded-[1.5rem] rounded-bl-[0.5rem]"
                           } ${getAccentClasses(
                             isMe,
                             msg.senderId,
@@ -4864,7 +4862,7 @@ const startCall = async (type) => {
                           )}
                           {msg.replyTo && (
                             <div
-                              className={`flex flex-col mb-2 sm:mb-3 pl-2 sm:pl-3.5 border-l-2 sm:border-l-4 ${isMe ? "border-white/40" : "border-current/40"} opacity-90 text-[10px] sm:text-sm ${settings.theme === "light" ? "bg-black/5" : "bg-black/20"} p-2 sm:p-2.5 rounded-r-lg sm:rounded-r-xl cursor-pointer hover:bg-black/30 transition-colors mt-2`}
+                              className={`flex flex-col mb-2 sm:mb-3 pl-2 sm:pl-3.5 border-l-2 sm:border-l-4 ${isMe ? "border-white/40" : "border-current/40"} opacity-90 text-[10px] sm:text-sm ${settings.theme === "light" ? "bg-black/5" : "bg-black/20"} p-2 sm:p-2.5 rounded-r-lg sm:rounded-r-xl cursor-pointer hover:bg-black/30 transition-all duration-300 ease-in-out mt-2`}
                             >
                               <span className="font-medium text-[8px] sm:text-[10px] mb-0.5 sm:mb-1">
                                 {msg.replyTo.senderId === "me"
@@ -4881,21 +4879,21 @@ const startCall = async (type) => {
                           )}
                           {msg.type === "image" && (
                             <div
-                              className={`mt-1 mb-2 sm:mb-3 relative group/img overflow-hidden rounded-xl sm:rounded-2xl ${settings.theme === "light" ? "bg-zinc-200" : "bg-black/50"} shadow-inner cursor-pointer border ${currentTheme.border}`}
+                              className={`mt-1 mb-2 sm:mb-3 relative group/img overflow-hidden rounded-2xl sm:rounded-[24px] ${settings.theme === "light" ? "bg-zinc-200" : "bg-[#242f3d]"} shadow-inner cursor-pointer border ${currentTheme.border}`}
                               onClick={() => setFullscreenImage(msg.url)}
                             >
                               <img
                                 src={msg.url}
-                                className="w-full max-h-[200px] sm:max-h-[300px] object-cover transition-transform duration-700 group-hover/img:scale-105"
+                                className="w-full max-h-[200px] sm:max-h-[300px] object-cover transition-all duration-300 ease-in-out duration-700 group-hover/img:scale-105"
                               />
-                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm">
-                                <Search className="text-white drop-shadow-lg transform scale-50 group-hover/img:scale-100 transition-transform duration-300 w-8 h-8 sm:w-10 sm:h-10" />
+                              <div className="absolute inset-0 bg-[#242f3d] opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center ">
+                                <Search className="text-white drop-shadow-sm transform scale-50 group-hover/img:scale-100 transition-all duration-300 ease-in-out w-8 h-8 sm:w-10 sm:h-10" />
                               </div>
                             </div>
                           )}
                           {msg.type === "video" && (
                             <div
-                              className={`mt-1 mb-2 sm:mb-3 overflow-hidden rounded-xl sm:rounded-2xl ${settings.theme === "light" ? "bg-zinc-200" : "bg-black/50"} shadow-inner border ${currentTheme.border}`}
+                              className={`mt-1 mb-2 sm:mb-3 overflow-hidden rounded-2xl sm:rounded-[24px] ${settings.theme === "light" ? "bg-zinc-200" : "bg-[#242f3d]"} shadow-inner border ${currentTheme.border}`}
                             >
                               <video
                                 src={msg.url}
@@ -4906,14 +4904,14 @@ const startCall = async (type) => {
                           )}
                           {msg.type === "file" && (
                             <div
-                              className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl mb-2 sm:mb-3 mt-1 cursor-pointer transition-all border shadow-sm sm:shadow-lg hover:-translate-y-0.5 sm:hover:-translate-y-1 ${
+                              className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl sm:rounded-[24px] mb-2 sm:mb-3 mt-1 cursor-pointer transition-all duration-300 ease-in-out border shadow-sm sm:shadow-sm hover:-translate-y-0.5 sm:hover:-translate-y-1 ${
                                 isMe
                                   ? "bg-black/20 border-white/10 hover:bg-black/30"
-                                  : `${settings.theme === "light" ? "bg-[#f1f1f1]" : "bg-black/40"} ${currentTheme.border} hover:bg-black/60`
+                                  : `${settings.theme === "light" ? "bg-white" : "bg-[#1c242d]"} ${currentTheme.border} hover:bg-[#1c242d]`
                               }`}
                             >
                               <div
-                                className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl shadow-inner flex-shrink-0 ${
+                                className={`p-2.5 sm:p-3 rounded-[24px] sm:rounded-2xl shadow-inner flex-shrink-0 ${
                                   isMe
                                     ? "bg-white/20 text-white"
                                     : "bg-rose-500/20 text-rose-400"
@@ -4937,15 +4935,15 @@ const startCall = async (type) => {
                           )}
                           {msg.type === "geo" && (
                             <div
-                              className={`flex flex-col overflow-hidden rounded-xl sm:rounded-2xl mb-2 sm:mb-3 mt-1 border shadow-sm sm:shadow-lg ${
+                              className={`flex flex-col overflow-hidden rounded-2xl sm:rounded-[24px] mb-2 sm:mb-3 mt-1 border shadow-sm sm:shadow-sm ${
                                 isMe
                                   ? "border-white/10 bg-black/20"
-                                  : `${currentTheme.border} ${settings.theme === "light" ? "bg-[#f1f1f1]" : "bg-black/40"}`
+                                  : `${currentTheme.border} ${settings.theme === "light" ? "bg-white" : "bg-[#1c242d]"}`
                               }`}
                             >
                               <div className="h-20 sm:h-28 relative w-full flex items-center justify-center overflow-hidden bg-emerald-950/40 cursor-pointer group/geo">
-                                <MapPin className="text-emerald-400 z-10 drop-shadow-md animate-bounce group-hover/geo:scale-110 transition-transform w-6 h-6 sm:w-8 sm:h-8" />
-                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-500/20 to-transparent pointer-events-none"></div>
+                                <MapPin className="text-emerald-400 z-10 drop-shadow-md animate-bounce group-hover/geo:scale-110 transition-all duration-300 ease-in-out w-6 h-6 sm:w-8 sm:h-8" />
+                                <div className="absolute inset-0 bg-transparent pointer-events-none"></div>
                               </div>
                               <div className="px-3 pb-3 pt-2 sm:px-4 sm:pb-4 sm:pt-3">
                                 <p
@@ -4979,7 +4977,7 @@ const startCall = async (type) => {
                               </p>
                               {translatedMessages[msg.id] && (
                                 <div
-                                  className={`mt-2 p-3 rounded-xl text-xs font-medium leading-relaxed border shadow-inner ${
+                                  className={`mt-2 p-3 rounded-2xl text-xs font-medium leading-relaxed border shadow-inner ${
                                     isMe
                                       ? "bg-black/20 border-white/10 text-amber-200"
                                       : "bg-[#3390ec]/10 border-[#3390ec]/20 text-sky-400"
@@ -5019,9 +5017,9 @@ const startCall = async (type) => {
                                 <button
                                   type="button"
                                   onClick={() => handleTranscribe(msg.id)}
-                                  className={`text-[7px] sm:text-[9px] font-medium tracking-[0.2em] px-2 py-1.5 sm:px-3 sm:py-2 rounded-md sm:rounded-xl transition-all active:scale-95 flex items-center gap-1 sm:gap-1.5 w-fit ${
+                                  className={`text-[7px] sm:text-[9px] font-medium tracking-[0.2em] px-2 py-1.5 sm:px-3 sm:py-2 rounded-2xl sm:rounded-2xl transition-all duration-300 ease-in-out active:scale-95 flex items-center gap-1 sm:gap-1.5 w-fit ${
                                     isMe
-                                      ? "bg-black/30 hover:bg-black/40 text-white shadow-md border border-white/10"
+                                      ? "bg-black/30 hover:bg-[#1c242d] text-white shadow-md border border-white/10"
                                       : "bg-white/10 hover:bg-white/20 text-zinc-300 shadow-md border border-white/5"
                                   }`}
                                 >
@@ -5034,10 +5032,10 @@ const startCall = async (type) => {
                               </div>
                               {transcribedMessages[msg.id] && (
                                 <div
-                                  className={`mt-2 sm:mt-3 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl text-[10px] sm:text-xs font-medium leading-relaxed border animate-spring-up shadow-inner ${
+                                  className={`mt-2 sm:mt-3 p-2.5 sm:p-4 rounded-2xl sm:rounded-[24px] text-[10px] sm:text-xs font-medium leading-relaxed border animate-spring-up shadow-inner ${
                                     isMe
                                       ? "bg-black/20 border-white/10 text-white/90"
-                                      : "bg-black/40 border-white/5 text-zinc-300"
+                                      : "bg-[#1c242d] border-white/5 text-zinc-300"
                                   }`}
                                 >
                                   {transcribedMessages[msg.id]}
@@ -5080,7 +5078,7 @@ const startCall = async (type) => {
                             {msg.reactions.map((r, i) => (
                               <div
                                 key={i}
-                                className="bg-[#17212b]/90 backdrop-blur-xl border border-white/10 text-xs sm:text-sm px-1.5 sm:px-2 py-0.5 rounded-lg sm:rounded-xl shadow-[0_3px_10px_rgba(0,0,0,0.5)] animate-spring-up text-white flex items-center justify-center transform hover:scale-125 transition-transform cursor-default"
+                                className="bg-[#17212b]  border border-white/10 text-xs sm:text-sm px-1.5 sm:px-2 py-0.5 rounded-[24px] sm:rounded-2xl shadow-[0_3px_10px_rgba(0,0,0,0.5)] animate-spring-up text-white flex items-center justify-center transform hover:scale-125 transition-all duration-300 ease-in-out cursor-default"
                               >
                                 {r}
                               </div>
@@ -5102,7 +5100,7 @@ const startCall = async (type) => {
                         className="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-md object-cover"
                       />
                     </div>
-                    <div className="relative px-4 py-3 sm:px-5 sm:py-4 shadow-xl bg-indigo-900/40 border border-indigo-500/30 rounded-xl sm:rounded-2xl rounded-bl-sm sm:rounded-bl-md flex items-center gap-2 backdrop-blur-xl">
+                    <div className="relative px-4 py-3 sm:px-5 sm:py-4 shadow-md bg-indigo-900/40 border border-indigo-500/30 rounded-2xl sm:rounded-[24px] rounded-bl-sm sm:rounded-bl-md flex items-center gap-2 ">
                       {isGeneratingImage ? (
                         <>
                           <ImagePlus
@@ -5141,11 +5139,11 @@ const startCall = async (type) => {
               className={`p-3 sm:p-4 md:p-6 lg:p-8 ${
                 isLite
                   ? "bg-[#0e1621] border-t border-white/5"
-                  : "bg-gradient-to-t from-gray-100 via-gray-100/80 to-transparent dark:from-black/90 dark:via-black/50 dark:to-transparent z-30"
+                  : `${settings.theme === "light" ? "bg-white" : "bg-[#17212b]"} z-30`
               } flex-shrink-0`}
             >
               {replyingTo && !editingMsg && (
-                <div className="max-w-5xl mx-auto mb-2 sm:mb-3 flex items-center justify-between bg-[#17212b]/95 backdrop-blur-3xl rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-3 border border-white/10 shadow-xl animate-slide-up relative overflow-hidden">
+                <div className={`max-w-5xl mx-auto mb-2 sm:mb-3 flex items-center justify-between ${settings.theme === "light" ? "bg-white" : "bg-[#17212b]"} rounded-2xl sm:rounded-[24px] px-3 sm:px-4 py-2 sm:py-3 shadow-md animate-slide-up relative overflow-hidden`}>
                   <div
                     className={`absolute left-0 top-0 bottom-0 w-1 sm:w-1.5 ${currentAccent.bg}`}
                   ></div>
@@ -5175,7 +5173,7 @@ const startCall = async (type) => {
                   <button
                     type="button"
                     onClick={() => setReplyingTo(null)}
-                    className="p-1 sm:p-1.5 hover:bg-white/10 rounded-full text-zinc-500 hover:text-white transition-colors active:scale-90 flex-shrink-0"
+                    className="p-1 sm:p-1.5 hover:bg-white/10 rounded-full text-zinc-500 hover:text-white transition-all duration-300 ease-in-out active:scale-90 flex-shrink-0"
                   >
                     <X size={14} className="sm:w-4 sm:h-4" />
                   </button>
@@ -5183,7 +5181,7 @@ const startCall = async (type) => {
               )}
 
               {editingMsg && (
-                <div className="max-w-5xl mx-auto mb-2 sm:mb-3 flex items-center justify-between bg-amber-900/90 backdrop-blur-3xl rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-3 border border-[#3390ec]/30 shadow-xl animate-slide-up relative overflow-hidden">
+                <div className={`max-w-5xl mx-auto mb-2 sm:mb-3 flex items-center justify-between ${settings.theme === "light" ? "bg-amber-50" : "bg-amber-900/90"} rounded-[24px] sm:rounded-[24px] px-3 sm:px-4 py-2 sm:py-3 border border-[#3390ec]/30 shadow-md animate-slide-up relative overflow-hidden`}>
                   <div
                     className={`absolute left-0 top-0 bottom-0 w-1 sm:w-1.5 bg-[#3390ec]`}
                   ></div>
@@ -5206,7 +5204,7 @@ const startCall = async (type) => {
                       setEditingMsg(null);
                       setInputText("");
                     }}
-                    className="p-1 sm:p-1.5 hover:bg-[#3390ec]/20 rounded-full text-[#3390ec] hover:text-sky-400 transition-colors active:scale-90 flex-shrink-0"
+                    className="p-1 sm:p-1.5 hover:bg-[#3390ec]/20 rounded-full text-[#3390ec] hover:text-sky-400 transition-all duration-300 ease-in-out active:scale-90 flex-shrink-0"
                   >
                     <X size={14} className="sm:w-4 sm:h-4" />
                   </button>
@@ -5214,18 +5212,17 @@ const startCall = async (type) => {
               )}
 
               <div
-                className={`max-w-5xl mx-auto flex items-end gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 ${settings.theme === "light" ? "bg-[#f1f1f1]" : "bg-[#17212b]"} border ${currentTheme.border} rounded-2xl sm:rounded-2xl focus-within:border-[#3390ec]/50 ${settings.theme === "light" ? "focus-within:bg-white shadow-lg" : "focus-within:bg-[#1c242d]"} transition-all duration-300 ${
-                  !isLite &&
-                  "shadow-xl sm:shadow-lg backdrop-blur-md hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                className={`max-w-5xl mx-auto flex items-end gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 ${settings.theme === "light" ? "bg-white" : "bg-[#17212b]"} border ${currentTheme.border} rounded-[24px] focus-within:border-[#3390ec]/50 ${settings.theme === "light" ? "focus-within:bg-white shadow-sm" : "focus-within:bg-[#1c242d]"} transition-all duration-300 ${
+                  !isLite && settings.theme === "light" ? "shadow-sm" : "shadow-md hover:shadow-[0_5px_15px_rgba(0,0,0,0.3)]"
                 } ${
                   isRecording || isBurnMode
-                    ? "ring-2 sm:ring-4 ring-rose-500/30 bg-rose-500/5 border-rose-500/40 scale-[1.01] sm:scale-[1.02]"
+                    ? "ring-2 ring-rose-500/30 bg-rose-500/5 border-rose-500/40 scale-[1.01]"
                     : ""
                 }`}
               >
                 {showRewriteMenu && (
                   <div
-                    className={`absolute bottom-[calc(100%+8px)] sm:bottom-[calc(100%+12px)] left-2 sm:left-14 ${currentTheme.base} border ${currentTheme.border} rounded-2xl sm:rounded-2xl shadow-lg p-2 sm:p-3 flex flex-col gap-1 sm:gap-1.5 z-50 min-w-[180px] sm:min-w-[220px] animate-spring-up origin-bottom-left backdrop-blur-3xl`}
+                    className={`absolute bottom-[calc(100%+8px)] sm:bottom-[calc(100%+12px)] left-2 sm:left-14 ${currentTheme.base} border ${currentTheme.border} rounded-[24px] sm:rounded-[24px] shadow-sm p-2 sm:p-3 flex flex-col gap-1 sm:gap-1.5 z-50 min-w-[180px] sm:min-w-[220px] animate-spring-up origin-bottom-left `}
                   >
                     <div
                       className={`text-[8px] sm:text-[9px] text-[#3390ec] font-medium px-2 sm:px-3 pb-1.5 sm:pb-2 pt-1 sm:pt-1.5 mb-1 sm:mb-2 border-b ${currentTheme.border} tracking-[0.2em] flex items-center gap-1 sm:gap-1.5`}
@@ -5237,7 +5234,7 @@ const startCall = async (type) => {
                     <button
                       type="button"
                       onClick={() => handleRewrite("formal")}
-                      className="text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-white/5 rounded-xl sm:rounded-2xl text-[10px] sm:text-[11px] font-medium text-zinc-300 hover:text-white transition-all active:scale-95 flex items-center gap-2 sm:gap-3"
+                      className="text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-white/5 rounded-2xl sm:rounded-[24px] text-[10px] sm:text-[11px] font-medium text-zinc-300 hover:text-white transition-all duration-300 ease-in-out active:scale-95 flex items-center gap-2 sm:gap-3"
                     >
                       <span className="text-lg sm:text-xl drop-shadow-md">
                         👔
@@ -5248,7 +5245,7 @@ const startCall = async (type) => {
                     <button
                       type="button"
                       onClick={() => handleRewrite("friendly")}
-                      className="text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-white/5 rounded-xl sm:rounded-2xl text-[10px] sm:text-[11px] font-medium text-zinc-300 hover:text-white transition-all active:scale-95 flex items-center gap-2 sm:gap-3"
+                      className="text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-white/5 rounded-2xl sm:rounded-[24px] text-[10px] sm:text-[11px] font-medium text-zinc-300 hover:text-white transition-all duration-300 ease-in-out active:scale-95 flex items-center gap-2 sm:gap-3"
                     >
                       <span className="text-lg sm:text-xl drop-shadow-md">
                         👋
@@ -5259,7 +5256,7 @@ const startCall = async (type) => {
                     <button
                       type="button"
                       onClick={() => handleRewrite("slang")}
-                      className="text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-white/5 rounded-xl sm:rounded-2xl text-[10px] sm:text-[11px] font-medium text-sky-400 hover:text-amber-300 transition-all active:scale-95 flex items-center gap-2 sm:gap-3 bg-[#3390ec]/10 border border-[#3390ec]/20"
+                      className="text-left px-3 sm:px-4 py-2 sm:py-3 hover:bg-white/5 rounded-2xl sm:rounded-[24px] text-[10px] sm:text-[11px] font-medium text-sky-400 hover:text-amber-300 transition-all duration-300 ease-in-out active:scale-95 flex items-center gap-2 sm:gap-3 bg-[#3390ec]/10 border border-[#3390ec]/20"
                     >
                       <span className="text-lg sm:text-xl drop-shadow-md">
                         💿
@@ -5279,7 +5276,7 @@ const startCall = async (type) => {
                       setShowGiftPicker(false);
                       setShowRewriteMenu(false);
                     }}
-                    className={`p-2.5 sm:p-3 md:p-4 transition-all duration-300 rounded-[1rem] sm:rounded-xl active:scale-90 flex items-center justify-center ${
+                    className={`p-2.5 sm:p-3 md:p-4 transition-all duration-300 rounded-[1rem] sm:rounded-2xl active:scale-90 flex items-center justify-center ${
                       showAttachmentMenu
                         ? "bg-white/20 text-white shadow-md"
                         : `${settings.theme === "light" ? "text-zinc-400 hover:text-zinc-600 hover:bg-black/5" : "text-zinc-500 hover:text-white hover:bg-white/10"}`
@@ -5293,16 +5290,16 @@ const startCall = async (type) => {
 
                   {showAttachmentMenu && (
                     <div
-                      className={`absolute bottom-[calc(100%+8px)] sm:bottom-[calc(100%+12px)] left-0 ${currentTheme.base} border ${currentTheme.border} rounded-2xl sm:rounded-2xl shadow-lg p-3 sm:p-4 z-50 w-[240px] sm:w-[280px] animate-spring-up origin-bottom-left backdrop-blur-3xl`}
+                      className={`absolute bottom-[calc(100%+8px)] sm:bottom-[calc(100%+12px)] left-0 ${currentTheme.base} border ${currentTheme.border} rounded-[24px] sm:rounded-[24px] shadow-sm p-3 sm:p-4 z-50 w-[240px] sm:w-[280px] animate-spring-up origin-bottom-left `}
                     >
                       <div className="grid grid-cols-2 gap-2 sm:gap-3">
                         <button
                           type="button"
                           onClick={() => imageInputRef.current?.click()}
-                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl sm:rounded-2xl bg-[#17212b]/50 hover:bg-white/10 border border-transparent hover:border-white/10 transition-all active:scale-90 group"
+                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] bg-[#17212b] hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-300 ease-in-out active:scale-90 group"
                         >
                           <div
-                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform shadow-inner`}
+                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-all duration-300 ease-in-out shadow-inner`}
                           >
                             <ImageIcon
                               size={20}
@@ -5316,10 +5313,10 @@ const startCall = async (type) => {
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl sm:rounded-2xl bg-[#17212b]/50 hover:bg-white/10 border border-transparent hover:border-white/10 transition-all active:scale-90 group"
+                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] bg-[#17212b] hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-300 ease-in-out active:scale-90 group"
                         >
                           <div
-                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-rose-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform shadow-inner`}
+                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-rose-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-all duration-300 ease-in-out shadow-inner`}
                           >
                             <FileText
                               size={20}
@@ -5333,10 +5330,10 @@ const startCall = async (type) => {
                         <button
                           type="button"
                           onClick={handleGeoLocation}
-                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl sm:rounded-2xl bg-[#17212b]/50 hover:bg-white/10 border border-transparent hover:border-white/10 transition-all active:scale-90 group"
+                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] bg-[#17212b] hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-300 ease-in-out active:scale-90 group"
                         >
                           <div
-                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform shadow-inner`}
+                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-all duration-300 ease-in-out shadow-inner`}
                           >
                             <MapPin
                               size={20}
@@ -5353,10 +5350,10 @@ const startCall = async (type) => {
                             setShowAttachmentMenu(false);
                             setShowAddContact(true);
                           }}
-                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl sm:rounded-2xl bg-[#17212b]/50 hover:bg-white/10 border border-transparent hover:border-white/10 transition-all active:scale-90 group"
+                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] bg-[#17212b] hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-300 ease-in-out active:scale-90 group"
                         >
                           <div
-                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#3390ec]/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform shadow-inner`}
+                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#3390ec]/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-all duration-300 ease-in-out shadow-inner`}
                           >
                             <UserPlus
                               size={20}
@@ -5370,10 +5367,10 @@ const startCall = async (type) => {
                         <button
                           type="button"
                           onClick={() => sendMiniGame("dice")}
-                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl sm:rounded-2xl bg-[#17212b]/50 hover:bg-white/10 border border-transparent hover:border-white/10 transition-all active:scale-90 group"
+                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] bg-[#17212b] hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-300 ease-in-out active:scale-90 group"
                         >
                           <div
-                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-purple-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform shadow-inner`}
+                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-purple-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-all duration-300 ease-in-out shadow-inner`}
                           >
                             <Dices
                               size={20}
@@ -5387,10 +5384,10 @@ const startCall = async (type) => {
                         <button
                           type="button"
                           onClick={() => sendMiniGame("coin")}
-                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl sm:rounded-2xl bg-[#17212b]/50 hover:bg-white/10 border border-transparent hover:border-white/10 transition-all active:scale-90 group"
+                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] bg-[#17212b] hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-300 ease-in-out active:scale-90 group"
                         >
                           <div
-                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-yellow-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-transform shadow-inner`}
+                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-yellow-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-all duration-300 ease-in-out shadow-inner`}
                           >
                             <CircleDot
                               size={20}
@@ -5417,7 +5414,7 @@ const startCall = async (type) => {
                           </span>
                           <AudioWaveform className="text-rose-500/50 animate-pulse w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 hidden sm:block" />
                         </div>
-                        <div className="flex items-center gap-1 sm:gap-1.5 bg-black/60 p-1 sm:p-1.5 rounded-lg sm:rounded-xl border border-white/10 shadow-inner overflow-x-auto custom-scrollbar flex-shrink max-w-[50%] sm:max-w-none">
+                        <div className="flex items-center gap-1 sm:gap-1.5 bg-[#1c242d] p-1 sm:p-1.5 rounded-[24px] sm:rounded-2xl border border-white/10 shadow-inner overflow-x-auto custom-scrollbar flex-shrink max-w-[50%] sm:max-w-none">
                           {[
                             { id: "normal", label: getText("normal") },
                             {
@@ -5444,7 +5441,7 @@ const startCall = async (type) => {
                                 }
                                 setVoiceEffect(eff.id);
                               }}
-                              className={`text-[7px] sm:text-[8px] md:text-[9px] font-medium px-2 py-1 sm:px-3 sm:py-1.5 rounded-md sm:rounded-lg transition-all active:scale-90 flex-shrink-0 ${
+                              className={`text-[7px] sm:text-[8px] md:text-[9px] font-medium px-2 py-1 sm:px-3 sm:py-1.5 rounded-2xl sm:rounded-[24px] transition-all duration-300 ease-in-out active:scale-90 flex-shrink-0 ${
                                 voiceEffect === eff.id
                                   ? "bg-rose-600 text-white shadow-md"
                                   : "text-zinc-500 hover:text-white hover:bg-white/10"
@@ -5470,7 +5467,7 @@ const startCall = async (type) => {
                         placeholder={
                           editingMsg ? getText("edit_msg") : getText("type_msg")
                         }
-                        className={`w-full bg-transparent border-none focus:outline-none py-2.5 sm:py-3 px-2 sm:px-3 ${settings.theme === "light" ? "text-zinc-900" : "text-white"} font-medium text-xs sm:text-sm md:text-base resize-none max-h-24 sm:max-h-32 placeholder-zinc-500 custom-scrollbar ${
+                        className={`w-full bg-transparent border-none focus:outline-none py-2.5 sm:py-3 px-2 sm:px-3 ${settings.theme === "light" ? "text-zinc-900 placeholder-zinc-400" : "text-white placeholder-zinc-500"} font-medium text-xs sm:text-sm md:text-base resize-none max-h-24 sm:max-h-32 custom-scrollbar ${
                           isBurnMode
                             ? "text-rose-400 placeholder-rose-500/50"
                             : ""
@@ -5492,7 +5489,7 @@ const startCall = async (type) => {
                       setShowGiftPicker(false);
                     }}
                     disabled={!inputText.trim()}
-                    className={`hidden sm:flex p-3 sm:p-4 rounded-full transition-all ${
+                    className={`hidden sm:flex p-3 sm:p-4 rounded-full transition-all duration-300 ease-in-out ${
                       inputText.trim()
                         ? "text-sky-400 hover:bg-[#3390ec]/10"
                         : "text-zinc-700"
@@ -5510,7 +5507,7 @@ const startCall = async (type) => {
                   <div className="relative flex-shrink-0">
                     {showEmojiPicker && (
                       <div
-                        className={`absolute bottom-[calc(100%+8px)] sm:bottom-[calc(100%+12px)] right-0 ${currentTheme.base} border ${currentTheme.border} rounded-2xl sm:rounded-2xl shadow-lg p-4 sm:p-5 z-50 w-[280px] sm:w-[380px] animate-spring-up origin-bottom-right backdrop-blur-3xl max-h-[350px] sm:max-h-[500px] overflow-y-auto custom-scrollbar`}
+                        className={`absolute bottom-[calc(100%+8px)] sm:bottom-[calc(100%+12px)] right-0 ${currentTheme.base} border ${currentTheme.border} rounded-[24px] sm:rounded-[24px] shadow-sm p-4 sm:p-5 z-50 w-[280px] sm:w-[380px] animate-spring-up origin-bottom-right  max-h-[350px] sm:max-h-[500px] overflow-y-auto custom-scrollbar`}
                       >
                         <div
                           className={`text-[8px] sm:text-[9px] text-[#3390ec] font-medium pb-2 sm:pb-2.5 mb-3 sm:mb-4 border-b ${currentTheme.border} tracking-[0.2em] flex items-center justify-between`}
@@ -5519,7 +5516,7 @@ const startCall = async (type) => {
                           <button
                             type="button"
                             onClick={() => setShowEmojiPicker(false)}
-                            className="hover:text-white transition-colors hover:rotate-90 bg-white/5 p-1 sm:p-1.5 rounded-full"
+                            className="hover:text-white transition-all duration-300 ease-in-out hover:rotate-90 bg-white/5 p-1 sm:p-1.5 rounded-full"
                           >
                             <X size={12} className="sm:w-3.5 sm:h-3.5" />
                           </button>
@@ -5554,8 +5551,8 @@ const startCall = async (type) => {
                                   }
                                   className={
                                     cat === "kaomoji"
-                                      ? "text-[9px] sm:text-[11px] bg-[#17212b]/50 hover:bg-white/10 border border-white/5 rounded-xl p-2 transition-all active:scale-95 text-center text-zinc-300 font-medium shadow-inner truncate"
-                                      : "text-lg sm:text-xl bg-[#17212b]/50 hover:bg-white/10 border border-white/5 rounded-xl w-8 h-8 sm:w-10 sm:h-10 transition-all hover:scale-125 active:scale-90 flex items-center justify-center shadow-inner"
+                                      ? "text-[9px] sm:text-[11px] bg-[#17212b] hover:bg-white/10 border border-white/5 rounded-2xl p-2 transition-all duration-300 ease-in-out active:scale-95 text-center text-zinc-300 font-medium shadow-inner truncate"
+                                      : "text-lg sm:text-xl bg-[#17212b] hover:bg-white/10 border border-white/5 rounded-2xl w-8 h-8 sm:w-10 sm:h-10 transition-all duration-300 ease-in-out hover:scale-125 active:scale-90 flex items-center justify-center shadow-inner"
                                   }
                                 >
                                   {em}
@@ -5573,7 +5570,7 @@ const startCall = async (type) => {
                         setShowGiftPicker(false);
                         setShowAttachmentMenu(false);
                       }}
-                      className={`p-2.5 sm:p-3 md:p-4 transition-all duration-300 rounded-[1rem] sm:rounded-xl mr-0.5 sm:mr-1 active:scale-90 flex items-center justify-center ${
+                      className={`p-2.5 sm:p-3 md:p-4 transition-all duration-300 rounded-[1rem] sm:rounded-2xl mr-0.5 sm:mr-1 active:scale-90 flex items-center justify-center ${
                         showEmojiPicker
                           ? "bg-white/20 text-white shadow-md"
                           : `${settings.theme === "light" ? "text-zinc-400 hover:text-zinc-600 hover:bg-black/5" : "text-zinc-500 hover:text-white hover:bg-white/10"}`
@@ -5591,7 +5588,7 @@ const startCall = async (type) => {
                   <div className="relative flex-shrink-0">
                     {showGiftPicker && (
                       <div
-                        className={`absolute bottom-[calc(100%+12px)] right-0 ${currentTheme.base} border ${currentTheme.border} rounded-2xl shadow-lg p-5 z-50 w-[360px] animate-spring-up origin-bottom-right backdrop-blur-3xl`}
+                        className={`absolute bottom-[calc(100%+12px)] right-0 ${currentTheme.base} border ${currentTheme.border} rounded-[24px] shadow-sm p-5 z-50 w-[360px] animate-spring-up origin-bottom-right `}
                       >
                         <div
                           className={`flex items-center justify-between mb-5 border-b ${currentTheme.border} pb-3`}
@@ -5609,7 +5606,7 @@ const startCall = async (type) => {
                               type="button"
                               key={gift.id}
                               onClick={() => handleSendGift(gift)}
-                              className="relative bg-[#17212b]/80 border border-white/5 rounded-xl p-5 flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 group overflow-hidden"
+                              className="relative bg-[#17212b] border border-white/5 rounded-2xl p-5 flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 group overflow-hidden"
                               style={{
                                 boxShadow: `0 8px 25px rgba(0,0,0,0.3)`,
                               }}
@@ -5624,9 +5621,9 @@ const startCall = async (type) => {
                               }}
                             >
                               <div
-                                className={`absolute inset-0 bg-gradient-to-br ${gift.grad} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+                                className={`absolute inset-0 ${gift.grad} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
                               ></div>
-                              <span className="text-5xl mb-3 relative z-10 group-hover:animate-float drop-shadow-xl">
+                              <span className="text-5xl mb-3 relative z-10 group-hover: drop-shadow-md">
                                 {gift.icon}
                               </span>
                               <span
@@ -5634,7 +5631,7 @@ const startCall = async (type) => {
                               >
                                 {gift.name}
                               </span>
-                              <span className="text-[9px] text-[#3390ec] font-medium bg-black/80 px-3 py-1.5 rounded-full relative z-10 flex items-center gap-1.5 border border-[#3390ec]/30 shadow-md group-hover:scale-110 transition-transform">
+                              <span className="text-[9px] text-[#3390ec] font-medium bg-black/80 px-3 py-1.5 rounded-full relative z-10 flex items-center gap-1.5 border border-[#3390ec]/30 shadow-md group-hover:scale-110 transition-all duration-300 ease-in-out">
                                 {gift.price} <Gem size={10} />
                               </span>
                             </button>
@@ -5649,7 +5646,7 @@ const startCall = async (type) => {
                         setShowEmojiPicker(false);
                         setShowAttachmentMenu(false);
                       }}
-                      className={`p-3 sm:p-4 transition-all duration-300 rounded-[1rem] sm:rounded-xl mr-1 active:scale-90 flex items-center justify-center ${
+                      className={`p-3 sm:p-4 transition-all duration-300 rounded-[1rem] sm:rounded-2xl mr-1 active:scale-90 flex items-center justify-center ${
                         showGiftPicker
                           ? "bg-[#3390ec]/20 text-sky-400 border border-[#3390ec]/30 shadow-md"
                           : `${settings.theme === "light" ? "text-zinc-400 hover:text-[#3390ec] hover:bg-[#3390ec]/5" : "text-zinc-500 hover:text-sky-400 hover:bg-[#3390ec]/10"}`
@@ -5669,7 +5666,7 @@ const startCall = async (type) => {
                           ? toggleRecording
                           : () => handleSendMessage()
                       }
-                      className={`p-3 sm:p-4 md:p-5 rounded-2xl sm:rounded-xl md:rounded-2xl shadow-xl md:shadow-lg transition-all duration-300 active:scale-90 flex items-center justify-center ${
+                      className={`p-3 sm:p-4 md:p-5 rounded-[24px] sm:rounded-2xl md:rounded-[24px] shadow-md md:shadow-sm transition-all duration-300 active:scale-90 flex items-center justify-center ${
                         isRecording
                           ? "bg-rose-600 text-white animate-pulse shadow-md md:shadow-md scale-105 sm:scale-110"
                           : `${currentAccent.bg} ${currentAccent.text} hover:-translate-y-1 md:hover:shadow-[0_10px_25px_rgba(255,255,255,0.2)]`
@@ -5692,7 +5689,7 @@ const startCall = async (type) => {
                     <button
                       type="button"
                       onClick={toggleRecording}
-                      className={`p-3 sm:p-4 md:p-5 transition-all duration-300 rounded-2xl sm:rounded-xl md:rounded-2xl bg-[#242f3d] border border-white/5 text-zinc-400 hover:text-white hover:bg-[#2b3949] hover:shadow-lg md:hover:shadow-lg active:scale-90 flex items-center justify-center`}
+                      className={`p-3 sm:p-4 md:p-5 transition-all duration-300 rounded-[24px] sm:rounded-2xl md:rounded-[24px] bg-[#242f3d] border border-white/5 text-zinc-400 hover:text-white hover:bg-[#2b3949] hover:shadow-sm md:hover:shadow-sm active:scale-90 flex items-center justify-center`}
                     >
                       <Mic size={18} className="sm:w-5 sm:h-5 md:w-6 md:h-6" />
                     </button>
@@ -5708,20 +5705,20 @@ const startCall = async (type) => {
       {/* ⚙️ ОКНО НАСТРОЕК (АДАПТИВНОЕ) */}
       {/* ========================================== */}
       {showSettings && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/80 backdrop-blur-3xl p-0 sm:p-4 md:p-6 lg:p-8 animate-fade-in">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/80  p-0 sm:p-4 md:p-6 lg:p-8 animate-fade-in">
           <div
-            className={`w-full h-full sm:h-[95vh] lg:h-[90vh] sm:max-w-4xl lg:max-w-6xl ${currentTheme.base} sm:border ${currentTheme.border} rounded-none sm:rounded-2xl lg:rounded-2xl shadow-md flex flex-col md:flex-row overflow-hidden animate-spring-up relative`}
+            className={`w-full h-full sm:h-[95vh] lg:h-[90vh] sm:max-w-4xl lg:max-w-6xl ${currentTheme.base} sm:border ${currentTheme.border} rounded-none sm:rounded-[24px] lg:rounded-[24px] shadow-md flex flex-col md:flex-row overflow-hidden animate-spring-up relative`}
           >
             <button
               type="button"
               onClick={() => setShowSettings(false)}
-              className={`absolute top-4 sm:top-5 lg:top-6 right-4 sm:right-5 lg:right-6 p-2 sm:p-2.5 lg:p-3 bg-white/5 hover:bg-white/20 rounded-full text-zinc-400 hover:text-white transition-all z-50 hover:rotate-90 duration-300 shadow-xl backdrop-blur-md border border-white/10`}
+              className={`absolute top-4 sm:top-5 lg:top-6 right-4 sm:right-5 lg:right-6 p-2 sm:p-2.5 lg:p-3 bg-white/5 hover:bg-white/20 rounded-full text-zinc-400 hover:text-white transition-all duration-300 ease-in-out z-50 hover:rotate-90 duration-300 shadow-md  border border-white/10`}
             >
               <X size={18} className="sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
             </button>
 
             <div
-              className={`w-full md:w-[240px] lg:w-[300px] bg-black/20 border-b md:border-b-0 md:border-r ${currentTheme.border} p-4 sm:p-5 lg:p-8 flex flex-col z-20 backdrop-blur-3xl flex-shrink-0 pt-12 sm:pt-6 md:pt-8`}
+              className={`w-full md:w-[240px] lg:w-[300px] bg-black/20 border-b md:border-b-0 md:border-r ${currentTheme.border} p-4 sm:p-5 lg:p-8 flex flex-col z-20  flex-shrink-0 pt-12 sm:pt-6 md:pt-8`}
             >
               <h2 className="text-xl sm:text-2xl lg:text-3xl font-medium text-white mb-4 sm:mb-6 lg:mb-10">
                 {getText("settings")}
@@ -5759,12 +5756,12 @@ const startCall = async (type) => {
                     type="button"
                     key={tab.id}
                     onClick={() => setActiveSettingsTab(tab.id)}
-                    className={`flex items-center gap-2.5 sm:gap-3 lg:gap-4 px-3 sm:px-4 lg:px-5 py-2.5 sm:py-3 lg:py-4 rounded-xl lg:rounded-2xl transition-all duration-300 text-left whitespace-nowrap md:whitespace-normal text-[9px] sm:text-[10px] lg:text-xs font-medium flex-shrink-0 md:flex-shrink
+                    className={`flex items-center gap-2.5 sm:gap-3 lg:gap-4 px-3 sm:px-4 lg:px-5 py-2.5 sm:py-3 lg:py-4 rounded-2xl lg:rounded-[24px] transition-all duration-300 text-left whitespace-nowrap md:whitespace-normal text-[9px] sm:text-[10px] lg:text-xs font-medium flex-shrink-0 md:flex-shrink
  ${
    activeSettingsTab === tab.id
      ? tab.isPremiumBtn
-       ? "bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-[0_5px_15px_rgba(245,158,11,0.4)] md:shadow-[0_10px_25px_rgba(245,158,11,0.4)] scale-100 md:scale-[1.02]"
-       : "bg-white text-zinc-950 shadow-md md:shadow-xl scale-100 md:scale-[1.02]"
+       ? "bg-[#17212b] text-white shadow-[0_5px_15px_rgba(245,158,11,0.4)] md:shadow-[0_10px_25px_rgba(245,158,11,0.4)] scale-100 md:scale-[1.02]"
+       : "bg-white text-zinc-950 shadow-md md:shadow-md scale-100 md:scale-[1.02]"
      : tab.isPremiumBtn
        ? "text-[#3390ec] hover:bg-[#3390ec]/10 border border-[#3390ec]/20"
        : "text-zinc-500 hover:bg-white/10 hover:text-white"
@@ -5790,17 +5787,17 @@ const startCall = async (type) => {
               <div className="max-w-3xl mx-auto animate-slide-up pb-8 sm:pb-10">
                 {activeSettingsTab === "premium" && (
                   <div className="space-y-6 sm:space-y-10 animate-fade-in">
-                    <div className="relative overflow-hidden rounded-xl sm:rounded-2xl lg:rounded-2xl bg-gradient-to-br from-indigo-950/80 via-purple-900/40 to-rose-950/80 p-6 sm:p-8 lg:p-12 border border-white/10 shadow-xl lg:shadow-lg backdrop-blur-3xl">
-                      <div className="absolute top-0 right-0 -mr-10 sm:-mr-20 -mt-10 sm:-mt-20 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-[#3390ec]/20 rounded-full blur-[40px] sm:blur-[80px] animate-pulse-slow"></div>
+                    <div className="relative overflow-hidden rounded-2xl sm:rounded-[24px] lg:rounded-[24px] bg-[#17212b] p-6 sm:p-8 lg:p-12 border border-white/10 shadow-md lg:shadow-sm ">
+                      <div className="absolute top-0 right-0 -mr-10 sm:-mr-20 -mt-10 sm:-mt-20 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-[#3390ec]/20 rounded-full blur-[40px] sm:blur-[80px] "></div>
 
                       <div className="relative z-10 flex flex-col items-center text-center">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 bg-gradient-to-br from-amber-300 via-amber-500 to-blue-600 rounded-[1rem] sm:rounded-xl lg:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 lg:mb-8 shadow-md lg:shadow-md animate-float border border-white/20">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 bg-[#17212b] rounded-[1rem] sm:rounded-2xl lg:rounded-[24px] flex items-center justify-center mb-4 sm:mb-6 lg:mb-8 shadow-md lg:shadow-md  border border-white/20">
                           <Crown
                             size={32}
                             className="sm:w-10 sm:h-10 lg:w-14 lg:h-14 text-white"
                           />
                         </div>
-                        <h3 className="text-2xl sm:text-4xl lg:text-6xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-yellow-400 to-blue-600 mb-3 sm:mb-4 lg:mb-6 drop-shadow-xl lg:drop-shadow-lg leading-none">
+                        <h3 className="text-2xl sm:text-4xl lg:text-6xl font-medium text-transparent bg-clip-text bg-[#17212b] mb-3 sm:mb-4 lg:mb-6 drop-shadow-md lg:drop-shadow-sm leading-none">
                           Platina
                           <br />
                           Premium
@@ -5819,9 +5816,9 @@ const startCall = async (type) => {
                               ].map((perk, i) => (
                                 <div
                                   key={i}
-                                  className="flex items-start gap-2.5 sm:gap-3 lg:gap-4 bg-black/40 p-3 sm:p-4 lg:p-5 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5 shadow-inner hover:bg-black/60 transition-colors group"
+                                  className="flex items-start gap-2.5 sm:gap-3 lg:gap-4 bg-[#1c242d] p-3 sm:p-4 lg:p-5 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-white/5 shadow-inner hover:bg-[#1c242d] transition-all duration-300 ease-in-out group"
                                 >
-                                  <div className="bg-[#3390ec]/20 p-1 sm:p-1.5 rounded-full group-hover:scale-110 transition-transform flex-shrink-0">
+                                  <div className="bg-[#3390ec]/20 p-1 sm:p-1.5 rounded-full group-hover:scale-110 transition-all duration-300 ease-in-out flex-shrink-0">
                                     <CheckCircle2
                                       size={14}
                                       className="sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-sky-400 drop-shadow-md"
@@ -5841,14 +5838,14 @@ const startCall = async (type) => {
                                   onClick={() =>
                                     setSelectedPremiumPlan(plan.id)
                                   }
-                                  className={`flex-1 relative cursor-pointer rounded-xl sm:rounded-2xl lg:rounded-2xl border-2 p-4 sm:p-5 lg:p-6 transition-all duration-300 hover:-translate-y-1 sm:hover:-translate-y-2 ${
+                                  className={`flex-1 relative cursor-pointer rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border-2 p-4 sm:p-5 lg:p-6 transition-all duration-300 hover:-translate-y-1 sm:hover:-translate-y-2 ${
                                     selectedPremiumPlan === plan.id
                                       ? "border-[#3390ec] bg-[#3390ec]/10 shadow-[0_5px_15px_rgba(245,158,11,0.2)] lg:shadow-[0_15px_40px_rgba(245,158,11,0.2)]"
                                       : "border-white/5 bg-black/30 hover:border-white/20"
                                   }`}
                                 >
                                   {plan.badge && (
-                                    <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-sky-500 to-orange-500 text-amber-950 text-[8px] sm:text-[9px] lg:text-[10px] font-medium px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 rounded-full shadow-lg lg:shadow-xl tracking-[0.2em] whitespace-nowrap">
+                                    <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 bg-[#17212b] text-amber-950 text-[8px] sm:text-[9px] lg:text-[10px] font-medium px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 rounded-full shadow-sm lg:shadow-md tracking-[0.2em] whitespace-nowrap">
                                       {plan.badge}
                                     </div>
                                   )}
@@ -5877,7 +5874,7 @@ const startCall = async (type) => {
                               type="button"
                               onClick={handlePurchasePremium}
                               disabled={isPurchasing}
-                              className="w-full max-w-md py-3 sm:py-4 lg:py-6 bg-gradient-to-r from-sky-500 via-amber-500 to-blue-600 hover:from-amber-300 hover:to-orange-500 text-amber-950 font-medium text-sm sm:text-base lg:text-xl rounded-xl sm:rounded-2xl lg:rounded-2xl shadow-[0_10px_20px_rgba(245,158,11,0.4)] lg:shadow-[0_20px_50px_rgba(245,158,11,0.5)] transition-all duration-300 hover:scale-[1.02] sm:hover:scale-105 active:scale-95 flex items-center justify-center gap-2 sm:gap-3 lg:gap-4"
+                              className="w-full max-w-md py-3 sm:py-4 lg:py-6 bg-[#17212b] hover:from-amber-300 hover:to-orange-500 text-amber-950 font-medium text-sm sm:text-base lg:text-xl rounded-2xl sm:rounded-[24px] lg:rounded-[24px] shadow-[0_10px_20px_rgba(245,158,11,0.4)] lg:shadow-[0_20px_50px_rgba(245,158,11,0.5)] transition-all duration-300 hover:scale-[1.02] sm:hover:scale-105 active:scale-95 flex items-center justify-center gap-2 sm:gap-3 lg:gap-4"
                             >
                               {isPurchasing ? (
                                 <Loader2 className="animate-spin text-amber-950 w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8" />
@@ -5890,8 +5887,8 @@ const startCall = async (type) => {
                             </button>
                           </>
                         ) : (
-                          <div className="bg-black/60 p-6 sm:p-8 lg:p-12 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-[#3390ec]/50 w-full max-w-xl backdrop-blur-2xl shadow-md lg:shadow-md animate-spring-up mt-6">
-                            <h4 className="text-xl sm:text-2xl lg:text-4xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-amber-200 to-orange-500 mb-3 sm:mb-4 lg:mb-6">
+                          <div className="bg-[#1c242d] p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-[#3390ec]/50 w-full max-w-xl  shadow-md lg:shadow-md animate-spring-up mt-6">
+                            <h4 className="text-xl sm:text-2xl lg:text-4xl font-medium text-transparent bg-clip-text bg-[#17212b] mb-3 sm:mb-4 lg:mb-6">
                               СТАТУС АКТИВЕН
                             </h4>
                             <p className="text-[10px] sm:text-xs lg:text-base text-zinc-300 mb-6 sm:mb-8 lg:mb-10 font-medium leading-relaxed">
@@ -5903,7 +5900,7 @@ const startCall = async (type) => {
                               onClick={() =>
                                 updateSettingField("isPremium", false)
                               }
-                              className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-zinc-500 hover:text-rose-500 transition-colors tracking-[0.3em] bg-white/5 hover:bg-rose-500/10 py-2 sm:py-2.5 lg:py-3 px-3 sm:px-4 lg:px-6 rounded-lg sm:rounded-xl lg:rounded-2xl border border-transparent hover:border-rose-500/20"
+                              className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-zinc-500 hover:text-rose-500 transition-all duration-300 ease-in-out tracking-[0.3em] bg-white/5 hover:bg-rose-500/10 py-2 sm:py-2.5 lg:py-3 px-3 sm:px-4 lg:px-6 rounded-[24px] sm:rounded-2xl lg:rounded-[24px] border border-transparent hover:border-rose-500/20"
                             >
                               Отключить (Dev)
                             </button>
@@ -5916,16 +5913,16 @@ const startCall = async (type) => {
 
                 {activeSettingsTab === "wallet" && (
                   <div className="space-y-6 sm:space-y-10 animate-fade-in">
-                    <div className={`p-6 sm:p-8 lg:p-12 rounded-xl sm:rounded-2xl lg:rounded-2xl border ${currentTheme.border} shadow-xl lg:shadow-lg relative overflow-hidden ${settings.theme === "light" ? "bg-gradient-to-br from-white to-zinc-100" : "bg-gradient-to-br from-zinc-900 to-zinc-950"}`}>
-                      <div className="absolute top-0 right-0 -mr-10 -mt-10 sm:-mr-20 sm:-mt-20 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-cyan-500/20 rounded-full blur-[40px] sm:blur-[80px] lg:blur-[100px] animate-pulse-slow"></div>
+                    <div className={`p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border ${currentTheme.border} shadow-md lg:shadow-sm relative overflow-hidden ${settings.theme === "light" ? "bg-[#17212b]" : "bg-[#17212b]"}`}>
+                      <div className="absolute top-0 right-0 -mr-10 -mt-10 sm:-mr-20 sm:-mt-20 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-cyan-500/20 rounded-full blur-[40px] sm:blur-[80px] lg:blur-[100px] "></div>
                       <div className="relative z-10 flex flex-col items-center text-center mb-8 sm:mb-10 lg:mb-12">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-2xl sm:rounded-xl lg:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 lg:mb-8 shadow-md lg:shadow-md animate-bounce-slow border border-white/20">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 bg-[#17212b] rounded-[24px] sm:rounded-2xl lg:rounded-[24px] flex items-center justify-center mb-4 sm:mb-6 lg:mb-8 shadow-md lg:shadow-md  border border-white/20">
                           <Wallet className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-cyan-950" />
                         </div>
                         <h3 className={`${settings.theme === "light" ? "text-zinc-600" : "text-zinc-500"} tracking-[0.3em] text-[8px] sm:text-[9px] lg:text-[10px] font-medium mb-2 sm:mb-3 lg:mb-4`}>
                           {getText("balance")}
                         </h3>
-                        <div className={`text-3xl sm:text-5xl lg:text-7xl font-medium ${settings.theme === "light" ? "text-zinc-900" : "text-transparent bg-clip-text bg-gradient-to-b from-cyan-200 to-cyan-600"} flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 drop-shadow-xl lg:drop-shadow-lg`}>
+                        <div className={`text-3xl sm:text-5xl lg:text-7xl font-medium ${settings.theme === "light" ? "text-zinc-900" : "text-transparent bg-clip-text bg-[#17212b]"} flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 drop-shadow-md lg:drop-shadow-sm`}>
                           {settings.balance}
                           {""}
                           <Gem className="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 text-cyan-400 fill-cyan-400" />
@@ -5964,14 +5961,14 @@ const startCall = async (type) => {
                         ].map((pack) => (
                           <div
                             key={pack.id}
-                            className={`p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border-2 ${
+                            className={`p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border-2 ${
                               pack.popular
                                 ? "border-cyan-500/50 bg-cyan-500/10 shadow-md sm:scale-[1.02]"
-                                : `${currentTheme.border} ${settings.theme === "light" ? "bg-white hover:bg-zinc-50" : "bg-black/40 hover:bg-black/60"}`
+                                : `${currentTheme.border} ${settings.theme === "light" ? "bg-white hover:bg-zinc-50" : "bg-[#1c242d] hover:bg-[#1c242d]"}`
                             } flex flex-col sm:flex-row items-center justify-between transition-all duration-300 sm:hover:-translate-y-1 relative overflow-hidden group gap-2 sm:gap-3 lg:gap-4`}
                           >
                             {pack.popular && (
-                              <div className="absolute top-0 right-0 bg-gradient-to-bl from-cyan-400 to-blue-600 text-white text-[7px] sm:text-[8px] lg:text-[9px] font-medium px-2 py-1 sm:px-3 sm:py-1 lg:px-4 lg:py-1.5 rounded-bl-lg sm:rounded-bl-xl lg:rounded-bl-2xl shadow-lg">
+                              <div className="absolute top-0 right-0 bg-[#17212b] text-white text-[7px] sm:text-[8px] lg:text-[9px] font-medium px-2 py-1 sm:px-3 sm:py-1 lg:px-4 lg:py-1.5 rounded-bl-lg sm:rounded-bl-xl lg:rounded-bl-2xl shadow-sm">
                                 {getText("hit")}
                               </div>
                             )}
@@ -5982,7 +5979,7 @@ const startCall = async (type) => {
                                 <Gem className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-cyan-400 fill-cyan-400 group-hover:animate-pulse" />
                               </div>
                               {pack.bonus && (
-                                <div className="text-[8px] sm:text-[9px] lg:text-[10px] text-cyan-400 font-medium mt-1 sm:mt-1.5 lg:mt-2 bg-cyan-500/10 inline-block px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md border border-cyan-500/20">
+                                <div className="text-[8px] sm:text-[9px] lg:text-[10px] text-cyan-400 font-medium mt-1 sm:mt-1.5 lg:mt-2 bg-cyan-500/10 inline-block px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-2xl border border-cyan-500/20">
                                   {pack.bonus}
                                 </div>
                               )}
@@ -5993,10 +5990,10 @@ const startCall = async (type) => {
                                 handleBuyCoins(pack.id, pack.amount)
                               }
                               disabled={buyingPackId !== null}
-                              className={`w-full sm:w-auto px-4 py-2 sm:px-5 sm:py-3 lg:px-6 lg:py-4 rounded-lg sm:rounded-xl lg:rounded-2xl text-[10px] sm:text-xs lg:text-sm font-medium transition-all active:scale-95 flex items-center justify-center ${
+                              className={`w-full sm:w-auto px-4 py-2 sm:px-5 sm:py-3 lg:px-6 lg:py-4 rounded-[24px] sm:rounded-2xl lg:rounded-[24px] text-[10px] sm:text-xs lg:text-sm font-medium transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center ${
                                 buyingPackId === pack.id
                                   ? "bg-[#242f3d] text-zinc-500"
-                                  : "bg-white text-zinc-950 hover:bg-zinc-200 shadow-md lg:shadow-xl"
+                                  : "bg-white text-zinc-950 hover:bg-zinc-200 shadow-md lg:shadow-md"
                               }`}
                             >
                               {buyingPackId === pack.id ? (
@@ -6028,7 +6025,7 @@ const startCall = async (type) => {
                         <div
                           className={`p-1 sm:p-1.5 lg:p-2 rounded-full ${
                             settings.isPremium
-                              ? "bg-gradient-to-tr from-sky-500 to-blue-600 animate-pulse-slow shadow-md lg:shadow-md"
+                              ? "bg-[#17212b]  shadow-md lg:shadow-md"
                               : "bg-[#242f3d]"
                           }`}
                         >
@@ -6041,13 +6038,13 @@ const startCall = async (type) => {
                           />
                         </div>
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                          <span className="text-[7px] sm:text-[9px] lg:text-[10px] font-medium text-white bg-black/60 px-2.5 py-1 sm:px-3 sm:py-1.5 lg:px-4 lg:py-2 rounded-full backdrop-blur-md border border-white/10">
+                          <span className="text-[7px] sm:text-[9px] lg:text-[10px] font-medium text-white bg-[#1c242d] px-2.5 py-1 sm:px-3 sm:py-1.5 lg:px-4 lg:py-2 rounded-full  border border-white/10">
                             СМЕНИТЬ
                           </span>
                         </div>
                       </div>
                       <div className="flex-1 space-y-3 sm:space-y-4 lg:space-y-6 w-full">
-                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5 shadow-inner">
+                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-white/5 shadow-inner">
                           <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-zinc-500 ml-1 lg:ml-2 tracking-[0.2em]">
                             {getText("disp_name")}
                           </label>
@@ -6057,10 +6054,10 @@ const startCall = async (type) => {
                             onChange={(e) =>
                               updateSettingField("username", e.target.value)
                             }
-                            className="w-full bg-black/40 border border-[#2b3949] rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-[#3390ec] transition-all text-white font-medium text-xs sm:text-sm lg:text-lg placeholder-zinc-700"
+                            className="w-full bg-[#1c242d] border border-[#2b3949] rounded-[24px] sm:rounded-2xl lg:rounded-[24px] px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-[#3390ec] transition-all duration-300 ease-in-out text-white font-medium text-xs sm:text-sm lg:text-lg placeholder-zinc-700"
                           />
                         </div>
-                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5 shadow-inner">
+                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-white/5 shadow-inner">
                           <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-zinc-500 ml-1 lg:ml-2 tracking-[0.2em]">
                             {getText("bio")}
                           </label>
@@ -6070,11 +6067,11 @@ const startCall = async (type) => {
                             onChange={(e) =>
                               updateSettingField("bio", e.target.value)
                             }
-                            className="w-full bg-black/40 border border-[#2b3949] rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-[#3390ec] transition-all text-white font-medium text-xs sm:text-sm lg:text-lg placeholder-zinc-700"
+                            className="w-full bg-[#1c242d] border border-[#2b3949] rounded-[24px] sm:rounded-2xl lg:rounded-[24px] px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-[#3390ec] transition-all duration-300 ease-in-out text-white font-medium text-xs sm:text-sm lg:text-lg placeholder-zinc-700"
                           />
                         </div>
                         {/* ДЕНЬ РОЖДЕНИЯ В НАСТРОЙКАХ */}
-                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5 shadow-inner">
+                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-white/5 shadow-inner">
                           <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-zinc-500 ml-1 lg:ml-2 tracking-[0.2em]">
                             {getText("birthday")}
                           </label>
@@ -6084,7 +6081,7 @@ const startCall = async (type) => {
                             onChange={(e) =>
                               updateSettingField("birthday", e.target.value)
                             }
-                            className={`w-full bg-black/40 border border-[#2b3949] rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-[#3390ec] transition-all font-medium text-xs sm:text-sm lg:text-lg ${
+                            className={`w-full bg-[#1c242d] border border-[#2b3949] rounded-[24px] sm:rounded-2xl lg:rounded-[24px] px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 mt-1.5 sm:mt-2 lg:mt-3 focus:outline-none focus:border-[#3390ec] transition-all duration-300 ease-in-out font-medium text-xs sm:text-sm lg:text-lg ${
                               settings.birthday ? "text-white" : "text-zinc-600"
                             }`}
                           />
@@ -6092,12 +6089,12 @@ const startCall = async (type) => {
 
                         {/* ЗНАЧОК ПРОФИЛЯ */}
                         {settings.activeBadge && (
-                          <div className="bg-[#3390ec]/10 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-[#3390ec]/20 shadow-inner flex items-center justify-between gap-4">
+                          <div className="bg-[#3390ec]/10 p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-[#3390ec]/20 shadow-inner flex items-center justify-between gap-4">
                             <div>
                               <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-[#3390ec] tracking-[0.2em]">
                                 ТЕКУЩИЙ СТАТУС-ЗНАЧОК
                               </label>
-                              <div className="text-3xl mt-2 drop-shadow-md animate-bounce-slow">
+                              <div className="text-3xl mt-2 drop-shadow-md ">
                                 {settings.activeBadge}
                               </div>
                             </div>
@@ -6106,14 +6103,14 @@ const startCall = async (type) => {
                               onClick={() =>
                                 updateSettingField("activeBadge", null)
                               }
-                              className="bg-black/50 hover:bg-rose-500/20 text-rose-500 border border-rose-500/30 px-4 py-3 rounded-xl font-medium text-[10px] transition-colors active:scale-95"
+                              className="bg-[#242f3d] hover:bg-rose-500/20 text-rose-500 border border-rose-500/30 px-4 py-3 rounded-2xl font-medium text-[10px] transition-all duration-300 ease-in-out active:scale-95"
                             >
                               {getText("unpin_badge")}
                             </button>
                           </div>
                         )}
 
-                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5 shadow-inner">
+                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-white/5 shadow-inner">
                           <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-zinc-500 ml-1 lg:ml-2 tracking-[0.2em]">
                             ТВОЙ USERNAME
                           </label>
@@ -6122,7 +6119,7 @@ const startCall = async (type) => {
                               type="text"
                               value={settings.usernameHandle || ""}
                               readOnly
-                              className="w-full bg-black/60 border border-[#2b3949]/50 rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 focus:outline-none text-zinc-500 font-mono cursor-not-allowed text-[10px] sm:text-xs lg:text-sm text-center sm:text-left"
+                              className="w-full bg-[#1c242d] border border-[#2b3949]/50 rounded-[24px] sm:rounded-2xl lg:rounded-[24px] px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 focus:outline-none text-zinc-500 font-mono cursor-not-allowed text-[10px] sm:text-xs lg:text-sm text-center sm:text-left"
                             />
                             <button
                               type="button"
@@ -6130,7 +6127,7 @@ const startCall = async (type) => {
                                 navigator.clipboard.writeText(settings.usernameHandle);
                                 triggerToast("Успех", "USERNAME СКОПИРОВАН!");
                               }}
-                              className="sm:absolute sm:right-2 lg:right-3 sm:top-1/2 sm:-translate-y-1/2 w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white text-[8px] sm:text-[9px] lg:text-[10px] font-medium px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg sm:rounded-xl transition-colors active:scale-95 border border-white/5"
+                              className="sm:absolute sm:right-2 lg:right-3 sm:top-1/2 sm:-translate-y-1/2 w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white text-[8px] sm:text-[9px] lg:text-[10px] font-medium px-3 py-2 sm:px-4 sm:py-2.5 rounded-[24px] sm:rounded-2xl transition-all duration-300 ease-in-out active:scale-95 border border-white/5"
                             >
                               КОПИРОВАТЬ
                             </button>
@@ -6142,13 +6139,13 @@ const startCall = async (type) => {
                                 value={changeHandle}
                                 onChange={(e) => setChangeHandle(e.target.value)}
                                 placeholder="Новый Username"
-                                className="flex-1 bg-black/40 border border-[#2b3949] rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:border-[#3390ec] transition-all text-white font-medium text-xs sm:text-sm placeholder-zinc-700"
+                                className="flex-1 bg-[#1c242d] border border-[#2b3949] rounded-[24px] sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:border-[#3390ec] transition-all duration-300 ease-in-out text-white font-medium text-xs sm:text-sm placeholder-zinc-700"
                               />
                               <button
                                 type="button"
                                 onClick={handleChangeUsernameHandle}
                                 disabled={isChangingHandle}
-                                className="bg-[#3390ec] hover:bg-[#2b7bc4] text-white text-[10px] sm:text-xs font-medium px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl transition-colors active:scale-95 disabled:opacity-50 flex items-center justify-center min-w-[120px]"
+                                className="bg-[#3390ec] hover:bg-[#2b7bc4] text-white text-[10px] sm:text-xs font-medium px-4 py-2 sm:py-3 rounded-[24px] sm:rounded-2xl transition-all duration-300 ease-in-out active:scale-95 disabled:opacity-50 flex items-center justify-center min-w-[120px]"
                               >
                                 {isChangingHandle ? <Loader2 size={16} className="animate-spin" /> : "ИЗМЕНИТЬ (1 РАЗ)"}
                               </button>
@@ -6161,7 +6158,7 @@ const startCall = async (type) => {
                           )}
                         </div>
 
-                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5 shadow-inner">
+                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-white/5 shadow-inner">
                           <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-zinc-500 ml-1 lg:ml-2 tracking-[0.2em]">
                             ИЗМЕНИТЬ EMAIL (ТЕКУЩИЙ: {user?.email || "НЕТ"})
                           </label>
@@ -6171,12 +6168,12 @@ const startCall = async (type) => {
                               value={changeEmail}
                               onChange={(e) => setChangeEmail(e.target.value)}
                               placeholder="Новый E-mail"
-                              className="flex-1 bg-black/40 border border-[#2b3949] rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:border-[#3390ec] transition-all text-white font-medium text-xs sm:text-sm placeholder-zinc-700"
+                              className="flex-1 bg-[#1c242d] border border-[#2b3949] rounded-[24px] sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-3 focus:outline-none focus:border-[#3390ec] transition-all duration-300 ease-in-out text-white font-medium text-xs sm:text-sm placeholder-zinc-700"
                             />
                             <button
                               type="button"
                               onClick={handleChangeEmail}
-                              className="bg-[#3390ec] hover:bg-[#2b7bc4] text-white text-[10px] sm:text-xs font-medium px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl transition-colors active:scale-95"
+                              className="bg-[#3390ec] hover:bg-[#2b7bc4] text-white text-[10px] sm:text-xs font-medium px-4 py-2 sm:py-3 rounded-[24px] sm:rounded-2xl transition-all duration-300 ease-in-out active:scale-95"
                             >
                               ИЗМЕНИТЬ
                             </button>
@@ -6188,7 +6185,7 @@ const startCall = async (type) => {
                           )}
                         </div>
 
-                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5 shadow-inner">
+                        <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-white/5 shadow-inner">
                           <label className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-zinc-500 ml-1 lg:ml-2 tracking-[0.2em]">
                             ПРИВЯЗКА АККАУНТОВ
                           </label>
@@ -6209,7 +6206,7 @@ const startCall = async (type) => {
                                   }
                                 }
                               }}
-                              className="w-full bg-[#ea4335] hover:bg-[#d33426] text-white text-xs sm:text-sm lg:text-base font-medium px-4 py-3 sm:py-4 rounded-lg sm:rounded-xl transition-colors active:scale-95 flex items-center justify-center shadow-md"
+                              className="w-full bg-[#ea4335] hover:bg-[#d33426] text-white text-xs sm:text-sm lg:text-base font-medium px-4 py-3 sm:py-4 rounded-[24px] sm:rounded-2xl transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center shadow-md"
                             >
                               Привязать Google
                             </button>
@@ -6228,7 +6225,7 @@ const startCall = async (type) => {
                     </h3>
 
                     {/* НОВАЯ ФИЧА: ОПТИМИЗАЦИЯ */}
-                    <div className="bg-[#3390ec]/10 border border-[#3390ec]/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl">
+                    <div className="bg-[#3390ec]/10 border border-[#3390ec]/20 p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px]">
                       <h4 className="text-[9px] sm:text-[10px] lg:text-xs text-[#3390ec] mb-3 sm:mb-4 lg:mb-5 tracking-[0.2em] font-medium flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2">
                         <Zap
                           size={14}
@@ -6237,7 +6234,7 @@ const startCall = async (type) => {
                         {""}
                         {getText("perf_mode")}
                       </h4>
-                      <div className="flex flex-col sm:flex-row bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-2xl p-1 sm:p-1.5 lg:p-2 border border-white/5 shadow-inner gap-1 sm:gap-0">
+                      <div className="flex flex-col sm:flex-row bg-[#1c242d] rounded-2xl sm:rounded-[24px] lg:rounded-[24px] p-1 sm:p-1.5 lg:p-2 border border-white/5 shadow-inner gap-1 sm:gap-0">
                         {[
                           { id: "ultra", label: getText("perf_ultra") },
                           { id: "lite", label: getText("perf_lite") },
@@ -6246,9 +6243,9 @@ const startCall = async (type) => {
                             type="button"
                             key={m.id}
                             onClick={() => updateSettingField("perfMode", m.id)}
-                            className={`flex-1 py-2.5 sm:py-3 lg:py-4 rounded-lg sm:rounded-xl lg:rounded-2xl text-[9px] sm:text-[10px] lg:text-[11px] font-medium transition-all duration-300 ${
+                            className={`flex-1 py-2.5 sm:py-3 lg:py-4 rounded-[24px] sm:rounded-2xl lg:rounded-[24px] text-[9px] sm:text-[10px] lg:text-[11px] font-medium transition-all duration-300 ${
                               settings.perfMode === m.id
-                                ? "bg-[#3390ec] text-amber-950 shadow-md lg:shadow-xl sm:scale-[1.02]"
+                                ? "bg-[#3390ec] text-amber-950 shadow-md lg:shadow-md sm:scale-[1.02]"
                                 : "text-zinc-500 hover:text-white sm:hover:bg-white/5"
                             }`}
                           >
@@ -6267,7 +6264,7 @@ const startCall = async (type) => {
                         {""}
                         {getText("s_lang")}
                       </h4>
-                      <div className="flex bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-2xl p-1 sm:p-1.5 lg:p-2 border border-white/5 shadow-inner">
+                      <div className="flex bg-[#1c242d] rounded-2xl sm:rounded-[24px] lg:rounded-[24px] p-1 sm:p-1.5 lg:p-2 border border-white/5 shadow-inner">
                         {[
                           { id: "ru", label: "РУССКИЙ" },
                           { id: "en", label: "ENGLISH" },
@@ -6276,9 +6273,9 @@ const startCall = async (type) => {
                             type="button"
                             key={l.id}
                             onClick={() => updateSettingField("lang", l.id)}
-                            className={`flex-1 py-2.5 sm:py-3 lg:py-4 rounded-lg sm:rounded-xl lg:rounded-2xl text-[9px] sm:text-[10px] lg:text-[11px] font-medium transition-all duration-300 ${
+                            className={`flex-1 py-2.5 sm:py-3 lg:py-4 rounded-[24px] sm:rounded-2xl lg:rounded-[24px] text-[9px] sm:text-[10px] lg:text-[11px] font-medium transition-all duration-300 ${
                               settings.lang === l.id
-                                ? "bg-indigo-600 text-white shadow-md lg:shadow-xl sm:scale-[1.02]"
+                                ? "bg-indigo-600 text-white shadow-md lg:shadow-md sm:scale-[1.02]"
                                 : "text-zinc-500 hover:text-white sm:hover:bg-white/5"
                             }`}
                           >
@@ -6309,10 +6306,10 @@ const startCall = async (type) => {
                                   );
                                 } else updateSettingField("theme", t.id);
                               }}
-                              className={`cursor-pointer p-2.5 sm:p-3 lg:p-4 rounded-xl sm:rounded-2xl lg:rounded-2xl border-2 transition-all duration-300 relative overflow-hidden group sm:hover:-translate-y-1 ${
+                              className={`cursor-pointer p-2.5 sm:p-3 lg:p-4 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border-2 transition-all duration-300 relative overflow-hidden group sm:hover:-translate-y-1 ${
                                 settings.theme === t.id
                                   ? "border-white bg-white/10 shadow-[0_5px_15px_rgba(255,255,255,0.1)] lg:shadow-[0_10px_20px_rgba(255,255,255,0.1)] scale-[1.02]"
-                                  : "border-[#2b3949] bg-[#17212b]/50 hover:border-[#2b3949]"
+                                  : "border-[#2b3949] bg-[#17212b] hover:border-[#2b3949]"
                               } ${
                                 isLocked
                                   ? "opacity-50 hover:opacity-80 grayscale"
@@ -6320,7 +6317,7 @@ const startCall = async (type) => {
                               }`}
                             >
                               {isLocked && (
-                                <div className="absolute top-1.5 sm:top-2 lg:top-3 right-1.5 sm:right-2 lg:right-3 z-10 text-[#3390ec] bg-black/60 p-1 sm:p-1.5 lg:p-2 rounded-full backdrop-blur-md shadow-lg border border-[#3390ec]/20">
+                                <div className="absolute top-1.5 sm:top-2 lg:top-3 right-1.5 sm:right-2 lg:right-3 z-10 text-[#3390ec] bg-[#1c242d] p-1 sm:p-1.5 lg:p-2 rounded-full  shadow-sm border border-[#3390ec]/20">
                                   <Crown
                                     size={10}
                                     className="sm:w-3 lg:w-3.5 sm:h-3 lg:h-3.5"
@@ -6328,12 +6325,12 @@ const startCall = async (type) => {
                                 </div>
                               )}
                               <div
-                                className={`w-full h-12 sm:h-16 lg:h-24 rounded-lg sm:rounded-xl lg:rounded-2xl mb-2 sm:mb-3 lg:mb-4 border border-white/10 flex items-center justify-center shadow-inner transition-transform duration-500 group-hover:scale-105 ${t.base}`}
+                                className={`w-full h-12 sm:h-16 lg:h-24 rounded-[24px] sm:rounded-2xl lg:rounded-[24px] mb-2 sm:mb-3 lg:mb-4 border border-white/10 flex items-center justify-center shadow-inner transition-all duration-300 ease-in-out duration-500 group-hover:scale-105 ${t.base}`}
                               >
                                 {settings.theme === t.id && (
                                   <Check
                                     size={20}
-                                    className="sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-white drop-shadow-lg animate-spring-up"
+                                    className="sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-white drop-shadow-sm animate-spring-up"
                                   />
                                 )}
                               </div>
@@ -6350,7 +6347,7 @@ const startCall = async (type) => {
                       <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 tracking-[0.3em] font-medium text-center sm:text-left lg:ml-2">
                         {getText("accent")}
                       </h4>
-                      <div className="flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-4 lg:gap-5 bg-black/20 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-white/5">
+                      <div className="flex flex-wrap justify-center sm:justify-start gap-3 sm:gap-4 lg:gap-5 bg-black/20 p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-white/5">
                         {[
                           { id: "zinc", color: "bg-zinc-200", name: "PLATINA" },
                           { id: "amber", color: "bg-sky-400", name: "GOLD" },
@@ -6369,7 +6366,7 @@ const startCall = async (type) => {
                             <div
                               className={`w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 xl:w-20 xl:h-20 rounded-full ${
                                 acc.color
-                              } flex items-center justify-center shadow-xl lg:shadow-lg transition-all duration-300 group-hover:scale-110 active:scale-90 ${
+                              } flex items-center justify-center shadow-md lg:shadow-sm transition-all duration-300 group-hover:scale-110 active:scale-90 ${
                                 settings.accent === acc.id
                                   ? "ring-[2px] sm:ring-[3px] lg:ring-4 ring-offset-[2px] sm:ring-offset-[3px] lg:ring-offset-4 ring-offset-zinc-950 ring-white scale-110"
                                   : ""
@@ -6400,7 +6397,7 @@ const startCall = async (type) => {
                       <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 tracking-[0.3em] font-medium text-center sm:text-left lg:ml-2">
                         {getText("font_size")}
                       </h4>
-                      <div className="flex flex-col sm:flex-row bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-2xl p-1 sm:p-1.5 lg:p-2 border border-white/5 shadow-inner gap-1 sm:gap-0">
+                      <div className="flex flex-col sm:flex-row bg-[#1c242d] rounded-2xl sm:rounded-[24px] lg:rounded-[24px] p-1 sm:p-1.5 lg:p-2 border border-white/5 shadow-inner gap-1 sm:gap-0">
                         {[
                           { id: "text-sm", label: "MINI" },
                           { id: "text-[15px]", label: "NORM" },
@@ -6413,9 +6410,9 @@ const startCall = async (type) => {
                             onClick={() =>
                               updateSettingField("fontSize", size.id)
                             }
-                            className={`flex-1 py-2.5 sm:py-3 lg:py-4 rounded-lg sm:rounded-xl lg:rounded-2xl text-[8px] sm:text-[9px] lg:text-[10px] xl:text-xs transition-all duration-300 ${
+                            className={`flex-1 py-2.5 sm:py-3 lg:py-4 rounded-[24px] sm:rounded-2xl lg:rounded-[24px] text-[8px] sm:text-[9px] lg:text-[10px] xl:text-xs transition-all duration-300 ${
                               settings.fontSize === size.id
-                                ? "bg-white text-zinc-950 font-medium shadow-md lg:shadow-xl sm:scale-[1.02]"
+                                ? "bg-white text-zinc-950 font-medium shadow-md lg:shadow-md sm:scale-[1.02]"
                                 : "text-zinc-500 hover:text-white sm:hover:bg-white/5 font-medium"
                             }`}
                           >
@@ -6429,7 +6426,7 @@ const startCall = async (type) => {
                       <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 tracking-[0.3em] font-medium text-center sm:text-left lg:ml-2">
                         {getText("bubble_style")}
                       </h4>
-                      <div className="flex flex-col sm:flex-row bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-2xl p-1 sm:p-1.5 lg:p-2 border border-white/5 shadow-inner gap-1 sm:gap-0">
+                      <div className="flex flex-col sm:flex-row bg-[#1c242d] rounded-2xl sm:rounded-[24px] lg:rounded-[24px] p-1 sm:p-1.5 lg:p-2 border border-white/5 shadow-inner gap-1 sm:gap-0">
                         {[
                           { id: "rounded", label: getText("rounded_style") },
                           { id: "sharp", label: getText("sharp_style") },
@@ -6440,9 +6437,9 @@ const startCall = async (type) => {
                             onClick={() =>
                               updateSettingField("bubbleStyle", st.id)
                             }
-                            className={`flex-1 py-2.5 sm:py-3 lg:py-4 rounded-lg sm:rounded-xl lg:rounded-2xl text-[8px] sm:text-[9px] lg:text-[10px] xl:text-xs transition-all duration-300 ${
+                            className={`flex-1 py-2.5 sm:py-3 lg:py-4 rounded-[24px] sm:rounded-2xl lg:rounded-[24px] text-[8px] sm:text-[9px] lg:text-[10px] xl:text-xs transition-all duration-300 ${
                               settings.bubbleStyle === st.id
-                                ? "bg-white text-zinc-950 font-medium shadow-md lg:shadow-xl sm:scale-[1.02]"
+                                ? "bg-white text-zinc-950 font-medium shadow-md lg:shadow-md sm:scale-[1.02]"
                                 : "text-zinc-500 hover:text-white sm:hover:bg-white/5 font-medium"
                             }`}
                           >
@@ -6457,7 +6454,7 @@ const startCall = async (type) => {
                         ПРОЗРАЧНОСТЬ ПУЗЫРЕЙ (
                         {Math.round(settings.bubbleOpacity * 100)}%)
                       </h4>
-                      <div className="bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-2xl p-4 border border-white/5 shadow-inner">
+                      <div className="bg-[#1c242d] rounded-2xl sm:rounded-[24px] lg:rounded-[24px] p-4 border border-white/5 shadow-inner">
                         <input
                           type="range"
                           min="0.1"
@@ -6475,7 +6472,7 @@ const startCall = async (type) => {
                       </div>
                     </div>
 
-                    <div className="bg-black/40 border border-white/5 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl lg:rounded-2xl flex items-center justify-between">
+                    <div className="bg-[#1c242d] border border-white/5 p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] flex items-center justify-between">
                       <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 tracking-[0.3em] font-medium">
                         ЭФФЕКТ СТЕКЛА (BLUR)
                       </h4>
@@ -6502,10 +6499,10 @@ const startCall = async (type) => {
                             onClick={() =>
                               updateSettingField("wallpaper", w.id)
                             }
-                            className={`py-2 rounded-xl text-[9px] font-medium transition-all ${
+                            className={`py-2 rounded-2xl text-[9px] font-medium transition-all duration-300 ease-in-out ${
                               settings.wallpaper === w.id
                                 ? "bg-[#3390ec] text-amber-950"
-                                : "bg-black/40 text-zinc-500 hover:text-white"
+                                : "bg-[#1c242d] text-zinc-500 hover:text-white"
                             }`}
                           >
                             {w.label}
@@ -6513,7 +6510,7 @@ const startCall = async (type) => {
                         ))}
                       </div>
                       {settings.wallpaper === "custom" && (
-                        <div className="bg-black/40 p-4 rounded-2xl border border-white/5 flex flex-col gap-3">
+                        <div className="bg-[#1c242d] p-4 rounded-[24px] border border-white/5 flex flex-col gap-3">
                           <input
                             type="text"
                             placeholder="URL картинки..."
@@ -6524,7 +6521,7 @@ const startCall = async (type) => {
                                 e.target.value,
                               )
                             }
-                            className="bg-black/60 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-[#3390ec] transition-all"
+                            className="bg-[#1c242d] border border-white/10 rounded-2xl px-4 py-2 text-xs text-white focus:outline-none focus:border-[#3390ec] transition-all duration-300 ease-in-out"
                           />
                           <p className="text-[8px] text-zinc-500 font-medium text-center">
                             Или выбери файл ниже
@@ -6547,7 +6544,7 @@ const startCall = async (type) => {
                               };
                               input.click();
                             }}
-                            className="bg-white/10 hover:bg-white/20 py-2 rounded-xl text-[9px] font-medium text-white transition-all"
+                            className="bg-white/10 hover:bg-white/20 py-2 rounded-2xl text-[9px] font-medium text-white transition-all duration-300 ease-in-out"
                           >
                             ВЫБРАТЬ ФАЙЛ
                           </button>
@@ -6559,7 +6556,7 @@ const startCall = async (type) => {
                       <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 tracking-[0.3em] font-medium text-center sm:text-left lg:ml-2">
                         СКОРОСТЬ АНИМАЦИЙ ({settings.animationSpeed}x)
                       </h4>
-                      <div className="bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-2xl p-4 border border-white/5 shadow-inner">
+                      <div className="bg-[#1c242d] rounded-2xl sm:rounded-[24px] lg:rounded-[24px] p-4 border border-white/5 shadow-inner">
                         <input
                           type="range"
                           min="0.1"
@@ -6582,7 +6579,7 @@ const startCall = async (type) => {
                         ГРОМКОСТЬ УВЕДОМЛЕНИЙ (
                         {Math.round(settings.messageVolume * 100)}%)
                       </h4>
-                      <div className="bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-2xl p-4 border border-white/5 shadow-inner">
+                      <div className="bg-[#1c242d] rounded-2xl sm:rounded-[24px] lg:rounded-[24px] p-4 border border-white/5 shadow-inner">
                         <input
                           type="range"
                           min="0"
@@ -6604,7 +6601,7 @@ const startCall = async (type) => {
                       <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 tracking-[0.3em] font-medium text-center sm:text-left lg:ml-2">
                         {getText("density")}
                       </h4>
-                      <div className="flex flex-col sm:flex-row bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-2xl p-1 sm:p-1.5 lg:p-2 border border-white/5 shadow-inner gap-1 sm:gap-0">
+                      <div className="flex flex-col sm:flex-row bg-[#1c242d] rounded-2xl sm:rounded-[24px] lg:rounded-[24px] p-1 sm:p-1.5 lg:p-2 border border-white/5 shadow-inner gap-1 sm:gap-0">
                         {[
                           { id: "normal", label: getText("normal_density") },
                           { id: "compact", label: getText("compact") },
@@ -6615,9 +6612,9 @@ const startCall = async (type) => {
                             onClick={() =>
                               updateSettingField("messageDensity", d.id)
                             }
-                            className={`flex-1 py-2.5 sm:py-3 lg:py-4 rounded-lg sm:rounded-xl lg:rounded-2xl text-[8px] sm:text-[9px] lg:text-[10px] xl:text-xs transition-all duration-300 ${
+                            className={`flex-1 py-2.5 sm:py-3 lg:py-4 rounded-[24px] sm:rounded-2xl lg:rounded-[24px] text-[8px] sm:text-[9px] lg:text-[10px] xl:text-xs transition-all duration-300 ${
                               settings.messageDensity === d.id
-                                ? "bg-white text-zinc-950 font-medium shadow-md lg:shadow-xl sm:scale-[1.02]"
+                                ? "bg-white text-zinc-950 font-medium shadow-md lg:shadow-md sm:scale-[1.02]"
                                 : "text-zinc-500 hover:text-white sm:hover:bg-white/5 font-medium"
                             }`}
                           >
@@ -6634,11 +6631,11 @@ const startCall = async (type) => {
                     <h3 className="text-lg sm:text-xl lg:text-2xl font-medium text-white mb-4 sm:mb-6 lg:mb-8 border-b border-white/5 pb-2 sm:pb-3 lg:pb-4 text-center sm:text-left">
                       {getText("s_notif")}
                     </h3>
-                    <div className="bg-black/30 border border-white/5 rounded-xl sm:rounded-2xl lg:rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl lg:shadow-lg mb-6">
+                    <div className="bg-black/30 border border-white/5 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] p-5 sm:p-6 lg:p-8 shadow-md lg:shadow-sm mb-6">
                       <h4 className="text-[8px] sm:text-[9px] lg:text-[10px] text-zinc-500 mb-3 sm:mb-4 lg:mb-5 tracking-[0.3em] font-medium text-center sm:text-left lg:ml-2">
                         СКОРОСТЬ ЧТЕНИЯ ТЕКСТА ({settings.readingSpeed}x)
                       </h4>
-                      <div className="bg-black/40 rounded-xl sm:rounded-2xl lg:rounded-2xl p-4 border border-white/5 shadow-inner">
+                      <div className="bg-[#1c242d] rounded-2xl sm:rounded-[24px] lg:rounded-[24px] p-4 border border-white/5 shadow-inner">
                         <input
                           type="range"
                           min="0.5"
@@ -6656,8 +6653,8 @@ const startCall = async (type) => {
                       </div>
                     </div>
 
-                    <div className="bg-black/30 border border-white/5 rounded-xl sm:rounded-2xl lg:rounded-2xl overflow-hidden shadow-xl lg:shadow-lg">
-                      <div className="p-4 sm:p-6 lg:p-8 flex flex-row items-center justify-between sm:hover:bg-white/5 transition-colors border-b border-white/5 gap-2 sm:gap-4 lg:gap-0 text-left">
+                    <div className="bg-black/30 border border-white/5 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] overflow-hidden shadow-md lg:shadow-sm">
+                      <div className="p-4 sm:p-6 lg:p-8 flex flex-row items-center justify-between sm:hover:bg-white/5 transition-all duration-300 ease-in-out border-b border-white/5 gap-2 sm:gap-4 lg:gap-0 text-left">
                         <div className="min-w-0">
                           <p className="font-medium text-white text-xs sm:text-sm lg:text-base mb-0.5 sm:mb-1 truncate">
                             {getText("sounds")}
@@ -6671,7 +6668,7 @@ const startCall = async (type) => {
                           }
                         />
                       </div>
-                      <div className="p-4 sm:p-6 lg:p-8 flex flex-row items-center justify-between sm:hover:bg-white/5 transition-colors gap-2 sm:gap-4 lg:gap-0 text-left">
+                      <div className="p-4 sm:p-6 lg:p-8 flex flex-row items-center justify-between sm:hover:bg-white/5 transition-all duration-300 ease-in-out gap-2 sm:gap-4 lg:gap-0 text-left">
                         <div className="min-w-0">
                           <p className="font-medium text-white text-xs sm:text-sm lg:text-base mb-0.5 sm:mb-1 truncate">
                             {getText("toasts")}
@@ -6693,7 +6690,7 @@ const startCall = async (type) => {
                       {getText("s_priv")}
                     </h3>
 
-                    <div className="bg-black/30 border border-white/5 rounded-xl sm:rounded-2xl lg:rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl lg:shadow-lg flex items-center justify-between">
+                    <div className="bg-black/30 border border-white/5 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] p-5 sm:p-6 lg:p-8 shadow-md lg:shadow-sm flex items-center justify-between">
                       <div>
                         <p className="font-medium text-white text-xs sm:text-sm mb-1">
                           СКРЫТЬ ПРОФИЛЬ (BLUR)
@@ -6708,7 +6705,7 @@ const startCall = async (type) => {
                         onChange={(v) => updateSettingField("profileBlur", v)}
                       />
                     </div>
-                    <div className="bg-black/30 border border-white/5 rounded-xl sm:rounded-2xl lg:rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl lg:shadow-lg">
+                    <div className="bg-black/30 border border-white/5 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] p-5 sm:p-6 lg:p-8 shadow-md lg:shadow-sm">
                       <label className="block text-[8px] sm:text-[9px] lg:text-[10px] font-medium text-zinc-500 tracking-[0.3em] mb-2 sm:mb-3 lg:mb-4 lg:ml-2 text-center sm:text-left">
                         {getText("status")}
                       </label>
@@ -6729,7 +6726,7 @@ const startCall = async (type) => {
                             }
                             updateSettingField("lastSeen", e.target.value);
                           }}
-                          className="w-full bg-black/50 border-2 border-[#2b3949] hover:border-[#2b3949] rounded-lg sm:rounded-xl lg:rounded-2xl px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 text-[10px] sm:text-xs lg:text-sm text-white focus:outline-none focus:border-[#3390ec] font-medium transition-all cursor-pointer appearance-none shadow-inner text-center sm:text-left"
+                          className="w-full bg-[#242f3d] border-2 border-[#2b3949] hover:border-[#2b3949] rounded-[24px] sm:rounded-2xl lg:rounded-[24px] px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5 text-[10px] sm:text-xs lg:text-sm text-white focus:outline-none focus:border-[#3390ec] font-medium transition-all duration-300 ease-in-out cursor-pointer appearance-none shadow-inner text-center sm:text-left"
                         >
                           <option value="everyone">
                             {getText("everyone")}
@@ -6749,12 +6746,12 @@ const startCall = async (type) => {
 
                 {activeSettingsTab === "ai" && (
                   <div className="space-y-8 sm:space-y-10 lg:space-y-12 animate-fade-in">
-                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 lg:mb-10 text-center sm:text-left bg-black/20 p-5 sm:p-6 lg:p-8 rounded-2xl sm:rounded-2xl lg:rounded-2xl border border-white/5">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 bg-gradient-to-br from-indigo-500 to-purple-700 rounded-xl sm:rounded-2xl lg:rounded-2xl flex items-center justify-center shadow-md lg:shadow-md animate-pulse-slow border border-white/20 flex-shrink-0">
+                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 lg:mb-10 text-center sm:text-left bg-black/20 p-5 sm:p-6 lg:p-8 rounded-[24px] sm:rounded-[24px] lg:rounded-[24px] border border-white/5">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 bg-[#17212b] rounded-2xl sm:rounded-[24px] lg:rounded-[24px] flex items-center justify-center shadow-md lg:shadow-md  border border-white/20 flex-shrink-0">
                         <Bot className="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 text-white" />
                       </div>
                       <div className="min-w-0">
-                        <h3 className="text-2xl sm:text-3xl lg:text-5xl font-medium bg-clip-text text-transparent bg-gradient-to-b from-indigo-200 to-purple-500 mb-1 sm:mb-2 leading-none truncate">
+                        <h3 className="text-2xl sm:text-3xl lg:text-5xl font-medium bg-clip-text text-transparent bg-[#17212b] mb-1 sm:mb-2 leading-none truncate">
                           PLATINA AI
                         </h3>
                         <p className="text-zinc-400 font-medium text-[8px] sm:text-[10px] lg:text-xs tracking-[0.2em] mt-1 sm:mt-2 lg:mt-0 truncate">
@@ -6785,13 +6782,13 @@ const startCall = async (type) => {
                             onClick={() =>
                               updateSettingField("aiTone", tone.id)
                             }
-                            className={`p-4 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl lg:rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:-translate-y-1 sm:hover:-translate-y-2 flex flex-col items-center text-center ${
+                            className={`p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border-2 cursor-pointer transition-all duration-300 hover:-translate-y-1 sm:hover:-translate-y-2 flex flex-col items-center text-center ${
                               settings.aiTone === tone.id
                                 ? "border-indigo-500 bg-indigo-500/10 shadow-[0_10px_20px_rgba(99,102,241,0.2)] lg:shadow-[0_20px_40px_rgba(99,102,241,0.2)] scale-[1.02]"
-                                : "border-white/5 bg-black/40 hover:bg-black/60"
+                                : "border-white/5 bg-[#1c242d] hover:bg-[#1c242d]"
                             }`}
                           >
-                            <span className="text-3xl sm:text-4xl lg:text-5xl mb-3 sm:mb-4 lg:mb-6 drop-shadow-lg">
+                            <span className="text-3xl sm:text-4xl lg:text-5xl mb-3 sm:mb-4 lg:mb-6 drop-shadow-sm">
                               {tone.icon}
                             </span>
                             <p
@@ -6825,7 +6822,7 @@ const startCall = async (type) => {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                       <div
-                        className={`${settings.theme === "light" ? "bg-emerald-50 border-emerald-100" : "bg-emerald-500/10 border-rose-500/20"} border p-4 rounded-2xl shadow-sm`}
+                        className={`${settings.theme === "light" ? "bg-emerald-50 border-emerald-100" : "bg-emerald-500/10 border-rose-500/20"} border p-4 rounded-[24px] shadow-sm`}
                       >
                         <p
                           className={`text-[9px] ${settings.theme === "light" ? "text-emerald-600" : "text-emerald-500"} font-medium mb-1`}
@@ -6839,7 +6836,7 @@ const startCall = async (type) => {
                         </p>
                       </div>
                       <div
-                        className={`${settings.theme === "light" ? "bg-indigo-50 border-indigo-100" : "bg-rose-500/10 border-rose-500/20"} border p-4 rounded-2xl shadow-sm`}
+                        className={`${settings.theme === "light" ? "bg-indigo-50 border-indigo-100" : "bg-rose-500/10 border-rose-500/20"} border p-4 rounded-[24px] shadow-sm`}
                       >
                         <p
                           className={`text-[9px] ${settings.theme === "light" ? "text-indigo-600" : "text-rose-500"} font-medium mb-1`}
@@ -6853,7 +6850,7 @@ const startCall = async (type) => {
                         </p>
                       </div>
                       <div
-                        className={`${settings.theme === "light" ? "bg-amber-50 border-amber-100" : "bg-[#3390ec]/10 border-[#3390ec]/20"} border p-4 rounded-2xl shadow-sm`}
+                        className={`${settings.theme === "light" ? "bg-amber-50 border-amber-100" : "bg-[#3390ec]/10 border-[#3390ec]/20"} border p-4 rounded-[24px] shadow-sm`}
                       >
                         <p
                           className={`text-[9px] ${settings.theme === "light" ? "text-amber-600" : "text-[#3390ec]"} font-medium mb-1`}
@@ -6870,7 +6867,7 @@ const startCall = async (type) => {
                         </p>
                       </div>
                       <div
-                        className={`${settings.theme === "light" ? "bg-cyan-50 border-cyan-100" : "bg-cyan-500/10 border-cyan-500/20"} border p-4 rounded-2xl shadow-sm`}
+                        className={`${settings.theme === "light" ? "bg-cyan-50 border-cyan-100" : "bg-cyan-500/10 border-cyan-500/20"} border p-4 rounded-[24px] shadow-sm`}
                       >
                         <p
                           className={`text-[9px] ${settings.theme === "light" ? "text-cyan-600" : "text-cyan-500"} font-medium mb-1`}
@@ -6899,7 +6896,7 @@ const startCall = async (type) => {
                     {adminStats && (
                       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
                         <div
-                          className={`${settings.theme === "light" ? "bg-zinc-50" : "bg-black/20"} p-5 rounded-2xl border ${currentTheme.border}`}
+                          className={`${settings.theme === "light" ? "bg-zinc-50" : "bg-black/20"} p-5 rounded-[24px] border ${currentTheme.border}`}
                         >
                           <h4 className="text-[10px] font-medium text-zinc-500 mb-4 border-b border-white/5 pb-2">
                             🏆 ТОП АКТИВНОСТЬ
@@ -6975,7 +6972,7 @@ const startCall = async (type) => {
                         </div>
 
                         <div
-                          className={`${settings.theme === "light" ? "bg-zinc-50" : "bg-black/20"} p-5 rounded-2xl border ${currentTheme.border}`}
+                          className={`${settings.theme === "light" ? "bg-zinc-50" : "bg-black/20"} p-5 rounded-[24px] border ${currentTheme.border}`}
                         >
                           <h4 className="text-[10px] font-medium text-zinc-500 mb-4 border-b border-white/5 pb-2">
                             🎨 ПРЕДПОЧТЕНИЯ
@@ -7016,7 +7013,7 @@ const startCall = async (type) => {
                         </div>
 
                         <div
-                          className={`${settings.theme === "light" ? "bg-zinc-50" : "bg-black/20"} p-5 rounded-2xl border ${currentTheme.border}`}
+                          className={`${settings.theme === "light" ? "bg-zinc-50" : "bg-black/20"} p-5 rounded-[24px] border ${currentTheme.border}`}
                         >
                           <h4 className="text-[10px] font-medium text-zinc-500 mb-4 border-b border-white/5 pb-2">
                             📊 ЛИДЕРБОРДЫ
@@ -7071,7 +7068,7 @@ const startCall = async (type) => {
 
                     {/* ГЛОБАЛЬНАЯ РАССЫЛКА */}
                     <div
-                      className={`${settings.theme === "light" ? "bg-indigo-50 border-indigo-100" : "bg-indigo-500/10 border-indigo-500/20"} border p-6 rounded-2xl shadow-sm mb-6`}
+                      className={`${settings.theme === "light" ? "bg-indigo-50 border-indigo-100" : "bg-indigo-500/10 border-indigo-500/20"} border p-6 rounded-[24px] shadow-sm mb-6`}
                     >
                       <h4 className="text-[10px] font-medium text-indigo-400 mb-4 flex items-center gap-2">
                         <Megaphone size={14} /> Глобальная рассылка
@@ -7080,13 +7077,13 @@ const startCall = async (type) => {
                         value={adminBroadcastText}
                         onChange={(e) => setAdminBroadcastText(e.target.value)}
                         placeholder="Текст сообщения для всех пользователей..."
-                        className={`w-full ${settings.theme === "light" ? "bg-white" : "bg-black/40"} border ${settings.theme === "light" ? "border-zinc-200" : "border-white/10"} rounded-2xl p-4 text-xs font-medium mb-3 focus:outline-none focus:border-indigo-500 transition-all resize-none`}
+                        className={`w-full ${settings.theme === "light" ? "bg-white" : "bg-[#1c242d]"} border ${settings.theme === "light" ? "border-zinc-200" : "border-white/10"} rounded-[24px] p-4 text-xs font-medium mb-3 focus:outline-none focus:border-indigo-500 transition-all duration-300 ease-in-out resize-none`}
                         rows="3"
                       />
                       <button
                         onClick={() => adminAction(null, "global_broadcast")}
                         disabled={isBroadcasting || !adminBroadcastText.trim()}
-                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium text-[10px] transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-medium text-[10px] transition-all duration-300 ease-in-out active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
                       >
                         {isBroadcasting ? (
                           <Loader2 size={14} className="animate-spin" />
@@ -7108,12 +7105,12 @@ const startCall = async (type) => {
                           placeholder="Поиск по ID или имени..."
                           value={adminSearchQuery}
                           onChange={(e) => setAdminSearchQuery(e.target.value)}
-                          className={`w-full ${settings.theme === "light" ? "bg-white border-zinc-200" : "bg-black/40 border-white/5"} border rounded-xl py-3 pl-10 pr-4 text-[11px] font-medium focus:outline-none transition-all`}
+                          className={`w-full ${settings.theme === "light" ? "bg-white border-zinc-200" : "bg-[#1c242d] border-white/5"} border rounded-2xl py-3 pl-10 pr-4 text-[11px] font-medium focus:outline-none transition-all duration-300 ease-in-out`}
                         />
                       </div>
                       <button
                         onClick={fetchAdminUsers}
-                        className={`px-4 py-3 ${settings.theme === "light" ? "bg-[#f1f1f1] hover:bg-zinc-200 text-zinc-600" : "bg-black/50 hover:bg-[#242f3d] text-zinc-400"} rounded-xl transition-all border border-transparent font-medium text-[9px] flex items-center gap-2 whitespace-nowrap`}
+                        className={`px-4 py-3 ${settings.theme === "light" ? "bg-white hover:bg-zinc-200 text-zinc-600" : "bg-[#242f3d] hover:bg-[#242f3d] text-zinc-400"} rounded-2xl transition-all duration-300 ease-in-out border border-transparent font-medium text-[9px] flex items-center gap-2 whitespace-nowrap`}
                       >
                         <RefreshCw
                           size={14}
@@ -7126,7 +7123,7 @@ const startCall = async (type) => {
 
                     {/* DEVELOPER CONSOLE */}
                     <div
-                      className={`${settings.theme === "light" ? "bg-[#f1f1f1] border-zinc-200" : "bg-black/40 border-white/5"} border p-5 rounded-2xl mb-6 shadow-inner`}
+                      className={`${settings.theme === "light" ? "bg-white border-zinc-200" : "bg-[#1c242d] border-white/5"} border p-5 rounded-[24px] mb-6 shadow-inner`}
                     >
                       <h4 className="text-[9px] font-medium text-zinc-500 mb-3 flex items-center gap-2">
                         <ShieldAlert size={14} /> Developer Console
@@ -7137,11 +7134,11 @@ const startCall = async (type) => {
                           value={adminConsoleCmd}
                           onChange={(e) => setAdminConsoleCmd(e.target.value)}
                           placeholder="Введите команду..."
-                          className={`flex-1 ${settings.theme === "light" ? "bg-white" : "bg-black/60"} border ${currentTheme.border} rounded-xl px-4 py-2 font-mono text-[10px] text-white focus:outline-none`}
+                          className={`flex-1 ${settings.theme === "light" ? "bg-white" : "bg-[#1c242d]"} border ${currentTheme.border} rounded-2xl px-4 py-2 font-mono text-[10px] text-white focus:outline-none`}
                         />
                         <button
                           onClick={() => adminAction(null, "console_cmd")}
-                          className="bg-[#242f3d] hover:bg-[#2b3949] text-white px-4 py-2 rounded-xl text-[10px] font-medium transition-all"
+                          className="bg-[#242f3d] hover:bg-[#2b3949] text-white px-4 py-2 rounded-2xl text-[10px] font-medium transition-all duration-300 ease-in-out"
                         >
                           EXEC
                         </button>
@@ -7165,10 +7162,10 @@ const startCall = async (type) => {
                         .map((u) => (
                           <div
                             key={u.id}
-                            className={`${settings.theme === "light" ? "bg-white border-zinc-200 shadow-md" : "bg-[#17212b]/40 border-white/5 hover:border-rose-500/30"} border transition-all p-5 rounded-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-sm group`}
+                            className={`${settings.theme === "light" ? "bg-white border-zinc-200 shadow-md" : "bg-[#17212b] border-white/5 hover:border-rose-500/30"} border transition-all duration-300 ease-in-out p-5 rounded-[24px] flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-sm group`}
                           >
                             <div className="flex items-center gap-5 relative z-10">
-                              <div className="relative flex-shrink-0 group-hover:scale-110 transition-transform duration-500">
+                              <div className="relative flex-shrink-0 group-hover:scale-110 transition-all duration-300 ease-in-out duration-500">
                                 <img
                                   src={
                                     u.settings?.avatar ||
@@ -7176,7 +7173,7 @@ const startCall = async (type) => {
                                   }
                                   className={`w-16 h-16 rounded-full border-2 ${settings.theme === "light" ? "border-zinc-100" : "border-black"} object-cover ${
                                     u.settings?.isPremium
-                                      ? "ring-2 ring-sky-400 shadow-lg shadow-amber-500/20"
+                                      ? "ring-2 ring-sky-400 shadow-sm shadow-amber-500/20"
                                       : ""
                                   }`}
                                 />
@@ -7206,11 +7203,11 @@ const startCall = async (type) => {
                                     : "Оффлайн"}
                                 </p>
                                 <div className="flex items-center gap-3 mt-2">
-                                  <p className="text-[10px] text-[#3390ec] font-medium bg-[#3390ec]/10 px-2 py-0.5 rounded-md border border-[#3390ec]/20 flex items-center gap-1">
+                                  <p className="text-[10px] text-[#3390ec] font-medium bg-[#3390ec]/10 px-2 py-0.5 rounded-2xl border border-[#3390ec]/20 flex items-center gap-1">
                                     <Gem size={10} /> {u.settings?.balance || 0}
                                   </p>
                                   {u.settings?.isBanned && (
-                                    <p className="text-[10px] text-rose-500 font-medium bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20 animate-pulse">
+                                    <p className="text-[10px] text-rose-500 font-medium bg-rose-500/10 px-2 py-0.5 rounded-2xl border border-rose-500/20 animate-pulse">
                                       ЗАБАНЕН
                                     </p>
                                   )}
@@ -7219,14 +7216,14 @@ const startCall = async (type) => {
                             </div>
                             <div className="flex flex-col gap-3 w-full lg:w-auto">
                               {/* ВЫБОР ЗНАЧКА (КРАСИВАЯ СЕТКА) */}
-                              <div className="flex flex-wrap gap-1.5 p-2 bg-black/20 rounded-2xl border border-white/5">
+                              <div className="flex flex-wrap gap-1.5 p-2 bg-black/20 rounded-[24px] border border-white/5">
                                 <button
                                   onClick={() =>
                                     adminAction(u.id, "set_badge", null)
                                   }
-                                  className={`p-2 rounded-xl text-[10px] font-medium transition-all ${
+                                  className={`p-2 rounded-2xl text-[10px] font-medium transition-all duration-300 ease-in-out ${
                                     !u.settings?.officialBadge
-                                      ? "bg-zinc-500 text-white shadow-lg"
+                                      ? "bg-zinc-500 text-white shadow-sm"
                                       : `${settings.theme === "light" ? "text-zinc-400 hover:text-zinc-600" : "text-zinc-600 hover:text-zinc-400"}`
                                   }`}
                                   title="Без значка"
@@ -7241,10 +7238,10 @@ const startCall = async (type) => {
                                       onClick={() =>
                                         adminAction(u.id, "set_badge", k)
                                       }
-                                      className={`p-2 rounded-xl text-lg transition-all hover:scale-110 active:scale-90 ${
+                                      className={`p-2 rounded-2xl text-lg transition-all duration-300 ease-in-out hover:scale-110 active:scale-90 ${
                                         u.settings?.officialBadge === k
-                                          ? "bg-indigo-500 shadow-lg shadow-indigo-500/40"
-                                          : "bg-black/40 hover:bg-black/60 opacity-60 hover:opacity-100"
+                                          ? "bg-indigo-500 shadow-sm shadow-indigo-500/40"
+                                          : "bg-[#1c242d] hover:bg-[#1c242d] opacity-60 hover:opacity-100"
                                       }`}
                                       title={v.label}
                                     >
@@ -7262,9 +7259,9 @@ const startCall = async (type) => {
                                       !u.settings?.isPremium,
                                     )
                                   }
-                                  className={`flex-1 sm:flex-none px-4 py-3 rounded-xl text-[10px] font-medium transition-all shadow-md active:scale-95 ${
+                                  className={`flex-1 sm:flex-none px-4 py-3 rounded-2xl text-[10px] font-medium transition-all duration-300 ease-in-out shadow-md active:scale-95 ${
                                     u.settings?.isPremium
-                                      ? `${settings.theme === "light" ? "bg-[#f1f1f1] text-zinc-400" : "bg-[#242f3d] text-zinc-400"} hover:text-white`
+                                      ? `${settings.theme === "light" ? "bg-white text-zinc-400" : "bg-[#242f3d] text-zinc-400"} hover:text-white`
                                       : "bg-[#3390ec]/20 text-[#3390ec] hover:bg-[#3390ec] hover:text-black border border-[#3390ec]/30"
                                   }`}
                                 >
@@ -7276,7 +7273,7 @@ const startCall = async (type) => {
                                   onClick={() =>
                                     adminAction(u.id, "add_balance", 1000)
                                   }
-                                  className="flex-1 sm:flex-none px-4 py-3 rounded-xl text-[10px] font-medium bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500 hover:text-white border border-cyan-500/20 transition-all active:scale-95 flex items-center justify-center gap-1"
+                                  className="flex-1 sm:flex-none px-4 py-3 rounded-2xl text-[10px] font-medium bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500 hover:text-white border border-cyan-500/20 transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center gap-1"
                                 >
                                   <Gem size={12} /> +1000
                                 </button>
@@ -7289,7 +7286,7 @@ const startCall = async (type) => {
                                     )
                                       adminAction(u.id, "clear_history");
                                   }}
-                                  className="px-3 py-3 rounded-xl bg-zinc-500/10 text-zinc-500 hover:bg-zinc-500 hover:text-white border border-zinc-500/20 transition-all active:scale-95 flex items-center justify-center"
+                                  className="px-3 py-3 rounded-2xl bg-zinc-500/10 text-zinc-500 hover:bg-zinc-500 hover:text-white border border-zinc-500/20 transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center"
                                   title="Очистить историю"
                                 >
                                   <Trash size={16} />
@@ -7302,7 +7299,7 @@ const startCall = async (type) => {
                                       !u.settings?.isBanned,
                                     )
                                   }
-                                  className={`px-3 py-3 rounded-xl border transition-all active:scale-95 flex items-center justify-center ${
+                                  className={`px-3 py-3 rounded-2xl border transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center ${
                                     u.settings?.isBanned
                                       ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500 hover:text-white"
                                       : "bg-rose-500/10 text-rose-500 border-rose-500/20 hover:bg-rose-500 hover:text-white"
@@ -7328,7 +7325,7 @@ const startCall = async (type) => {
                                     )
                                       adminAction(u.id, "delete");
                                   }}
-                                  className="px-3 py-3 rounded-xl text-[10px] font-medium bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-500/20 transition-all flex justify-center active:scale-95 group-hover:border-rose-500/50"
+                                  className="px-3 py-3 rounded-2xl text-[10px] font-medium bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-500/20 transition-all duration-300 ease-in-out flex justify-center active:scale-95 group-hover:border-rose-500/50"
                                   title="Удалить юзера"
                                 >
                                   <Trash2 size={16} />
@@ -7336,49 +7333,49 @@ const startCall = async (type) => {
 
                                 <button
                                   onClick={() => adminAction(u.id, "reset_balance")}
-                                  className="px-3 py-3 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white border border-amber-500/20 transition-all active:scale-95 flex items-center justify-center"
+                                  className="px-3 py-3 rounded-2xl bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white border border-amber-500/20 transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center"
                                   title="Сбросить баланс"
                                 >
                                   0 💎
                                 </button>
                                 <button
                                   onClick={() => adminAction(u.id, "remove_all_gifts")}
-                                  className="px-3 py-3 rounded-xl bg-orange-500/10 text-orange-500 hover:bg-orange-500 hover:text-white border border-orange-500/20 transition-all active:scale-95 flex items-center justify-center"
+                                  className="px-3 py-3 rounded-2xl bg-orange-500/10 text-orange-500 hover:bg-orange-500 hover:text-white border border-orange-500/20 transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center"
                                   title="Удалить все подарки"
                                 >
                                   <Gift size={16} />
                                 </button>
                                 <button
                                   onClick={() => adminAction(u.id, "clear_username")}
-                                  className="px-3 py-3 rounded-xl bg-slate-500/10 text-slate-500 hover:bg-slate-500 hover:text-white border border-slate-500/20 transition-all active:scale-95 flex items-center justify-center"
+                                  className="px-3 py-3 rounded-2xl bg-slate-500/10 text-slate-500 hover:bg-slate-500 hover:text-white border border-slate-500/20 transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center"
                                   title="Сбросить имя"
                                 >
                                   <UserCircle size={16} />
                                 </button>
                                 <button
                                   onClick={() => adminAction(u.id, "clear_avatar")}
-                                  className="px-3 py-3 rounded-xl bg-pink-500/10 text-pink-500 hover:bg-pink-500 hover:text-white border border-pink-500/20 transition-all active:scale-95 flex items-center justify-center"
+                                  className="px-3 py-3 rounded-2xl bg-pink-500/10 text-pink-500 hover:bg-pink-500 hover:text-white border border-pink-500/20 transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center"
                                   title="Удалить аватар"
                                 >
                                   <ImageOff size={16} />
                                 </button>
                                 <button
                                   onClick={() => adminAction(u.id, "force_logout")}
-                                  className="px-3 py-3 rounded-xl bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white border border-indigo-500/20 transition-all active:scale-95 flex items-center justify-center"
+                                  className="px-3 py-3 rounded-2xl bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white border border-indigo-500/20 transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center"
                                   title="Принудительный выход"
                                 >
                                   <LogOut size={16} />
                                 </button>
                                 <button
                                   onClick={() => adminAction(u.id, "clear_contacts")}
-                                  className="px-3 py-3 rounded-xl bg-fuchsia-500/10 text-fuchsia-500 hover:bg-fuchsia-500 hover:text-white border border-fuchsia-500/20 transition-all active:scale-95 flex items-center justify-center"
+                                  className="px-3 py-3 rounded-2xl bg-fuchsia-500/10 text-fuchsia-500 hover:bg-fuchsia-500 hover:text-white border border-fuchsia-500/20 transition-all duration-300 ease-in-out active:scale-95 flex items-center justify-center"
                                   title="Очистить контакты"
                                 >
                                   <Users size={16} />
                                 </button>
                               </div>
 
-                              <div className="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                              <div className="absolute inset-0 bg-[#17212b] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                             </div>
                           </div>
                         ))}
@@ -7398,8 +7395,8 @@ const startCall = async (type) => {
 
       {/* --- МОДАЛКИ (УДАЛЕНИЕ, ДОБАВЛЕНИЕ) --- */}
       {chatToDelete && (
-        <div className="fixed inset-0 z-[600] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4 sm:p-6 animate-fade-in">
-          <div className="bg-[#0e1621] p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-2xl lg:rounded-2xl border border-rose-500/30 text-center shadow-md lg:shadow-md animate-spring-up max-w-xs sm:max-w-sm w-full">
+        <div className="fixed inset-0 z-[600] bg-black/90  flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+          <div className="bg-[#0e1621] p-6 sm:p-8 lg:p-12 rounded-[24px] sm:rounded-[24px] lg:rounded-[24px] border border-rose-500/30 text-center shadow-md lg:shadow-md animate-spring-up max-w-xs sm:max-w-sm w-full">
             <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 lg:mb-8 text-rose-500 border border-rose-500/20">
               <AlertCircle
                 size={32}
@@ -7416,14 +7413,14 @@ const startCall = async (type) => {
               <button
                 type="button"
                 onClick={() => setChatToDelete(null)}
-                className="w-full sm:flex-1 py-3 sm:py-4 lg:py-6 rounded-xl sm:rounded-2xl lg:rounded-2xl font-medium bg-[#17212b] text-zinc-500 hover:text-white transition-colors text-[9px] sm:text-[10px] lg:text-xs"
+                className="w-full sm:flex-1 py-3 sm:py-4 lg:py-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] font-medium bg-[#17212b] text-zinc-500 hover:text-white transition-all duration-300 ease-in-out text-[9px] sm:text-[10px] lg:text-xs"
               >
                 {getText("back")}
               </button>
               <button
                 type="button"
                 onClick={handleDeleteChat}
-                className="w-full sm:flex-1 py-3 sm:py-4 lg:py-6 rounded-xl sm:rounded-2xl lg:rounded-2xl font-medium bg-rose-600 text-white shadow-lg lg:shadow-lg shadow-rose-600/40 transition-all hover:bg-rose-500 text-[9px] sm:text-[10px] lg:text-xs"
+                className="w-full sm:flex-1 py-3 sm:py-4 lg:py-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] font-medium bg-rose-600 text-white shadow-sm lg:shadow-sm shadow-rose-600/40 transition-all duration-300 ease-in-out hover:bg-rose-500 text-[9px] sm:text-[10px] lg:text-xs"
               >
                 {getText("delete")}
               </button>
@@ -7433,8 +7430,8 @@ const startCall = async (type) => {
       )}
 
       {showAddContact && (
-        <div className="fixed inset-0 z-[600] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-4 sm:p-6 lg:p-8 animate-fade-in">
-          <div className="bg-[#17212b]/80 sm:bg-[#17212b]/60 p-6 sm:p-10 lg:p-16 rounded-2xl sm:rounded-2xl lg:rounded-2xl border border-white/5 w-full max-w-sm sm:max-w-md lg:max-w-lg animate-spring-up shadow-lg lg:shadow-lg flex flex-col justify-center">
+        <div className="fixed inset-0 z-[600] bg-black/95  flex items-center justify-center p-4 sm:p-6 lg:p-8 animate-fade-in">
+          <div className="bg-[#17212b] sm:bg-[#17212b] p-6 sm:p-10 lg:p-16 rounded-[24px] sm:rounded-[24px] lg:rounded-[24px] border border-white/5 w-full max-w-sm sm:max-w-md lg:max-w-lg animate-spring-up shadow-sm lg:shadow-sm flex flex-col justify-center">
             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-medium mb-2 sm:mb-3 lg:mb-4 text-white text-center sm:text-left">
               {getText("new_connect")}
             </h3>
@@ -7450,10 +7447,10 @@ const startCall = async (type) => {
                 )
               }
               placeholder="ID..."
-              className="w-full bg-black/80 sm:bg-black/60 border border-white/10 rounded-xl sm:rounded-2xl lg:rounded-2xl py-3 sm:py-4 lg:py-6 px-4 sm:px-6 lg:px-10 mb-4 sm:mb-6 lg:mb-8 text-white font-medium placeholder-zinc-800 focus:outline-none focus:border-[#3390ec] transition-all text-sm sm:text-base lg:text-xl"
+              className="w-full bg-black/80 sm:bg-[#1c242d] border border-white/10 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] py-3 sm:py-4 lg:py-6 px-4 sm:px-6 lg:px-10 mb-4 sm:mb-6 lg:mb-8 text-white font-medium placeholder-zinc-800 focus:outline-none focus:border-[#3390ec] transition-all duration-300 ease-in-out text-sm sm:text-base lg:text-xl"
             />
             {addContactError && (
-              <p className="text-rose-500 text-[9px] sm:text-[10px] lg:text-[12px] font-medium mb-4 sm:mb-6 lg:mb-8 animate-shake bg-rose-500/10 p-3 sm:p-4 lg:p-5 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-rose-500/20 text-center">
+              <p className="text-rose-500 text-[9px] sm:text-[10px] lg:text-[12px] font-medium mb-4 sm:mb-6 lg:mb-8 animate-shake bg-rose-500/10 p-3 sm:p-4 lg:p-5 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-rose-500/20 text-center">
                 {addContactError}
               </p>
             )}
@@ -7461,7 +7458,7 @@ const startCall = async (type) => {
               <button
                 type="button"
                 onClick={() => setShowAddContact(false)}
-                className="w-full sm:flex-1 py-3 sm:py-4 lg:py-6 rounded-xl sm:rounded-2xl lg:rounded-2xl font-medium bg-[#0e1621] text-zinc-500 hover:text-white transition-colors text-[9px] sm:text-[10px] lg:text-xs"
+                className="w-full sm:flex-1 py-3 sm:py-4 lg:py-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] font-medium bg-[#0e1621] text-zinc-500 hover:text-white transition-all duration-300 ease-in-out text-[9px] sm:text-[10px] lg:text-xs"
               >
                 {getText("back")}
               </button>
@@ -7469,7 +7466,7 @@ const startCall = async (type) => {
                 type="button"
                 onClick={handleAddContact}
                 disabled={isSearchingUser}
-                className={`w-full sm:flex-1 py-3 sm:py-4 lg:py-6 rounded-xl sm:rounded-2xl lg:rounded-2xl font-medium ${currentAccent.bg} ${currentAccent.text} shadow-xl lg:shadow-lg text-[9px] sm:text-[10px] lg:text-xs flex items-center justify-center`}
+                className={`w-full sm:flex-1 py-3 sm:py-4 lg:py-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] font-medium ${currentAccent.bg} ${currentAccent.text} shadow-md lg:shadow-sm text-[9px] sm:text-[10px] lg:text-xs flex items-center justify-center`}
               >
                 {isSearchingUser ? (
                   <Loader2 className="animate-spin w-4 h-4 sm:w-5 h-5 lg:w-auto lg:h-auto" />
@@ -7483,8 +7480,8 @@ const startCall = async (type) => {
       )}
 
       {showBindEmailModal && (
-        <div className="fixed inset-0 z-[600] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-4 sm:p-6 lg:p-8 animate-fade-in">
-          <div className="bg-[#17212b]/80 sm:bg-[#17212b]/60 p-6 sm:p-10 lg:p-16 rounded-2xl sm:rounded-2xl lg:rounded-2xl border border-white/5 w-full max-w-sm sm:max-w-md lg:max-w-lg animate-spring-up shadow-lg lg:shadow-lg flex flex-col justify-center">
+        <div className="fixed inset-0 z-[600] bg-black/95  flex items-center justify-center p-4 sm:p-6 lg:p-8 animate-fade-in">
+          <div className="bg-[#17212b] sm:bg-[#17212b] p-6 sm:p-10 lg:p-16 rounded-[24px] sm:rounded-[24px] lg:rounded-[24px] border border-white/5 w-full max-w-sm sm:max-w-md lg:max-w-lg animate-spring-up shadow-sm lg:shadow-sm flex flex-col justify-center">
             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-medium mb-2 sm:mb-3 lg:mb-4 text-white text-center sm:text-left">
               Привязка почты
             </h3>
@@ -7498,7 +7495,7 @@ const startCall = async (type) => {
                 value={bindEmailForm.email}
                 onChange={(e) => setBindEmailForm(prev => ({ ...prev, email: e.target.value.replace(/\s+/g, "") }))}
                 placeholder="E-MAIL"
-                className="w-full bg-black/80 sm:bg-black/60 border border-white/10 rounded-xl sm:rounded-2xl lg:rounded-2xl py-3 sm:py-4 lg:py-6 px-4 sm:px-6 lg:px-10 mb-4 sm:mb-6 lg:mb-8 text-white font-medium placeholder-zinc-800 focus:outline-none focus:border-[#3390ec] transition-all text-sm sm:text-base lg:text-xl"
+                className="w-full bg-black/80 sm:bg-[#1c242d] border border-white/10 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] py-3 sm:py-4 lg:py-6 px-4 sm:px-6 lg:px-10 mb-4 sm:mb-6 lg:mb-8 text-white font-medium placeholder-zinc-800 focus:outline-none focus:border-[#3390ec] transition-all duration-300 ease-in-out text-sm sm:text-base lg:text-xl"
               />
               <input
                 type="password"
@@ -7507,10 +7504,10 @@ const startCall = async (type) => {
                 value={bindEmailForm.password}
                 onChange={(e) => setBindEmailForm(prev => ({ ...prev, password: e.target.value }))}
                 placeholder="ПАРОЛЬ"
-                className="w-full bg-black/80 sm:bg-black/60 border border-white/10 rounded-xl sm:rounded-2xl lg:rounded-2xl py-3 sm:py-4 lg:py-6 px-4 sm:px-6 lg:px-10 mb-4 sm:mb-6 lg:mb-8 text-white font-medium placeholder-zinc-800 focus:outline-none focus:border-[#3390ec] transition-all text-sm sm:text-base lg:text-xl"
+                className="w-full bg-black/80 sm:bg-[#1c242d] border border-white/10 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] py-3 sm:py-4 lg:py-6 px-4 sm:px-6 lg:px-10 mb-4 sm:mb-6 lg:mb-8 text-white font-medium placeholder-zinc-800 focus:outline-none focus:border-[#3390ec] transition-all duration-300 ease-in-out text-sm sm:text-base lg:text-xl"
               />
               {bindEmailForm.error && (
-                <p className="text-rose-500 text-[9px] sm:text-[10px] lg:text-[12px] font-medium mb-4 sm:mb-6 lg:mb-8 animate-shake bg-rose-500/10 p-3 sm:p-4 lg:p-5 rounded-xl sm:rounded-2xl lg:rounded-2xl border border-rose-500/20 text-center">
+                <p className="text-rose-500 text-[9px] sm:text-[10px] lg:text-[12px] font-medium mb-4 sm:mb-6 lg:mb-8 animate-shake bg-rose-500/10 p-3 sm:p-4 lg:p-5 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-rose-500/20 text-center">
                   {bindEmailForm.error}
                 </p>
               )}
@@ -7518,14 +7515,14 @@ const startCall = async (type) => {
                 <button
                   type="button"
                   onClick={() => setShowBindEmailModal(false)}
-                  className={`w-full py-3 sm:py-4 lg:py-6 rounded-xl sm:rounded-2xl lg:rounded-2xl font-medium bg-[#17212b] text-zinc-500 hover:text-white transition-colors text-[9px] sm:text-[10px] lg:text-xs`}
+                  className={`w-full py-3 sm:py-4 lg:py-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] font-medium bg-[#17212b] text-zinc-500 hover:text-white transition-all duration-300 ease-in-out text-[9px] sm:text-[10px] lg:text-xs`}
                 >
                   СДЕЛАТЬ ПОЗЖЕ
                 </button>
                 <button
                   type="submit"
                   disabled={bindEmailForm.loading}
-                  className={`w-full py-3 sm:py-4 lg:py-6 rounded-xl sm:rounded-2xl lg:rounded-2xl font-medium ${currentAccent.bg} ${currentAccent.text} shadow-xl lg:shadow-lg text-[9px] sm:text-[10px] lg:text-xs flex items-center justify-center`}
+                  className={`w-full py-3 sm:py-4 lg:py-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] font-medium ${currentAccent.bg} ${currentAccent.text} shadow-md lg:shadow-sm text-[9px] sm:text-[10px] lg:text-xs flex items-center justify-center`}
                 >
                   {bindEmailForm.loading ? (
                     <Loader2 className="animate-spin w-4 h-4 sm:w-5 h-5 lg:w-auto lg:h-auto" />
@@ -7541,7 +7538,7 @@ const startCall = async (type) => {
 
       {fullscreenImage && (
         <div
-          className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4"
+          className="fixed inset-0 z-[2000] bg-black/90  flex flex-col items-center justify-center p-4"
           onClick={() => setFullscreenImage(null)}
         >
           <div className="absolute top-4 right-4 flex gap-4">
@@ -7549,13 +7546,13 @@ const startCall = async (type) => {
               href={fullscreenImage}
               download="image.png"
               onClick={(e) => e.stopPropagation()}
-              className="bg-white/20 hover:bg-white/30 p-2 rounded-full text-white backdrop-blur-md transition-colors flex items-center justify-center"
+              className="bg-white/20 hover:bg-white/30 p-2 rounded-full text-white  transition-all duration-300 ease-in-out flex items-center justify-center"
             >
               <Download size={24} />
             </a>
             <button
               onClick={() => setFullscreenImage(null)}
-              className="bg-white/20 hover:bg-white/30 p-2 rounded-full text-white backdrop-blur-md transition-colors"
+              className="bg-white/20 hover:bg-white/30 p-2 rounded-full text-white  transition-all duration-300 ease-in-out"
             >
               <X size={24} />
             </button>
@@ -7573,10 +7570,10 @@ const startCall = async (type) => {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="bg-[#17212b]/95 backdrop-blur-3xl border border-white/10 p-3 sm:p-4 lg:p-6 rounded-xl sm:rounded-xl lg:rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] lg:shadow-[0_15px_40px_rgba(0,0,0,0.5)] animate-spring-up pointer-events-auto flex items-center gap-3 sm:gap-4 lg:gap-5 border-l-[3px] sm:border-l-4 border-l-amber-500"
+            className="bg-[#17212b]  border border-white/10 p-3 sm:p-4 lg:p-6 rounded-2xl sm:rounded-2xl lg:rounded-[24px] shadow-[0_10px_30px_rgba(0,0,0,0.5)] lg:shadow-[0_15px_40px_rgba(0,0,0,0.5)] animate-spring-up pointer-events-auto flex items-center gap-3 sm:gap-4 lg:gap-5 border-l-[3px] sm:border-l-4 border-l-amber-500"
           >
             <div
-              className={`w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-full ${currentAccent.bg} ${currentAccent.text} flex items-center justify-center shadow-lg flex-shrink-0`}
+              className={`w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-full ${currentAccent.bg} ${currentAccent.text} flex items-center justify-center shadow-sm flex-shrink-0`}
             >
               <Bell size={14} className="sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
             </div>
