@@ -3355,23 +3355,36 @@ const startCall = async (type) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const MAX_VIDEO_SIZE = 1 * 1024 * 1024; // 1 MB strict limit for Base64
+    const sizeStr =
+      file.size > 1024 * 1024
+        ? (file.size / (1024 * 1024)).toFixed(1) + "MB"
+        : (file.size / 1024).toFixed(1) + "KB";
 
-    if (file.type.startsWith("video/")) {
-      if (file.size > MAX_VIDEO_SIZE) {
-        triggerToast("Ошибка", "Видео слишком большое (макс. 1МБ) ⛔");
+    // Use an object URL directly to prevent huge base64 blocks and memory crashes.
+    // This provides "unlimited" local upload viewing logic as a mock.
+    // If the file is > 5MB, we use Object URL. Otherwise we can base64 it to persist.
+    if (file.size > 5 * 1024 * 1024) {
+      const objectUrl = URL.createObjectURL(file);
+      if (file.type.startsWith("video/")) {
+        handleSendMessage({ type: "video", url: objectUrl });
       } else {
-        const reader = new FileReader();
-        reader.onload = (ev) =>
-          handleSendMessage({ type: "video", url: ev.target.result });
-        reader.readAsDataURL(file);
+        handleSendMessage({ type: "file", fileName: file.name, fileSize: sizeStr, url: objectUrl });
       }
     } else {
-      const sizeStr =
-        file.size > 1024 * 1024
-          ? (file.size / (1024 * 1024)).toFixed(1) + "MB"
-          : (file.size / 1024).toFixed(1) + "KB";
-      handleSendMessage({ type: "file", fileName: file.name, fileSize: sizeStr });
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (file.type.startsWith("video/")) {
+          handleSendMessage({ type: "video", url: ev.target.result });
+        } else {
+          handleSendMessage({
+            type: "file",
+            fileName: file.name,
+            fileSize: sizeStr,
+            url: ev.target.result
+          });
+        }
+      };
+      reader.readAsDataURL(file);
     }
     setShowAttachmentMenu(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -4903,12 +4916,20 @@ const startCall = async (type) => {
                             </div>
                           )}
                           {msg.type === "file" && (
-                            <div
+                            <a
+                              href={msg.url || "#"}
+                              download={msg.fileName || "file"}
                               className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl sm:rounded-[24px] mb-2 sm:mb-3 mt-1 cursor-pointer transition-all duration-300 ease-in-out border shadow-sm sm:shadow-sm hover:-translate-y-0.5 sm:hover:-translate-y-1 ${
                                 isMe
                                   ? "bg-black/20 border-white/10 hover:bg-black/30"
                                   : `${settings.theme === "light" ? "bg-white" : "bg-[#1c242d]"} ${currentTheme.border} hover:bg-[#1c242d]`
                               }`}
+                              onClick={(e) => {
+                                if (!msg.url) {
+                                  e.preventDefault();
+                                  triggerToast("Ошибка", "Файл недоступен для скачивания");
+                                }
+                              }}
                             >
                               <div
                                 className={`p-2.5 sm:p-3 rounded-[24px] sm:rounded-2xl shadow-inner flex-shrink-0 ${
@@ -4919,8 +4940,8 @@ const startCall = async (type) => {
                               >
                                 <FileText size={18} className="sm:w-6 sm:h-6" />
                               </div>
-                              <div className="flex flex-col overflow-hidden min-w-0">
-                                <span className="text-[11px] sm:text-sm font-medium truncate">
+                              <div className="flex flex-col overflow-hidden min-w-0 flex-1">
+                                <span className={`text-[11px] sm:text-sm font-medium truncate ${settings.theme === "light" && !isMe ? "text-zinc-800" : ""}`}>
                                   {msg.fileName}
                                 </span>
                                 <span
@@ -4931,7 +4952,10 @@ const startCall = async (type) => {
                                   {msg.fileSize}
                                 </span>
                               </div>
-                            </div>
+                              <div className={`flex-shrink-0 ml-auto p-1.5 rounded-full ${isMe ? "bg-white/10" : "bg-black/5 dark:bg-white/5"} transition-transform hover:scale-110`}>
+                                <Download size={14} className={isMe ? "text-white/80" : "text-zinc-500"} />
+                              </div>
+                            </a>
                           )}
                           {msg.type === "geo" && (
                             <div
@@ -5296,7 +5320,7 @@ const startCall = async (type) => {
                         <button
                           type="button"
                           onClick={() => imageInputRef.current?.click()}
-                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] bg-[#17212b] hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-300 ease-in-out active:scale-90 group"
+                          className={`flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] border border-transparent transition-all duration-300 ease-in-out active:scale-90 group ${settings.theme === "light" ? "bg-zinc-100 hover:bg-zinc-200" : "bg-[#17212b] hover:bg-white/10 hover:border-white/10"}`}
                         >
                           <div
                             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-all duration-300 ease-in-out shadow-inner`}
@@ -5306,14 +5330,14 @@ const startCall = async (type) => {
                               className="text-blue-500 sm:w-6 sm:h-6"
                             />
                           </div>
-                          <span className="text-[8px] sm:text-[9px] font-medium text-zinc-400 group-hover:text-white">
+                          <span className={`text-[8px] sm:text-[9px] font-medium ${settings.theme === "light" ? "text-zinc-500 group-hover:text-zinc-800" : "text-zinc-400 group-hover:text-white"}`}>
                             {getText("gallery")}
                           </span>
                         </button>
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] bg-[#17212b] hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-300 ease-in-out active:scale-90 group"
+                          className={`flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] border border-transparent transition-all duration-300 ease-in-out active:scale-90 group ${settings.theme === "light" ? "bg-zinc-100 hover:bg-zinc-200" : "bg-[#17212b] hover:bg-white/10 hover:border-white/10"}`}
                         >
                           <div
                             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-rose-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-all duration-300 ease-in-out shadow-inner`}
@@ -5323,14 +5347,14 @@ const startCall = async (type) => {
                               className="text-rose-500 sm:w-6 sm:h-6"
                             />
                           </div>
-                          <span className="text-[8px] sm:text-[9px] font-medium text-zinc-400 group-hover:text-white">
+                          <span className={`text-[8px] sm:text-[9px] font-medium ${settings.theme === "light" ? "text-zinc-500 group-hover:text-zinc-800" : "text-zinc-400 group-hover:text-white"}`}>
                             {getText("file_msg")}
                           </span>
                         </button>
                         <button
                           type="button"
                           onClick={handleGeoLocation}
-                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] bg-[#17212b] hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-300 ease-in-out active:scale-90 group"
+                          className={`flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] border border-transparent transition-all duration-300 ease-in-out active:scale-90 group ${settings.theme === "light" ? "bg-zinc-100 hover:bg-zinc-200" : "bg-[#17212b] hover:bg-white/10 hover:border-white/10"}`}
                         >
                           <div
                             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-all duration-300 ease-in-out shadow-inner`}
@@ -5340,7 +5364,7 @@ const startCall = async (type) => {
                               className="text-emerald-500 sm:w-6 sm:h-6"
                             />
                           </div>
-                          <span className="text-[8px] sm:text-[9px] font-medium text-zinc-400 group-hover:text-white">
+                          <span className={`text-[8px] sm:text-[9px] font-medium ${settings.theme === "light" ? "text-zinc-500 group-hover:text-zinc-800" : "text-zinc-400 group-hover:text-white"}`}>
                             {getText("geo_msg")}
                           </span>
                         </button>
@@ -5350,7 +5374,7 @@ const startCall = async (type) => {
                             setShowAttachmentMenu(false);
                             setShowAddContact(true);
                           }}
-                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] bg-[#17212b] hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-300 ease-in-out active:scale-90 group"
+                          className={`flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] border border-transparent transition-all duration-300 ease-in-out active:scale-90 group ${settings.theme === "light" ? "bg-zinc-100 hover:bg-zinc-200" : "bg-[#17212b] hover:bg-white/10 hover:border-white/10"}`}
                         >
                           <div
                             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#3390ec]/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-all duration-300 ease-in-out shadow-inner`}
@@ -5360,14 +5384,14 @@ const startCall = async (type) => {
                               className="text-[#3390ec] sm:w-6 sm:h-6"
                             />
                           </div>
-                          <span className="text-[8px] sm:text-[9px] font-medium text-zinc-400 group-hover:text-white">
+                          <span className={`text-[8px] sm:text-[9px] font-medium ${settings.theme === "light" ? "text-zinc-500 group-hover:text-zinc-800" : "text-zinc-400 group-hover:text-white"}`}>
                             {getText("friend")}
                           </span>
                         </button>
                         <button
                           type="button"
                           onClick={() => sendMiniGame("dice")}
-                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] bg-[#17212b] hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-300 ease-in-out active:scale-90 group"
+                          className={`flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] border border-transparent transition-all duration-300 ease-in-out active:scale-90 group ${settings.theme === "light" ? "bg-zinc-100 hover:bg-zinc-200" : "bg-[#17212b] hover:bg-white/10 hover:border-white/10"}`}
                         >
                           <div
                             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-purple-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-all duration-300 ease-in-out shadow-inner`}
@@ -5377,14 +5401,14 @@ const startCall = async (type) => {
                               className="text-purple-500 sm:w-6 sm:h-6"
                             />
                           </div>
-                          <span className="text-[8px] sm:text-[9px] font-medium text-zinc-400 group-hover:text-white">
+                          <span className={`text-[8px] sm:text-[9px] font-medium ${settings.theme === "light" ? "text-zinc-500 group-hover:text-zinc-800" : "text-zinc-400 group-hover:text-white"}`}>
                             {getText("dice")}
                           </span>
                         </button>
                         <button
                           type="button"
                           onClick={() => sendMiniGame("coin")}
-                          className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] bg-[#17212b] hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-300 ease-in-out active:scale-90 group"
+                          className={`flex flex-col items-center justify-center p-3 sm:p-4 rounded-[24px] sm:rounded-[24px] border border-transparent transition-all duration-300 ease-in-out active:scale-90 group ${settings.theme === "light" ? "bg-zinc-100 hover:bg-zinc-200" : "bg-[#17212b] hover:bg-white/10 hover:border-white/10"}`}
                         >
                           <div
                             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-yellow-500/10 flex items-center justify-center mb-2 sm:mb-2.5 group-hover:scale-110 transition-all duration-300 ease-in-out shadow-inner`}
@@ -5394,7 +5418,7 @@ const startCall = async (type) => {
                               className="text-yellow-500 sm:w-6 sm:h-6"
                             />
                           </div>
-                          <span className="text-[8px] sm:text-[9px] font-medium text-zinc-400 group-hover:text-white">
+                          <span className={`text-[8px] sm:text-[9px] font-medium ${settings.theme === "light" ? "text-zinc-500 group-hover:text-zinc-800" : "text-zinc-400 group-hover:text-white"}`}>
                             {getText("coin")}
                           </span>
                         </button>
@@ -5972,12 +5996,12 @@ const startCall = async (type) => {
                             } flex flex-col sm:flex-row items-center justify-between transition-all duration-300 sm:hover:-translate-y-1 relative overflow-hidden group gap-2 sm:gap-3 lg:gap-4`}
                           >
                             {pack.popular && (
-                              <div className="absolute top-0 right-0 bg-[#17212b] text-white text-[7px] sm:text-[8px] lg:text-[9px] font-medium px-2 py-1 sm:px-3 sm:py-1 lg:px-4 lg:py-1.5 rounded-bl-lg sm:rounded-bl-xl lg:rounded-bl-2xl shadow-sm">
+                              <div className={`absolute top-0 right-0 ${settings.theme === "light" ? "bg-cyan-500/10 text-cyan-600" : "bg-[#17212b] text-white"} text-[7px] sm:text-[8px] lg:text-[9px] font-medium px-2 py-1 sm:px-3 sm:py-1 lg:px-4 lg:py-1.5 rounded-bl-lg sm:rounded-bl-xl lg:rounded-bl-2xl shadow-sm`}>
                                 {getText("hit")}
                               </div>
                             )}
                             <div className="text-center sm:text-left w-full sm:w-auto">
-                              <div className={`flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 lg:gap-3 text-lg sm:text-2xl lg:text-3xl font-medium ${settings.theme === "light" && !pack.popular ? "text-zinc-800" : "text-white"}`}>
+                              <div className={`flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 lg:gap-3 text-lg sm:text-2xl lg:text-3xl font-medium ${settings.theme === "light" ? "text-zinc-800" : "text-white"}`}>
                                 {pack.amount}
                                 {""}
                                 <Gem className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-cyan-400 fill-cyan-400 group-hover:animate-pulse" />
