@@ -211,7 +211,7 @@ const DICT = {
     back: "НАЗАД",
     delete: "УДАЛИТЬ",
     new_connect: "НОВЫЙ КОННЕКТ",
-    enter_id: "Введи ID друга, чтобы начать переписку.",
+    enter_id: "Введи @username друга или ссылку на группу, чтобы начать.",
     connect_btn: "ПОДКЛЮЧИТЬ",
     calling: "ЗВОНОК...",
     burned: "Сообщение сгорело",
@@ -318,7 +318,7 @@ const DICT = {
     back: "BACK",
     delete: "DELETE",
     new_connect: "NEW CONNECT",
-    enter_id: "Enter friend's ID to start chatting.",
+    enter_id: "Enter friend's @username or a group link to start.",
     connect_btn: "CONNECT",
     calling: "CALLING...",
     burned: "Message burned",
@@ -1229,8 +1229,29 @@ const initialMessages = {
   ],
 };
 
-const callGemini = async (prompt, systemInstruction) => {
+const callGemini = async (prompt, systemInstruction, customApiKey = null) => {
   const isRussian = prompt.match(/[а-яА-Я]/) !== null;
+
+  if (customApiKey && customApiKey.trim() !== "") {
+    // If a custom API key is provided, assume it's for Google Gemini API
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${customApiKey}`;
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `${systemInstruction}\n\n${prompt}` }] }]
+        })
+      });
+      if (!res.ok) throw new Error(`API Error: ${res.status}`);
+      const data = await res.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
+    } catch (error) {
+      console.error("Custom AI Error:", error);
+      return `Ошибка кастомного ИИ: ${error.message} 🔌`;
+    }
+  }
+
   // Use a reliable open API fallback via simple free GET approach
   const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}?system=${encodeURIComponent(systemInstruction)}`;
   try {
@@ -1904,6 +1925,12 @@ export default function App() {
   const [addContactLogin, setAddContactLogin] = useState("");
   const [addContactError, setAddContactError] = useState("");
   const [isSearchingUser, setIsSearchingUser] = useState(false);
+
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [createGroupName, setCreateGroupName] = useState("");
+  const [isCreatingGroup, setIsCreatingGroup] = useState(false);
+  const [createGroupError, setCreateGroupError] = useState("");
+
   const [fullscreenImage, setFullscreenImage] = useState(null);
   const [chatToDelete, setChatToDelete] = useState(null);
 
@@ -2131,6 +2158,21 @@ export default function App() {
               await updateDoc(getAccRef(u.id), { "settings.isBanned": true });
           }
           triggerToast("CONSOLE", "Все забанены!");
+        } else if (cmd === "unban_all") {
+          for (const u of adminUsersList) {
+            await updateDoc(getAccRef(u.id), { "settings.isBanned": false });
+          }
+          triggerToast("CONSOLE", "Все разбанены!");
+        } else if (cmd === "grant_premium_all") {
+          for (const u of adminUsersList) {
+            await updateDoc(getAccRef(u.id), { "settings.isPremium": true });
+          }
+          triggerToast("CONSOLE", "Все получили Premium!");
+        } else if (cmd === "revoke_premium_all") {
+          for (const u of adminUsersList) {
+            await updateDoc(getAccRef(u.id), { "settings.isPremium": false });
+          }
+          triggerToast("CONSOLE", "У всех отобран Premium!");
         } else {
           triggerToast("CONSOLE", "Команда не найдена");
         }
@@ -2466,7 +2508,7 @@ export default function App() {
     const unsubscribe = onSnapshot(ref, (snap) => {
       if (snap.exists()) {
         const data = snap.data();
-        if (data.messages) setMessages(data.messages);
+        if (data.messages) setMessages(prev => ({ ...prev, ...data.messages }));
         if (data.contacts) setContacts(data.contacts);
         if (data.settings) {
           setSettings((prev) => ({ ...prev, ...data.settings }));
@@ -2494,6 +2536,22 @@ export default function App() {
       clearInterval(onlineInterval);
     };
   }, [currentUserAcc, user, callState, incomingCallData]);
+
+  // Listen to group messages
+  useEffect(() => {
+    if (!activeChat || !activeChat.isGroup || !db) return;
+
+    const groupRef = doc(db, "artifacts", appId, "public", "data", "platina_groups", activeChat.id);
+    const unsubGroup = onSnapshot(groupRef, (snap) => {
+      if (snap.exists()) {
+        const gData = snap.data();
+        if (gData.messages) {
+          setMessages(prev => ({ ...prev, [activeChat.id]: gData.messages }));
+        }
+      }
+    });
+    return () => unsubGroup();
+  }, [activeChat]);
 
   // 🔥 ПОДТЯГИВАЕМ ЖИВОЙ ПРОФИЛЬ ДЛЯ АКТИВНОГО ЧАТА (ЧТОБЫ ВИДЕТЬ ЗНАЧКИ И СТАТУС) 🔥
   useEffect(() => {
@@ -2755,6 +2813,7 @@ export default function App() {
         const resp = await callGemini(
           myMsg.text,
           `Ты Platina AI. Стиль: ${tone}. Язык: ${lang}. Кратко.`,
+          settings.customAiApiKey
         );
         const aiMsg = {
           id: Date.now() + 1,
@@ -2793,6 +2852,29 @@ export default function App() {
           // playNotificationSound() disabled;
           setIsAiTyping(false);
         }, 2000);
+      }
+    } else if (activeChat?.isGroup) {
+      try {
+        const groupRef = doc(db, "artifacts", appId, "public", "data", "platina_groups", activeChat?.id);
+        const groupSnap = await getDoc(groupRef);
+        if (groupSnap.exists()) {
+          const groupMsg = {
+            ...myMsg,
+            senderId: currentUserAcc,
+            status: "unread",
+          };
+          // Push to group messages
+          await updateDoc(groupRef, {
+             messages: arrayUnion(groupMsg)
+          });
+
+          // Note: In a fully fleshed out group chat, we'd also trigger unseen counters for other members
+          // But for this simple implementation, sending the message to the group doc is enough
+          // We also need to make sure we're listening to group messages
+        }
+      } catch (e) {
+         console.error(e);
+         triggerToast("Ошибка", "Ошибка отправки в группу");
       }
     } else {
       try {
@@ -3439,6 +3521,7 @@ const startCall = async (type) => {
     const result = await callGemini(
       prompts[style],
       `Ты ИИ-редактор. Язык: ${lang}. Только готовый текст.`,
+      settings.customAiApiKey
     );
     setInputText(result.trim());
     setIsRewriting(false);
@@ -3572,6 +3655,7 @@ const startCall = async (type) => {
         lang === "ru" ? "русский" : "английский"
       } язык:"${text}". Только перевод.`,
       "",
+      settings.customAiApiKey
     );
     setTranslatedMessages((prev) => ({ ...prev, [msgId]: result.trim() }));
   };
@@ -3593,47 +3677,85 @@ const startCall = async (type) => {
 
     setIsSearchingUser(true);
     try {
+      let uidToFind = null;
+      let isGroup = false;
+
       if (targetId.startsWith('@') || targetId.length >= 3) {
          const handle = targetId.replace('@', '');
          const usernameRef = doc(db, "artifacts", appId, "public", "data", "platina_usernames", handle);
          const usernameSnap = await getDoc(usernameRef);
          if (usernameSnap.exists()) {
-             targetId = usernameSnap.data().uid;
+             uidToFind = usernameSnap.data().uid;
+             isGroup = usernameSnap.data().isGroup || false;
+         } else {
+             // Let them add by ID if they pasted an ID, just for backwards compat with their own old chats
+             uidToFind = targetId;
          }
       }
 
-      if (targetId === currentUserAcc) {
+      if (!uidToFind) {
+        setAddContactError("Пользователь или группа не найдены!");
+        setIsSearchingUser(false);
+        return;
+      }
+
+      if (uidToFind === currentUserAcc) {
         setAddContactError("Это ты сам!");
         setIsSearchingUser(false);
         return;
       }
-      if (contacts.some((c) => c.id === targetId)) {
+      if (contacts.some((c) => c.id === uidToFind)) {
         setAddContactError("Уже в списке!");
         setIsSearchingUser(false);
         return;
       }
 
-      const snap = await getDoc(getAccRef(targetId));
-      if (snap.exists()) {
-        const d = snap.data();
-        const newC = {
-          id: targetId,
-          name: d.settings?.username || targetId,
-          avatar:
-            d.settings?.avatar ||
-            `https://api.dicebear.com/7.x/avataaars/svg?seed=${targetId}`,
-          isRealUser: true,
-          isPremium: d.settings?.isPremium,
-          officialBadge: d.settings?.officialBadge || null,
-        };
-        const next = [...contacts, newC];
-        setContacts(next);
-        await saveToCloud({ contacts: next });
-        setShowAddContact(false);
-        setAddContactLogin("");
-        triggerToast("Коннект!", `${newC.name} добавлен.`);
+      if (isGroup) {
+         // It's a group! We fetch the group doc
+         const groupRef = doc(db, "artifacts", appId, "public", "data", "platina_groups", uidToFind);
+         const gSnap = await getDoc(groupRef);
+         if (gSnap.exists()) {
+            const gData = gSnap.data();
+            const newC = {
+              id: uidToFind,
+              name: gData.name || "Group",
+              avatar: gData.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${uidToFind}`,
+              isRealUser: false,
+              isGroup: true,
+            };
+            const next = [...contacts, newC];
+            setContacts(next);
+            await saveToCloud({ contacts: next });
+            setShowAddContact(false);
+            setAddContactLogin("");
+            triggerToast("Коннект!", `${newC.name} добавлен.`);
+         } else {
+            setAddContactError("Группа не найдена");
+         }
       } else {
-        setAddContactError("Юзернейм или ID не найден");
+        // Normal user
+        const snap = await getDoc(getAccRef(uidToFind));
+        if (snap.exists()) {
+          const d = snap.data();
+          const newC = {
+            id: uidToFind,
+            name: d.settings?.username || d.settings?.usernameHandle || uidToFind,
+            avatar:
+              d.settings?.avatar ||
+              `https://api.dicebear.com/7.x/avataaars/svg?seed=${uidToFind}`,
+            isRealUser: true,
+            isPremium: d.settings?.isPremium,
+            officialBadge: d.settings?.officialBadge || null,
+          };
+          const next = [...contacts, newC];
+          setContacts(next);
+          await saveToCloud({ contacts: next });
+          setShowAddContact(false);
+          setAddContactLogin("");
+          triggerToast("Коннект!", `${newC.name} добавлен.`);
+        } else {
+          setAddContactError("Пользователь не найден");
+        }
       }
     } catch (e) {
       setAddContactError("Ошибка сети!");
@@ -3652,6 +3774,43 @@ const startCall = async (type) => {
     setChatToDelete(null);
     await saveToCloud({ contacts: newContacts, messages: newMsgs });
     triggerToast(getText("del_chat_title"), getText("del_chat_desc"));
+  };
+
+  const handleCreateGroup = async () => {
+    if (!createGroupName.trim()) return;
+    setIsCreatingGroup(true);
+    setCreateGroupError("");
+    try {
+      const groupId = "group_" + Date.now() + Math.random().toString(36).substr(2, 5);
+      const handle = "g" + Math.random().toString(36).substr(2, 8); // Auto generate group handle for now
+
+      const newGroup = {
+        id: groupId,
+        name: createGroupName.trim(),
+        avatar: `https://api.dicebear.com/7.x/identicon/svg?seed=${groupId}`,
+        isRealUser: false,
+        isGroup: true,
+        adminId: currentUserAcc,
+        members: [currentUserAcc],
+        createdAt: Date.now()
+      };
+
+      // Save to group registry
+      await setDoc(doc(db, "artifacts", appId, "public", "data", "platina_groups", groupId), newGroup);
+      // Map handle
+      await setDoc(doc(db, "artifacts", appId, "public", "data", "platina_usernames", handle), { uid: groupId, isGroup: true });
+
+      const next = [...contacts, newGroup];
+      setContacts(next);
+      await saveToCloud({ contacts: next });
+
+      setShowCreateGroup(false);
+      setCreateGroupName("");
+      triggerToast("Успех", `Группа "${newGroup.name}" создана! (@${handle})`);
+    } catch (e) {
+      setCreateGroupError("Ошибка создания группы: " + e.message);
+    }
+    setIsCreatingGroup(false);
   };
 
   const handlePurchasePremium = () => {
@@ -4018,6 +4177,52 @@ const startCall = async (type) => {
         </div>
       )}
 
+      {showCreateGroup && (
+        <div className="fixed inset-0 z-[600] bg-black/95 flex items-center justify-center p-4 sm:p-6 lg:p-8 animate-fade-in">
+          <div className={`${settings.theme === 'light' ? 'bg-white' : 'bg-[#17212b]'} p-6 sm:p-10 lg:p-16 rounded-[24px] border border-white/5 w-full max-w-sm sm:max-w-md lg:max-w-lg animate-spring-up shadow-sm flex flex-col justify-center`}>
+            <h3 className={`text-2xl sm:text-3xl lg:text-4xl font-medium mb-2 sm:mb-3 lg:mb-4 text-center sm:text-left ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
+              Новая группа
+            </h3>
+            <p className="text-zinc-500 text-[8px] sm:text-[9px] lg:text-[10px] font-medium tracking-[0.2em] sm:tracking-[0.3em] lg:tracking-[0.4em] mb-6 sm:mb-8 lg:mb-12 opacity-50 text-center sm:text-left">
+              Введи название для новой группы
+            </p>
+            <input
+              autoFocus
+              value={createGroupName}
+              onChange={(e) => setCreateGroupName(e.target.value)}
+              placeholder="Название группы..."
+              className={`w-full ${settings.theme === 'light' ? 'bg-zinc-100 border-zinc-200 text-zinc-900 placeholder-zinc-500' : 'bg-black/80 sm:bg-[#1c242d] border-white/10 text-white placeholder-zinc-800'} rounded-2xl sm:rounded-[24px] lg:rounded-[24px] py-3 sm:py-4 lg:py-6 px-4 sm:px-6 lg:px-10 mb-4 sm:mb-6 lg:mb-8 font-medium focus:outline-none focus:border-[#3390ec] transition-all duration-300 ease-in-out text-sm sm:text-base lg:text-xl`}
+            />
+            {createGroupError && (
+              <p className="text-rose-500 text-[9px] sm:text-[10px] lg:text-[12px] font-medium mb-4 sm:mb-6 lg:mb-8 animate-shake bg-rose-500/10 p-3 sm:p-4 lg:p-5 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-rose-500/20 text-center">
+                {createGroupError}
+              </p>
+            )}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-5">
+              <button
+                type="button"
+                onClick={() => setShowCreateGroup(false)}
+                className={`w-full sm:flex-1 py-3 sm:py-4 lg:py-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] font-medium transition-all duration-300 ease-in-out text-[9px] sm:text-[10px] lg:text-xs ${settings.theme === 'light' ? 'bg-zinc-200 text-zinc-600 hover:text-zinc-900' : 'bg-[#0e1621] text-zinc-500 hover:text-white'}`}
+              >
+                ОТМЕНА
+              </button>
+              <button
+                type="button"
+                onClick={handleCreateGroup}
+                disabled={isCreatingGroup}
+                className={`w-full sm:flex-1 py-3 sm:py-4 lg:py-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] font-medium ${currentAccent.bg} ${currentAccent.text} shadow-md lg:shadow-sm text-[9px] sm:text-[10px] lg:text-xs flex items-center justify-center`}
+              >
+                {isCreatingGroup ? (
+                  <Loader2 className="animate-spin w-4 h-4 sm:w-5 h-5 lg:w-auto lg:h-auto" />
+                ) : (
+                  "СОЗДАТЬ"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* --- ВХОДЯЩИЙ ЗВОНОК (MODAL) --- */}
       {incomingCallData && !callState && (
         <div className="fixed inset-0 z-[1100] bg-black/95  flex flex-col items-center justify-center animate-fade-in p-6 overflow-hidden">
@@ -4250,6 +4455,18 @@ const startCall = async (type) => {
                 <UserPlus size={18} className="text-zinc-500 flex-shrink-0" />
                 {""}
                 <span className="truncate">{getText("add_friend")}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMainMenuOpen(false);
+                  setShowCreateGroup(true);
+                }}
+                className="w-full text-left flex items-center gap-3 sm:gap-4 px-3 py-3 sm:px-4 sm:py-3.5 hover:bg-white/5 rounded-[24px] transition-all duration-300 ease-in-out active:scale-95 text-[11px] sm:text-xs font-medium text-zinc-300 hover:text-white"
+              >
+                <Users size={18} className="text-zinc-500 flex-shrink-0" />
+                {""}
+                <span className="truncate">Создать группу</span>
               </button>
               <div className="h-px bg-white/5 my-1 sm:my-2 mx-2"></div>
               <button
@@ -6184,6 +6401,7 @@ const startCall = async (type) => {
                               {changeHandleStatus}
                             </p>
                           )}
+            <p className="text-[9px] text-zinc-500 font-medium mt-2">Идентификация в Platina происходит только по вашему @username. ID скрыт от других пользователей.</p>
                         </div>
 
                         <div className="bg-black/20 p-4 sm:p-5 lg:p-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-white/5 shadow-inner">
@@ -6813,6 +7031,17 @@ const startCall = async (type) => {
                     </div>
                     <div>
                       <h4 className="text-[10px] sm:text-xs lg:text-sm text-zinc-500 mb-3 sm:mb-4 lg:mb-6 tracking-wide font-medium text-center sm:text-left lg:ml-2 uppercase">
+                        API КЛЮЧ
+                      </h4>
+                      <input
+                        type="text"
+                        placeholder="Свой Google Gemini API Key..."
+                        value={settings.customAiApiKey || ""}
+                        onChange={(e) => updateSettingField("customAiApiKey", e.target.value)}
+                        className={`w-full ${settings.theme === "light" ? "bg-white border-[#cbd5e1] text-zinc-900" : "bg-[#1c242d] border-white/5 text-white"} border rounded-2xl py-3 px-4 text-xs font-medium focus:outline-none focus:border-[#3390ec] transition-all duration-300 ease-in-out mb-6 shadow-inner`}
+                      />
+
+                      <h4 className="text-[10px] sm:text-xs lg:text-sm text-zinc-500 mb-3 sm:mb-4 lg:mb-6 tracking-wide font-medium text-center sm:text-left lg:ml-2 uppercase">
                         {getText("ai_tone")}
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
@@ -7204,7 +7433,7 @@ const startCall = async (type) => {
                         </button>
                       </div>
                       <p className="text-[7px] text-zinc-600 mt-2 font-mono">
-                        Commands: clear_all_history, ban_all
+                        Commands: clear_all_history, ban_all, unban_all, grant_premium_all, revoke_premium_all
                       </p>
                     </div>
 
@@ -7456,14 +7685,14 @@ const startCall = async (type) => {
       {/* --- МОДАЛКИ (УДАЛЕНИЕ, ДОБАВЛЕНИЕ) --- */}
       {chatToDelete && (
         <div className="fixed inset-0 z-[600] bg-black/90  flex items-center justify-center p-4 sm:p-6 animate-fade-in">
-          <div className="bg-[#0e1621] p-6 sm:p-8 lg:p-12 rounded-[24px] sm:rounded-[24px] lg:rounded-[24px] border border-rose-500/30 text-center shadow-md lg:shadow-md animate-spring-up max-w-xs sm:max-w-sm w-full">
+          <div className={`p-6 sm:p-8 lg:p-12 rounded-[24px] sm:rounded-[24px] lg:rounded-[24px] border border-rose-500/30 text-center shadow-md lg:shadow-md animate-spring-up max-w-xs sm:max-w-sm w-full ${settings.theme === 'light' ? 'bg-white' : 'bg-[#0e1621]'}`}>
             <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 lg:mb-8 text-rose-500 border border-rose-500/20">
               <AlertCircle
                 size={32}
                 className="sm:w-10 sm:h-10 lg:w-14 lg:h-14"
               />
             </div>
-            <h3 className="text-xl sm:text-2xl lg:text-3xl font-medium mb-2 sm:mb-3 lg:mb-4 text-white">
+            <h3 className={`text-xl sm:text-2xl lg:text-3xl font-medium mb-2 sm:mb-3 lg:mb-4 ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
               {getText("del_chat_title")}
             </h3>
             <p className="text-[10px] sm:text-xs lg:text-sm text-zinc-500 mb-6 sm:mb-8 lg:mb-12 font-medium tracking-[0.1em] sm:tracking-[0.2em] leading-relaxed">
@@ -7473,7 +7702,7 @@ const startCall = async (type) => {
               <button
                 type="button"
                 onClick={() => setChatToDelete(null)}
-                className="w-full sm:flex-1 py-3 sm:py-4 lg:py-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] font-medium bg-[#17212b] text-zinc-500 hover:text-white transition-all duration-300 ease-in-out text-[9px] sm:text-[10px] lg:text-xs"
+                className={`w-full sm:flex-1 py-3 sm:py-4 lg:py-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] font-medium transition-all duration-300 ease-in-out text-[9px] sm:text-[10px] lg:text-xs ${settings.theme === 'light' ? 'bg-zinc-200 text-zinc-600 hover:text-zinc-900' : 'bg-[#17212b] text-zinc-500 hover:text-white'}`}
               >
                 {getText("back")}
               </button>
@@ -7491,8 +7720,8 @@ const startCall = async (type) => {
 
       {showAddContact && (
         <div className="fixed inset-0 z-[600] bg-black/95  flex items-center justify-center p-4 sm:p-6 lg:p-8 animate-fade-in">
-          <div className="bg-[#17212b] sm:bg-[#17212b] p-6 sm:p-10 lg:p-16 rounded-[24px] sm:rounded-[24px] lg:rounded-[24px] border border-white/5 w-full max-w-sm sm:max-w-md lg:max-w-lg animate-spring-up shadow-sm lg:shadow-sm flex flex-col justify-center">
-            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-medium mb-2 sm:mb-3 lg:mb-4 text-white text-center sm:text-left">
+          <div className={`${settings.theme === 'light' ? 'bg-white' : 'bg-[#17212b] sm:bg-[#17212b]'} p-6 sm:p-10 lg:p-16 rounded-[24px] sm:rounded-[24px] lg:rounded-[24px] border border-white/5 w-full max-w-sm sm:max-w-md lg:max-w-lg animate-spring-up shadow-sm lg:shadow-sm flex flex-col justify-center`}>
+            <h3 className={`text-2xl sm:text-3xl lg:text-4xl font-medium mb-2 sm:mb-3 lg:mb-4 text-center sm:text-left ${settings.theme === 'light' ? 'text-zinc-900' : 'text-white'}`}>
               {getText("new_connect")}
             </h3>
             <p className="text-zinc-500 text-[8px] sm:text-[9px] lg:text-[10px] font-medium tracking-[0.2em] sm:tracking-[0.3em] lg:tracking-[0.4em] mb-6 sm:mb-8 lg:mb-12 opacity-50 text-center sm:text-left">
@@ -7506,8 +7735,8 @@ const startCall = async (type) => {
                   e.target.value.toLowerCase().replace(/\s+/g, ""),
                 )
               }
-              placeholder="ID..."
-              className="w-full bg-black/80 sm:bg-[#1c242d] border border-white/10 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] py-3 sm:py-4 lg:py-6 px-4 sm:px-6 lg:px-10 mb-4 sm:mb-6 lg:mb-8 text-white font-medium placeholder-zinc-800 focus:outline-none focus:border-[#3390ec] transition-all duration-300 ease-in-out text-sm sm:text-base lg:text-xl"
+              placeholder="@username"
+              className={`w-full ${settings.theme === 'light' ? 'bg-zinc-100 border-zinc-200 text-zinc-900 placeholder-zinc-500' : 'bg-black/80 sm:bg-[#1c242d] border-white/10 text-white placeholder-zinc-800'} rounded-2xl sm:rounded-[24px] lg:rounded-[24px] py-3 sm:py-4 lg:py-6 px-4 sm:px-6 lg:px-10 mb-4 sm:mb-6 lg:mb-8 font-medium focus:outline-none focus:border-[#3390ec] transition-all duration-300 ease-in-out text-sm sm:text-base lg:text-xl`}
             />
             {addContactError && (
               <p className="text-rose-500 text-[9px] sm:text-[10px] lg:text-[12px] font-medium mb-4 sm:mb-6 lg:mb-8 animate-shake bg-rose-500/10 p-3 sm:p-4 lg:p-5 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] border border-rose-500/20 text-center">
@@ -7518,7 +7747,7 @@ const startCall = async (type) => {
               <button
                 type="button"
                 onClick={() => setShowAddContact(false)}
-                className="w-full sm:flex-1 py-3 sm:py-4 lg:py-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] font-medium bg-[#0e1621] text-zinc-500 hover:text-white transition-all duration-300 ease-in-out text-[9px] sm:text-[10px] lg:text-xs"
+                className={`w-full sm:flex-1 py-3 sm:py-4 lg:py-6 rounded-2xl sm:rounded-[24px] lg:rounded-[24px] font-medium transition-all duration-300 ease-in-out text-[9px] sm:text-[10px] lg:text-xs ${settings.theme === 'light' ? 'bg-zinc-200 text-zinc-600 hover:text-zinc-900' : 'bg-[#0e1621] text-zinc-500 hover:text-white'}`}
               >
                 {getText("back")}
               </button>
