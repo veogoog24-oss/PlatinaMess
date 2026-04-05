@@ -3964,7 +3964,7 @@ const startCall = async (type) => {
       {/* --- КАРТОЧКА ПРОФИЛЯ (МОДАЛЬНОЕ ОКНО) --- */}
       {viewingProfile && (
         <div
-          className="fixed inset-0 z-[2000] bg-[#242f3d]  flex items-center justify-center p-4 sm:p-6 animate-fade-in"
+          className="fixed inset-0 z-[2000] bg-black/80 flex items-center justify-center p-4 sm:p-6 animate-fade-in"
           onClick={() => {
             setViewingProfile(null);
             setGiftActionMenu(null);
@@ -3980,13 +3980,13 @@ const startCall = async (type) => {
                 setViewingProfile(null);
                 setGiftActionMenu(null);
               }}
-              className="absolute top-4 right-4 z-50 p-2 bg-[#242f3d] hover:bg-white/20 rounded-full text-white transition-all duration-300 ease-in-out hover:rotate-90"
+              className={`absolute top-4 right-4 z-50 p-2 ${settings.theme === "light" ? "bg-black/10 hover:bg-black/20 text-black" : "bg-white/10 hover:bg-white/20 text-white"} rounded-full transition-all duration-300 ease-in-out hover:rotate-90`}
             >
               <X size={20} />
             </button>
 
             <div className="p-6 sm:p-8 flex flex-col items-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-[#17212b] pointer-events-none"></div>
+              <div className={`absolute inset-0 ${currentTheme.panel} pointer-events-none`}></div>
               <div
                 className="relative group cursor-pointer"
                 onClick={() => window.open(viewingProfile.avatar, "_blank")}
@@ -4000,7 +4000,7 @@ const startCall = async (type) => {
                   } ${viewingProfile.profileBlur ? "blur-xl grayscale" : ""}`}
                 />
                 {viewingProfile.isPremium && (
-                  <div className="absolute -bottom-2 -right-2 bg-[#17212b] rounded-full p-2 z-20 shadow-md border border-[#3390ec]/30">
+                  <div className={`absolute -bottom-2 -right-2 ${currentTheme.panel} rounded-full p-2 z-20 shadow-md border border-[#3390ec]/30`}>
                     <Crown size={20} className="text-sky-400 fill-amber-400" />
                   </div>
                 )}
@@ -4078,7 +4078,7 @@ const startCall = async (type) => {
                 </div>
               )}
 
-              <div className="bg-[#242f3d] p-4 sm:p-5 rounded-[24px] sm:rounded-2xl border border-white/5 shadow-inner">
+              <div className={`${settings.theme === "light" ? "bg-white" : "bg-[#242f3d]"} p-4 sm:p-5 rounded-[24px] sm:rounded-2xl border ${currentTheme.border} shadow-inner`}>
                 <p className="text-[9px] sm:text-[10px] text-zinc-500 font-medium tracking-[0.2em] mb-3 flex items-center justify-between">
                   <span>
                     <Gift size={12} className="inline mr-1 mb-0.5" />
@@ -4086,7 +4086,7 @@ const startCall = async (type) => {
                     {getText("gifts_received")}
                   </span>
                   {""}
-                  <span className="bg-[#242f3d] text-zinc-300 px-2 py-0.5 rounded-2xl">
+                  <span className={`${settings.theme === "light" ? "bg-zinc-100 text-zinc-600" : "bg-[#1c242d] text-zinc-300"} px-2 py-0.5 rounded-2xl`}>
                     {viewingProfile.receivedGifts?.length || 0}
                   </span>
                 </p>
@@ -4129,17 +4129,17 @@ const startCall = async (type) => {
             {/* МЕНЮ ДЕЙСТВИЙ С ПОДАРКОМ (Только для себя) */}
             {giftActionMenu && (
               <div
-                className="absolute inset-0 z-50 bg-black/80  flex items-center justify-center p-6 animate-fade-in"
+                className="absolute inset-0 z-50 bg-black/80 flex items-center justify-center p-6 animate-fade-in"
                 onClick={() => setGiftActionMenu(null)}
               >
                 <div
-                  className="bg-[#17212b] border border-[#3390ec]/30 p-6 rounded-[24px] shadow-sm w-full max-w-xs flex flex-col items-center animate-spring-up"
+                  className={`${currentTheme.panel} border border-[#3390ec]/30 p-6 rounded-[24px] shadow-sm w-full max-w-xs flex flex-col items-center animate-spring-up`}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <span className="text-6xl mb-4 drop-shadow-sm ">
                     {giftActionMenu.gift.icon}
                   </span>
-                  <h3 className="text-white font-medium text-xl mb-1">
+                  <h3 className={`${currentTheme.text} font-medium text-xl mb-1`}>
                     {giftActionMenu.gift.name}
                   </h3>
                   <p className="text-zinc-400 text-[10px] font-medium mb-6">
@@ -4165,7 +4165,7 @@ const startCall = async (type) => {
                     </button>
                     <button
                       onClick={() => setGiftActionMenu(null)}
-                      className="w-full py-3 mt-2 bg-[#242f3d] hover:bg-[#2b3949] text-zinc-300 font-medium text-xs rounded-2xl transition-all duration-300 ease-in-out"
+                      className={`w-full py-3 mt-2 ${settings.theme === "light" ? "bg-zinc-200 hover:bg-zinc-300 text-zinc-600" : "bg-[#242f3d] hover:bg-[#2b3949] text-zinc-300"} font-medium text-xs rounded-2xl transition-all duration-300 ease-in-out`}
                     >
                       ОТМЕНА
                     </button>

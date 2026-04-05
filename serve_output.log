@@ -1,0 +1,21 @@
+ INFO  Accepting connections at http://localhost:3000
+ HTTP  4/5/2026 2:17:27 PM ::1 GET /
+ HTTP  4/5/2026 2:17:27 PM ::1 Returned 200 in 280 ms
+ HTTP  4/5/2026 2:17:28 PM ::1 GET /static/js/main.d2589d79.js
+ HTTP  4/5/2026 2:17:28 PM ::1 Returned 200 in 8 ms
+ HTTP  4/5/2026 2:18:10 PM ::1 GET /
+ HTTP  4/5/2026 2:18:10 PM ::1 Returned 200 in 1 ms
+ HTTP  4/5/2026 2:18:10 PM ::1 GET /static/js/main.d2589d79.js
+ HTTP  4/5/2026 2:18:10 PM ::1 Returned 200 in 2 ms
+ HTTP  4/5/2026 2:18:13 PM ::1 GET /
+ HTTP  4/5/2026 2:18:13 PM ::1 Returned 304 in 2 ms
+ HTTP  4/5/2026 2:18:13 PM ::1 GET /static/js/main.d2589d79.js
+ HTTP  4/5/2026 2:18:13 PM ::1 Returned 304 in 1 ms
+ HTTP  4/5/2026 2:18:50 PM ::1 GET /
+ HTTP  4/5/2026 2:18:50 PM ::1 Returned 200 in 2 ms
+ HTTP  4/5/2026 2:18:50 PM ::1 GET /static/js/main.d2589d79.js
+ HTTP  4/5/2026 2:18:50 PM ::1 Returned 200 in 2 ms
+ HTTP  4/5/2026 2:18:52 PM ::1 GET /
+ HTTP  4/5/2026 2:18:52 PM ::1 Returned 304 in 2 ms
+ HTTP  4/5/2026 2:18:52 PM ::1 GET /static/js/main.d2589d79.js
+ HTTP  4/5/2026 2:18:52 PM ::1 Returned 304 in 1 ms
